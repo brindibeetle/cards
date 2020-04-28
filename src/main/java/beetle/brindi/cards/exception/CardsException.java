@@ -1,12 +1,14 @@
-package beetle.brindi.sudoku.exception;
+package beetle.brindi.cards.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;
 
 @Data
 @AllArgsConstructor
-public class SudokuException extends RuntimeException {
+@EqualsAndHashCode
+public class CardsException extends RuntimeException {
 
     private final HttpStatus status;
 

@@ -21,7 +21,7 @@ type Message =
             
 initialSession : InitFlags -> Session
 initialSession initFlags =
-    { page = SudokuPage
+    { page = SignupPage
     , message = Empty
     , initFlags = initFlags
     }
@@ -30,26 +30,26 @@ succeed : Session -> String -> Session
 succeed session message =
     { session 
     | message = Succeeded message
-    , page = SudokuPage }
+    , page = SignupPage }
 
 succeed1 : Session -> String -> Session
 succeed1 session message =
     { session 
     | message = Succeeded message
-    , page = SudokuPage }
+    , page = SignupPage }
 
 fail : Session -> String -> Session
 fail session message =
     { session 
     | message = Error message
-    , page = SudokuPage }
+    , page = SignupPage }
 
 
 warn : Session -> String -> Session
 warn session message =
     { session 
     | message = Warning message
-    , page = SudokuPage }
+    , page = SignupPage }
 
 
 changedPageSession : Page -> Session ->  Session
@@ -61,7 +61,7 @@ changedPageSession page session =
 
 
 type Page
-    = SudokuPage
+    = SignupPage
 
 
 getSudokuApiBaseUrl : Session -> String

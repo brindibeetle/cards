@@ -1,11 +1,11 @@
-package beetle.brindi.sudoku;
+package beetle.brindi.cards;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SudokuApplication {
+public class CardsApplication {
     public static void main(String[] args) {
-        SpringApplication.run(SudokuApplication.class, args);
+        SpringApplication.run(beetle.brindi.cards.CardsApplication.class, args);
     }
 }

@@ -4530,44 +4530,7 @@ function _Http_track(router, xhr, tracker)
 			size: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
 		}))));
 	});
-}
-
-
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
-var $author$project$Main$LinkClicked = function (a) {
+}var $author$project$Main$LinkClicked = function (a) {
 	return {$: 'LinkClicked', a: a};
 };
 var $author$project$Main$UrlChanged = function (a) {
@@ -5362,12 +5325,12 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$application = _Browser_application;
-var $author$project$Main$Sudoku = F2(
+var $author$project$Main$Signup = F2(
 	function (a, b) {
-		return {$: 'Sudoku', a: a, b: b};
+		return {$: 'Signup', a: a, b: b};
 	});
-var $author$project$Main$SudokuMsg = function (a) {
-	return {$: 'SudokuMsg', a: a};
+var $author$project$Main$SignupMsg = function (a) {
+	return {$: 'SignupMsg', a: a};
 };
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $author$project$Domain$InitFlags$emptyInitFlags = {sudoku_api_base_url: '', thisBaseUrlString: ''};
@@ -5404,61 +5367,81 @@ var $author$project$Domain$InitFlags$getInitFlags = function (dvalue) {
 		return $author$project$Domain$InitFlags$emptyInitFlags;
 	}
 };
-var $author$project$SudokuModel$Edit = function (a) {
-	return {$: 'Edit', a: a};
+var $krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Signup$init = function (session) {
+	return _Utils_Tuple2(
+		{dtoGame: $krisajenkins$remotedata$RemoteData$NotAsked, gameUuid: '', playerName: '', playerUuid: ''},
+		$elm$core$Platform$Cmd$none);
 };
-var $author$project$SudokuModel$FocusBlurred = {$: 'FocusBlurred'};
-var $author$project$SudokuModel$Frozen = function (a) {
-	return {$: 'Frozen', a: a};
+var $author$project$Session$Empty = {$: 'Empty'};
+var $author$project$Session$SignupPage = {$: 'SignupPage'};
+var $author$project$Session$initialSession = function (initFlags) {
+	return {initFlags: initFlags, message: $author$project$Session$Empty, page: $author$project$Session$SignupPage};
 };
-var $author$project$Sudoku$SudokuQuizReceived = function (a) {
-	return {$: 'SudokuQuizReceived', a: a};
-};
-var $author$project$SudokuModel$charToCijfer = function (_char) {
-	var offset = $elm$core$Char$toCode(_char) - $elm$core$Char$toCode(
-		_Utils_chr('0'));
-	return (offset <= 0) ? $elm$core$Maybe$Nothing : ((offset <= 9) ? $elm$core$Maybe$Just(offset) : $elm$core$Maybe$Nothing);
-};
-var $elm$core$Array$fromListHelp = F3(
-	function (list, nodeList, nodeListSize) {
-		fromListHelp:
-		while (true) {
-			var _v0 = A2($elm$core$Elm$JsArray$initializeFromList, $elm$core$Array$branchFactor, list);
-			var jsArray = _v0.a;
-			var remainingItems = _v0.b;
-			if (_Utils_cmp(
-				$elm$core$Elm$JsArray$length(jsArray),
-				$elm$core$Array$branchFactor) < 0) {
-				return A2(
-					$elm$core$Array$builderToArray,
-					true,
-					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
-			} else {
-				var $temp$list = remainingItems,
-					$temp$nodeList = A2(
-					$elm$core$List$cons,
-					$elm$core$Array$Leaf(jsArray),
-					nodeList),
-					$temp$nodeListSize = nodeListSize + 1;
-				list = $temp$list;
-				nodeList = $temp$nodeList;
-				nodeListSize = $temp$nodeListSize;
-				continue fromListHelp;
-			}
-		}
+var $elm$core$Platform$Cmd$map = _Platform_map;
+var $author$project$Main$init = F3(
+	function (flags, url, navKey) {
+		var session = $author$project$Session$initialSession(
+			$author$project$Domain$InitFlags$getInitFlags(flags));
+		var _v0 = $author$project$Signup$init(session);
+		var model = _v0.a;
+		var cmd = _v0.b;
+		return _Utils_Tuple2(
+			A2($author$project$Main$Signup, model, session),
+			A2($elm$core$Platform$Cmd$map, $author$project$Main$SignupMsg, cmd));
 	});
-var $elm$core$Array$fromList = function (list) {
-	if (!list.b) {
-		return $elm$core$Array$empty;
-	} else {
-		return A3($elm$core$Array$fromListHelp, list, _List_Nil, 0);
-	}
+var $elm$core$Platform$Sub$map = _Platform_map;
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $author$project$Signup$subscriptions = function (_v0) {
+	return $elm$core$Platform$Sub$none;
+};
+var $author$project$Main$subscriptions = function (model) {
+	var signupModel = model.a;
+	var session = model.b;
+	return A2(
+		$elm$core$Platform$Sub$map,
+		$author$project$Main$SignupMsg,
+		$author$project$Signup$subscriptions(signupModel));
+};
+var $author$project$Main$toModel = F3(
+	function (model, cmd, session) {
+		var _v0 = _Utils_Tuple2(session.page, model);
+		var _v1 = _v0.a;
+		var _v2 = _v0.b;
+		var signupModel = _v2.a;
+		var session1 = _v2.b;
+		return _Utils_Tuple2(
+			A2($author$project$Main$Signup, signupModel, session1),
+			cmd);
+	});
+var $author$project$Signup$GameCreated = function (a) {
+	return {$: 'GameCreated', a: a};
+};
+var $krisajenkins$remotedata$RemoteData$Loading = {$: 'Loading'};
+var $author$project$Signup$cardsApiUrl = function (_v0) {
+	return 'http://localhost:8080/v1/cards';
 };
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
 		return g(
 			f(x));
 	});
+var $author$project$Signup$DTOgame = F2(
+	function (gameUuid, playerUuid) {
+		return {gameUuid: gameUuid, playerUuid: playerUuid};
+	});
+var $author$project$Signup$dtoGameDecoder = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'playerUuid',
+	$elm$json$Json$Decode$string,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'gameUuid',
+		$elm$json$Json$Decode$string,
+		$elm$json$Json$Decode$succeed($author$project$Signup$DTOgame)));
 var $elm$http$Http$BadStatus_ = F2(
 	function (a, b) {
 		return {$: 'BadStatus_', a: a, b: b};
@@ -6255,2012 +6238,68 @@ var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
 		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
 };
-var $author$project$Session$getSudokuApiBaseUrl = function (session) {
-	return session.initFlags.sudoku_api_base_url;
-};
-var $author$project$Domain$SudokuQuiz$SudokuQuiz = F3(
-	function (id, quiz, solution) {
-		return {id: id, quiz: quiz, solution: solution};
-	});
-var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $author$project$Domain$SudokuQuiz$sudokuQuizDecoder = A3(
-	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'solutions',
-	$elm$json$Json$Decode$string,
-	A3(
-		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'quizzes',
-		$elm$json$Json$Decode$string,
-		A3(
-			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'id',
-			$elm$json$Json$Decode$int,
-			$elm$json$Json$Decode$succeed($author$project$Domain$SudokuQuiz$SudokuQuiz))));
-var $author$project$Domain$SudokuQuiz$getRandomSudokuQuiz = F2(
-	function (msg, session) {
-		var requestUrl = $author$project$Session$getSudokuApiBaseUrl(session);
+var $author$project$Signup$doCreateGame = F3(
+	function (msg, playerName, session) {
+		var requestUrl = $author$project$Signup$cardsApiUrl(session) + ('/jokeren/new?playerName=' + playerName);
 		return $elm$http$Http$get(
 			{
 				expect: A2(
 					$elm$http$Http$expectJson,
 					A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, msg),
-					$author$project$Domain$SudokuQuiz$sudokuQuizDecoder),
+					$author$project$Signup$dtoGameDecoder),
 				url: requestUrl
 			});
 	});
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
-var $author$project$SudokuFaults$initFaults = $elm$core$Dict$fromList(
-	_List_fromArray(
-		[
-			_Utils_Tuple2('column', $elm$core$Dict$empty),
-			_Utils_Tuple2('row', $elm$core$Dict$empty),
-			_Utils_Tuple2('block', $elm$core$Dict$empty)
-		]));
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
-var $elm$core$String$repeatHelp = F3(
-	function (n, chunk, result) {
-		return (n <= 0) ? result : A3(
-			$elm$core$String$repeatHelp,
-			n >> 1,
-			_Utils_ap(chunk, chunk),
-			(!(n & 1)) ? result : _Utils_ap(result, chunk));
-	});
-var $elm$core$String$repeat = F2(
-	function (n, chunk) {
-		return A3($elm$core$String$repeatHelp, n, chunk, '');
-	});
-var $author$project$SudokuModel$sudokuExample = A2($elm$core$String$repeat, 81, '0');
-var $elm$core$String$foldr = _String_foldr;
-var $elm$core$String$toList = function (string) {
-	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
-};
-var $author$project$Sudoku$init = function (session) {
-	return _Utils_Tuple2(
-		{
-			faults: $author$project$SudokuFaults$initFaults,
-			fields: $elm$core$Array$fromList(
-				A2(
-					$elm$core$List$map,
-					function (maybeInt) {
-						if (maybeInt.$ === 'Just') {
-							var _int = maybeInt.a;
-							return $author$project$SudokuModel$Frozen(_int);
-						} else {
-							return $author$project$SudokuModel$Edit($elm$core$Maybe$Nothing);
-						}
-					},
-					A2(
-						$elm$core$List$map,
-						$author$project$SudokuModel$charToCijfer,
-						$elm$core$String$toList($author$project$SudokuModel$sudokuExample)))),
-			focus: $author$project$SudokuModel$FocusBlurred,
-			highlight: $elm$core$Maybe$Nothing,
-			retrieving: true
-		},
-		A2($author$project$Domain$SudokuQuiz$getRandomSudokuQuiz, $author$project$Sudoku$SudokuQuizReceived, session));
-};
-var $author$project$Session$Empty = {$: 'Empty'};
-var $author$project$Session$SudokuPage = {$: 'SudokuPage'};
-var $author$project$Session$initialSession = function (initFlags) {
-	return {initFlags: initFlags, message: $author$project$Session$Empty, page: $author$project$Session$SudokuPage};
-};
-var $elm$core$Platform$Cmd$map = _Platform_map;
-var $author$project$Main$init = F3(
-	function (flags, url, navKey) {
-		var session = $author$project$Session$initialSession(
-			$author$project$Domain$InitFlags$getInitFlags(flags));
-		var _v0 = $author$project$Sudoku$init(session);
-		var model = _v0.a;
-		var cmd = _v0.b;
-		return _Utils_Tuple2(
-			A2($author$project$Main$Sudoku, model, session),
-			A2($elm$core$Platform$Cmd$map, $author$project$Main$SudokuMsg, cmd));
-	});
-var $elm$core$Platform$Sub$map = _Platform_map;
-var $author$project$Sudoku$East = {$: 'East'};
-var $author$project$Sudoku$MovedFocus = function (a) {
-	return {$: 'MovedFocus', a: a};
-};
-var $author$project$Sudoku$MsgNone = {$: 'MsgNone'};
-var $author$project$Sudoku$North = {$: 'North'};
-var $author$project$Sudoku$South = {$: 'South'};
-var $author$project$Sudoku$ValueCleared = {$: 'ValueCleared'};
-var $author$project$Sudoku$West = {$: 'West'};
-var $author$project$Sudoku$HighLighted = {$: 'HighLighted'};
-var $author$project$Sudoku$OptionsToggled = {$: 'OptionsToggled'};
-var $author$project$Sudoku$ValueChanged = function (a) {
-	return {$: 'ValueChanged', a: a};
-};
-var $author$project$Sudoku$toKeyChar = function (_char) {
-	switch (_char.valueOf()) {
-		case '1':
-			return $author$project$Sudoku$ValueChanged(1);
-		case '2':
-			return $author$project$Sudoku$ValueChanged(2);
-		case '3':
-			return $author$project$Sudoku$ValueChanged(3);
-		case '4':
-			return $author$project$Sudoku$ValueChanged(4);
-		case '5':
-			return $author$project$Sudoku$ValueChanged(5);
-		case '6':
-			return $author$project$Sudoku$ValueChanged(6);
-		case '7':
-			return $author$project$Sudoku$ValueChanged(7);
-		case '8':
-			return $author$project$Sudoku$ValueChanged(8);
-		case '9':
-			return $author$project$Sudoku$ValueChanged(9);
-		case ' ':
-			return $author$project$Sudoku$ValueCleared;
-		case 'O':
-			return $author$project$Sudoku$OptionsToggled;
-		case 'o':
-			return $author$project$Sudoku$OptionsToggled;
-		case 'h':
-			return $author$project$Sudoku$HighLighted;
-		case 'H':
-			return $author$project$Sudoku$HighLighted;
-		default:
-			return $author$project$Sudoku$MsgNone;
-	}
-};
-var $author$project$Sudoku$toKey = function (keyValue) {
-	switch (keyValue) {
-		case 'ArrowRight':
-			return $author$project$Sudoku$MovedFocus($author$project$Sudoku$East);
-		case 'ArrowLeft':
-			return $author$project$Sudoku$MovedFocus($author$project$Sudoku$West);
-		case 'ArrowUp':
-			return $author$project$Sudoku$MovedFocus($author$project$Sudoku$North);
-		case 'ArrowDown':
-			return $author$project$Sudoku$MovedFocus($author$project$Sudoku$South);
-		case 'Backspace':
-			return $author$project$Sudoku$ValueCleared;
-		case 'Delete':
-			return $author$project$Sudoku$ValueCleared;
-		default:
-			var _v1 = $elm$core$String$uncons(keyValue);
-			if (_v1.$ === 'Just') {
-				var _v2 = _v1.a;
-				var _char = _v2.a;
-				return $author$project$Sudoku$toKeyChar(_char);
-			} else {
-				return $author$project$Sudoku$MsgNone;
-			}
-	}
-};
-var $author$project$Sudoku$keyDecoder = A2(
-	$elm$json$Json$Decode$map,
-	$author$project$Sudoku$toKey,
-	A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
-var $elm$browser$Browser$Events$Document = {$: 'Document'};
-var $elm$browser$Browser$Events$MySub = F3(
-	function (a, b, c) {
-		return {$: 'MySub', a: a, b: b, c: c};
-	});
-var $elm$browser$Browser$Events$State = F2(
-	function (subs, pids) {
-		return {pids: pids, subs: subs};
-	});
-var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
-	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
-var $elm$browser$Browser$Events$nodeToKey = function (node) {
-	if (node.$ === 'Document') {
-		return 'd_';
-	} else {
-		return 'w_';
-	}
-};
-var $elm$browser$Browser$Events$addKey = function (sub) {
-	var node = sub.a;
-	var name = sub.b;
-	return _Utils_Tuple2(
-		_Utils_ap(
-			$elm$browser$Browser$Events$nodeToKey(node),
-			name),
-		sub);
-};
-var $elm$core$Dict$foldl = F3(
-	function (func, acc, dict) {
-		foldl:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return acc;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var $temp$func = func,
-					$temp$acc = A3(
-					func,
-					key,
-					value,
-					A3($elm$core$Dict$foldl, func, acc, left)),
-					$temp$dict = right;
-				func = $temp$func;
-				acc = $temp$acc;
-				dict = $temp$dict;
-				continue foldl;
-			}
-		}
-	});
-var $elm$core$Dict$merge = F6(
-	function (leftStep, bothStep, rightStep, leftDict, rightDict, initialResult) {
-		var stepState = F3(
-			function (rKey, rValue, _v0) {
-				stepState:
-				while (true) {
-					var list = _v0.a;
-					var result = _v0.b;
-					if (!list.b) {
-						return _Utils_Tuple2(
-							list,
-							A3(rightStep, rKey, rValue, result));
-					} else {
-						var _v2 = list.a;
-						var lKey = _v2.a;
-						var lValue = _v2.b;
-						var rest = list.b;
-						if (_Utils_cmp(lKey, rKey) < 0) {
-							var $temp$rKey = rKey,
-								$temp$rValue = rValue,
-								$temp$_v0 = _Utils_Tuple2(
-								rest,
-								A3(leftStep, lKey, lValue, result));
-							rKey = $temp$rKey;
-							rValue = $temp$rValue;
-							_v0 = $temp$_v0;
-							continue stepState;
-						} else {
-							if (_Utils_cmp(lKey, rKey) > 0) {
-								return _Utils_Tuple2(
-									list,
-									A3(rightStep, rKey, rValue, result));
-							} else {
-								return _Utils_Tuple2(
-									rest,
-									A4(bothStep, lKey, lValue, rValue, result));
-							}
-						}
-					}
-				}
-			});
-		var _v3 = A3(
-			$elm$core$Dict$foldl,
-			stepState,
-			_Utils_Tuple2(
-				$elm$core$Dict$toList(leftDict),
-				initialResult),
-			rightDict);
-		var leftovers = _v3.a;
-		var intermediateResult = _v3.b;
-		return A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v4, result) {
-					var k = _v4.a;
-					var v = _v4.b;
-					return A3(leftStep, k, v, result);
-				}),
-			intermediateResult,
-			leftovers);
-	});
-var $elm$browser$Browser$Events$Event = F2(
-	function (key, event) {
-		return {event: event, key: key};
-	});
-var $elm$browser$Browser$Events$spawn = F3(
-	function (router, key, _v0) {
-		var node = _v0.a;
-		var name = _v0.b;
-		var actualNode = function () {
-			if (node.$ === 'Document') {
-				return _Browser_doc;
-			} else {
-				return _Browser_window;
-			}
-		}();
-		return A2(
-			$elm$core$Task$map,
-			function (value) {
-				return _Utils_Tuple2(key, value);
-			},
-			A3(
-				_Browser_on,
-				actualNode,
-				name,
-				function (event) {
-					return A2(
-						$elm$core$Platform$sendToSelf,
-						router,
-						A2($elm$browser$Browser$Events$Event, key, event));
-				}));
-	});
-var $elm$core$Dict$union = F2(
-	function (t1, t2) {
-		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
-	});
-var $elm$browser$Browser$Events$onEffects = F3(
-	function (router, subs, state) {
-		var stepRight = F3(
-			function (key, sub, _v6) {
-				var deads = _v6.a;
-				var lives = _v6.b;
-				var news = _v6.c;
-				return _Utils_Tuple3(
-					deads,
-					lives,
-					A2(
-						$elm$core$List$cons,
-						A3($elm$browser$Browser$Events$spawn, router, key, sub),
-						news));
-			});
-		var stepLeft = F3(
-			function (_v4, pid, _v5) {
-				var deads = _v5.a;
-				var lives = _v5.b;
-				var news = _v5.c;
-				return _Utils_Tuple3(
-					A2($elm$core$List$cons, pid, deads),
-					lives,
-					news);
-			});
-		var stepBoth = F4(
-			function (key, pid, _v2, _v3) {
-				var deads = _v3.a;
-				var lives = _v3.b;
-				var news = _v3.c;
-				return _Utils_Tuple3(
-					deads,
-					A3($elm$core$Dict$insert, key, pid, lives),
-					news);
-			});
-		var newSubs = A2($elm$core$List$map, $elm$browser$Browser$Events$addKey, subs);
-		var _v0 = A6(
-			$elm$core$Dict$merge,
-			stepLeft,
-			stepBoth,
-			stepRight,
-			state.pids,
-			$elm$core$Dict$fromList(newSubs),
-			_Utils_Tuple3(_List_Nil, $elm$core$Dict$empty, _List_Nil));
-		var deadPids = _v0.a;
-		var livePids = _v0.b;
-		var makeNewPids = _v0.c;
-		return A2(
-			$elm$core$Task$andThen,
-			function (pids) {
-				return $elm$core$Task$succeed(
-					A2(
-						$elm$browser$Browser$Events$State,
-						newSubs,
-						A2(
-							$elm$core$Dict$union,
-							livePids,
-							$elm$core$Dict$fromList(pids))));
-			},
-			A2(
-				$elm$core$Task$andThen,
-				function (_v1) {
-					return $elm$core$Task$sequence(makeNewPids);
-				},
-				$elm$core$Task$sequence(
-					A2($elm$core$List$map, $elm$core$Process$kill, deadPids))));
-	});
-var $elm$browser$Browser$Events$onSelfMsg = F3(
-	function (router, _v0, state) {
-		var key = _v0.key;
-		var event = _v0.event;
-		var toMessage = function (_v2) {
-			var subKey = _v2.a;
-			var _v3 = _v2.b;
-			var node = _v3.a;
-			var name = _v3.b;
-			var decoder = _v3.c;
-			return _Utils_eq(subKey, key) ? A2(_Browser_decodeEvent, decoder, event) : $elm$core$Maybe$Nothing;
-		};
-		var messages = A2($elm$core$List$filterMap, toMessage, state.subs);
-		return A2(
-			$elm$core$Task$andThen,
-			function (_v1) {
-				return $elm$core$Task$succeed(state);
-			},
-			$elm$core$Task$sequence(
-				A2(
-					$elm$core$List$map,
-					$elm$core$Platform$sendToApp(router),
-					messages)));
-	});
-var $elm$browser$Browser$Events$subMap = F2(
-	function (func, _v0) {
-		var node = _v0.a;
-		var name = _v0.b;
-		var decoder = _v0.c;
-		return A3(
-			$elm$browser$Browser$Events$MySub,
-			node,
-			name,
-			A2($elm$json$Json$Decode$map, func, decoder));
-	});
-_Platform_effectManagers['Browser.Events'] = _Platform_createManager($elm$browser$Browser$Events$init, $elm$browser$Browser$Events$onEffects, $elm$browser$Browser$Events$onSelfMsg, 0, $elm$browser$Browser$Events$subMap);
-var $elm$browser$Browser$Events$subscription = _Platform_leaf('Browser.Events');
-var $elm$browser$Browser$Events$on = F3(
-	function (node, name, decoder) {
-		return $elm$browser$Browser$Events$subscription(
-			A3($elm$browser$Browser$Events$MySub, node, name, decoder));
-	});
-var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'keydown');
-var $author$project$Sudoku$subscriptions = function (_v0) {
-	return $elm$browser$Browser$Events$onKeyDown($author$project$Sudoku$keyDecoder);
-};
-var $author$project$Main$subscriptions = function (model) {
-	var sudokuModel = model.a;
-	var session = model.b;
-	return A2(
-		$elm$core$Platform$Sub$map,
-		$author$project$Main$SudokuMsg,
-		$author$project$Sudoku$subscriptions(sudokuModel));
-};
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$toModel = F3(
-	function (model, cmd, session) {
-		var _v0 = _Utils_Tuple2(session.page, model);
-		var _v1 = _v0.a;
-		var _v2 = _v0.b;
-		var sudokuModel = _v2.a;
-		var session1 = _v2.b;
-		return _Utils_Tuple2(
-			A2($author$project$Main$Sudoku, sudokuModel, session1),
-			cmd);
-	});
-var $author$project$SudokuModel$Focus = F2(
-	function (a, b) {
-		return {$: 'Focus', a: a, b: b};
-	});
-var $author$project$SudokuModel$Options = function (a) {
-	return {$: 'Options', a: a};
-};
-var $author$project$SudokuModel$clearField = function (field) {
-	switch (field.$) {
-		case 'Edit':
-			return $author$project$SudokuModel$Edit($elm$core$Maybe$Nothing);
-		case 'Options':
-			return $author$project$SudokuModel$Edit($elm$core$Maybe$Nothing);
-		default:
-			return field;
-	}
-};
-var $elm$core$Elm$JsArray$map = _JsArray_map;
-var $elm$core$Array$map = F2(
-	function (func, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = function (node) {
-			if (node.$ === 'SubTree') {
-				var subTree = node.a;
-				return $elm$core$Array$SubTree(
-					A2($elm$core$Elm$JsArray$map, helper, subTree));
-			} else {
-				var values = node.a;
-				return $elm$core$Array$Leaf(
-					A2($elm$core$Elm$JsArray$map, func, values));
-			}
-		};
-		return A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			A2($elm$core$Elm$JsArray$map, helper, tree),
-			A2($elm$core$Elm$JsArray$map, func, tail));
-	});
-var $author$project$SudokuModel$clearFields = function (fields) {
-	return A2($elm$core$Array$map, $author$project$SudokuModel$clearField, fields);
-};
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
-var $elm$core$Basics$ge = _Utils_ge;
-var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
-var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
-var $elm$core$Array$setHelp = F4(
-	function (shift, index, value, tree) {
-		var pos = $elm$core$Array$bitMask & (index >>> shift);
-		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-		if (_v0.$ === 'SubTree') {
-			var subTree = _v0.a;
-			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
-			return A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				pos,
-				$elm$core$Array$SubTree(newSub),
-				tree);
-		} else {
-			var values = _v0.a;
-			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
-			return A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				pos,
-				$elm$core$Array$Leaf(newLeaf),
-				tree);
-		}
-	});
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var $elm$core$Array$tailIndex = function (len) {
-	return (len >>> 5) << 5;
-};
-var $elm$core$Array$set = F3(
-	function (index, value, array) {
-		var len = array.a;
-		var startShift = array.b;
-		var tree = array.c;
-		var tail = array.d;
-		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
-			index,
-			$elm$core$Array$tailIndex(len)) > -1) ? A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			tree,
-			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			A4($elm$core$Array$setHelp, startShift, index, value, tree),
-			tail));
-	});
-var $author$project$SudokuModel$clearOption = F2(
-	function (field, options) {
-		return A3($elm$core$Array$set, field, $elm$core$Maybe$Nothing, options);
-	});
-var $author$project$SudokuModel$fieldNumberToFocus = F2(
-	function (fields, _v0) {
-		var fieldNumber = _v0.a;
-		var fieldOptionNumber = _v0.b;
-		return A2($author$project$SudokuModel$Focus, fieldNumber, fieldOptionNumber);
-	});
-var $elm$core$Array$getHelp = F3(
-	function (shift, index, tree) {
-		getHelp:
-		while (true) {
-			var pos = $elm$core$Array$bitMask & (index >>> shift);
-			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-			if (_v0.$ === 'SubTree') {
-				var subTree = _v0.a;
-				var $temp$shift = shift - $elm$core$Array$shiftStep,
-					$temp$index = index,
-					$temp$tree = subTree;
-				shift = $temp$shift;
-				index = $temp$index;
-				tree = $temp$tree;
-				continue getHelp;
-			} else {
-				var values = _v0.a;
-				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
-			}
-		}
-	});
-var $elm$core$Array$get = F2(
-	function (index, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
-			index,
-			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
-			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
-			A3($elm$core$Array$getHelp, startShift, index, tree)));
-	});
-var $author$project$SudokuModel$focusToField = F2(
-	function (fields, focus) {
-		if (focus.$ === 'FocusBlurred') {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var fieldFocus = focus.a;
-			return A2($elm$core$Array$get, fieldFocus, fields);
-		}
-	});
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2($elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var $elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
-	});
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
-	});
-var $elm$core$Elm$JsArray$appendN = _JsArray_appendN;
-var $elm$core$Elm$JsArray$slice = _JsArray_slice;
-var $elm$core$Array$appendHelpBuilder = F2(
-	function (tail, builder) {
-		var tailLen = $elm$core$Elm$JsArray$length(tail);
-		var notAppended = ($elm$core$Array$branchFactor - $elm$core$Elm$JsArray$length(builder.tail)) - tailLen;
-		var appended = A3($elm$core$Elm$JsArray$appendN, $elm$core$Array$branchFactor, builder.tail, tail);
-		return (notAppended < 0) ? {
-			nodeList: A2(
-				$elm$core$List$cons,
-				$elm$core$Array$Leaf(appended),
-				builder.nodeList),
-			nodeListSize: builder.nodeListSize + 1,
-			tail: A3($elm$core$Elm$JsArray$slice, notAppended, tailLen, tail)
-		} : ((!notAppended) ? {
-			nodeList: A2(
-				$elm$core$List$cons,
-				$elm$core$Array$Leaf(appended),
-				builder.nodeList),
-			nodeListSize: builder.nodeListSize + 1,
-			tail: $elm$core$Elm$JsArray$empty
-		} : {nodeList: builder.nodeList, nodeListSize: builder.nodeListSize, tail: appended});
-	});
-var $elm$core$Elm$JsArray$push = _JsArray_push;
-var $elm$core$Elm$JsArray$singleton = _JsArray_singleton;
-var $elm$core$Array$insertTailInTree = F4(
-	function (shift, index, tail, tree) {
-		var pos = $elm$core$Array$bitMask & (index >>> shift);
-		if (_Utils_cmp(
-			pos,
-			$elm$core$Elm$JsArray$length(tree)) > -1) {
-			if (shift === 5) {
-				return A2(
-					$elm$core$Elm$JsArray$push,
-					$elm$core$Array$Leaf(tail),
-					tree);
-			} else {
-				var newSub = $elm$core$Array$SubTree(
-					A4($elm$core$Array$insertTailInTree, shift - $elm$core$Array$shiftStep, index, tail, $elm$core$Elm$JsArray$empty));
-				return A2($elm$core$Elm$JsArray$push, newSub, tree);
-			}
-		} else {
-			var value = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-			if (value.$ === 'SubTree') {
-				var subTree = value.a;
-				var newSub = $elm$core$Array$SubTree(
-					A4($elm$core$Array$insertTailInTree, shift - $elm$core$Array$shiftStep, index, tail, subTree));
-				return A3($elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
-			} else {
-				var newSub = $elm$core$Array$SubTree(
-					A4(
-						$elm$core$Array$insertTailInTree,
-						shift - $elm$core$Array$shiftStep,
-						index,
-						tail,
-						$elm$core$Elm$JsArray$singleton(value)));
-				return A3($elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
-			}
-		}
-	});
-var $elm$core$Array$unsafeReplaceTail = F2(
-	function (newTail, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var originalTailLen = $elm$core$Elm$JsArray$length(tail);
-		var newTailLen = $elm$core$Elm$JsArray$length(newTail);
-		var newArrayLen = len + (newTailLen - originalTailLen);
-		if (_Utils_eq(newTailLen, $elm$core$Array$branchFactor)) {
-			var overflow = _Utils_cmp(newArrayLen >>> $elm$core$Array$shiftStep, 1 << startShift) > 0;
-			if (overflow) {
-				var newShift = startShift + $elm$core$Array$shiftStep;
-				var newTree = A4(
-					$elm$core$Array$insertTailInTree,
-					newShift,
-					len,
-					newTail,
-					$elm$core$Elm$JsArray$singleton(
-						$elm$core$Array$SubTree(tree)));
-				return A4($elm$core$Array$Array_elm_builtin, newArrayLen, newShift, newTree, $elm$core$Elm$JsArray$empty);
-			} else {
-				return A4(
-					$elm$core$Array$Array_elm_builtin,
-					newArrayLen,
-					startShift,
-					A4($elm$core$Array$insertTailInTree, startShift, len, newTail, tree),
-					$elm$core$Elm$JsArray$empty);
-			}
-		} else {
-			return A4($elm$core$Array$Array_elm_builtin, newArrayLen, startShift, tree, newTail);
-		}
-	});
-var $elm$core$Array$appendHelpTree = F2(
-	function (toAppend, array) {
-		var len = array.a;
-		var tree = array.c;
-		var tail = array.d;
-		var itemsToAppend = $elm$core$Elm$JsArray$length(toAppend);
-		var notAppended = ($elm$core$Array$branchFactor - $elm$core$Elm$JsArray$length(tail)) - itemsToAppend;
-		var appended = A3($elm$core$Elm$JsArray$appendN, $elm$core$Array$branchFactor, tail, toAppend);
-		var newArray = A2($elm$core$Array$unsafeReplaceTail, appended, array);
-		if (notAppended < 0) {
-			var nextTail = A3($elm$core$Elm$JsArray$slice, notAppended, itemsToAppend, toAppend);
-			return A2($elm$core$Array$unsafeReplaceTail, nextTail, newArray);
-		} else {
-			return newArray;
-		}
-	});
-var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
-var $elm$core$Array$builderFromArray = function (_v0) {
-	var len = _v0.a;
-	var tree = _v0.c;
-	var tail = _v0.d;
-	var helper = F2(
-		function (node, acc) {
-			if (node.$ === 'SubTree') {
-				var subTree = node.a;
-				return A3($elm$core$Elm$JsArray$foldl, helper, acc, subTree);
-			} else {
-				return A2($elm$core$List$cons, node, acc);
-			}
-		});
-	return {
-		nodeList: A3($elm$core$Elm$JsArray$foldl, helper, _List_Nil, tree),
-		nodeListSize: (len / $elm$core$Array$branchFactor) | 0,
-		tail: tail
-	};
-};
-var $elm$core$Array$append = F2(
-	function (a, _v0) {
-		var aTail = a.d;
-		var bLen = _v0.a;
-		var bTree = _v0.c;
-		var bTail = _v0.d;
-		if (_Utils_cmp(bLen, $elm$core$Array$branchFactor * 4) < 1) {
-			var foldHelper = F2(
-				function (node, array) {
-					if (node.$ === 'SubTree') {
-						var tree = node.a;
-						return A3($elm$core$Elm$JsArray$foldl, foldHelper, array, tree);
-					} else {
-						var leaf = node.a;
-						return A2($elm$core$Array$appendHelpTree, leaf, array);
-					}
-				});
-			return A2(
-				$elm$core$Array$appendHelpTree,
-				bTail,
-				A3($elm$core$Elm$JsArray$foldl, foldHelper, a, bTree));
-		} else {
-			var foldHelper = F2(
-				function (node, builder) {
-					if (node.$ === 'SubTree') {
-						var tree = node.a;
-						return A3($elm$core$Elm$JsArray$foldl, foldHelper, builder, tree);
-					} else {
-						var leaf = node.a;
-						return A2($elm$core$Array$appendHelpBuilder, leaf, builder);
-					}
-				});
-			return A2(
-				$elm$core$Array$builderToArray,
-				true,
-				A2(
-					$elm$core$Array$appendHelpBuilder,
-					bTail,
-					A3(
-						$elm$core$Elm$JsArray$foldl,
-						foldHelper,
-						$elm$core$Array$builderFromArray(a),
-						bTree)));
-		}
-	});
-var $elm$core$Basics$modBy = _Basics_modBy;
-var $author$project$SudokuFaults$fieldToEffected = F2(
-	function (fieldNumber, dimension) {
-		switch (dimension) {
-			case 'column':
-				var topMostOfColumn = A2($elm$core$Basics$modBy, 9, fieldNumber);
-				return A2(
-					$elm$core$Array$initialize,
-					9,
-					function (i) {
-						return topMostOfColumn + (i * 9);
-					});
-			case 'row':
-				var leftMostOfRow = ((fieldNumber / 9) | 0) * 9;
-				return A2(
-					$elm$core$Array$initialize,
-					9,
-					function (i) {
-						return leftMostOfRow + i;
-					});
-			case 'block':
-				var topMostOfLeftColumn = A2($elm$core$Basics$modBy, 9, ((fieldNumber / 3) | 0) * 3);
-				var leftMostOfTopRow = ((fieldNumber / 27) | 0) * 27;
-				var topLeftMostOfBlock = leftMostOfTopRow + topMostOfLeftColumn;
-				return A2(
-					$elm$core$Array$initialize,
-					9,
-					function (i) {
-						return (topLeftMostOfBlock + A2($elm$core$Basics$modBy, 3, i)) + (((i / 3) | 0) * 9);
-					});
-			default:
-				return $elm$core$Array$empty;
-		}
-	});
-var $elm$core$Array$filter = F2(
-	function (isGood, array) {
-		return $elm$core$Array$fromList(
-			A3(
-				$elm$core$Array$foldr,
-				F2(
-					function (x, xs) {
-						return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-					}),
-				_List_Nil,
-				array));
-	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $author$project$SudokuFaults$fieldToAllEffected = function (fieldNumber) {
-	return A3(
-		$elm$core$Dict$foldl,
-		F3(
-			function (dimension, _v0, fields) {
-				return A2(
-					$elm$core$Array$append,
-					fields,
-					A2(
-						$elm$core$Array$filter,
-						function (f) {
-							return !_Utils_eq(f, fieldNumber);
-						},
-						A2($author$project$SudokuFaults$fieldToEffected, fieldNumber, dimension)));
-			}),
-		$elm$core$Array$empty,
-		$author$project$SudokuFaults$initFaults);
-};
-var $author$project$SudokuFaults$fieldToValue = F2(
-	function (fields, fieldNumber) {
-		var _v0 = A2($elm$core$Array$get, fieldNumber, fields);
-		_v0$2:
-		while (true) {
-			if (_v0.$ === 'Just') {
-				switch (_v0.a.$) {
-					case 'Edit':
-						if (_v0.a.a.$ === 'Just') {
-							var value = _v0.a.a.a;
-							return $elm$core$Maybe$Just(value);
-						} else {
-							break _v0$2;
-						}
-					case 'Frozen':
-						var value = _v0.a.a;
-						return $elm$core$Maybe$Just(value);
-					default:
-						break _v0$2;
-				}
-			} else {
-				break _v0$2;
-			}
-		}
-		return $elm$core$Maybe$Nothing;
-	});
-var $elm$core$Array$push = F2(
-	function (a, array) {
-		var tail = array.d;
-		return A2(
-			$elm$core$Array$unsafeReplaceTail,
-			A2($elm$core$Elm$JsArray$push, a, tail),
-			array);
-	});
-var $author$project$SudokuFaults$fieldToValueDictionary = F3(
-	function (fields, fieldNumber, valueDictionary) {
-		var _v0 = A2($author$project$SudokuFaults$fieldToValue, fields, fieldNumber);
-		if (_v0.$ === 'Just') {
-			var value = _v0.a;
-			var _v1 = A2($elm$core$Dict$get, value, valueDictionary);
-			if (_v1.$ === 'Just') {
-				var fieldsOfValue = _v1.a;
-				var fieldsOfValueUpdated = A2($elm$core$Array$push, fieldNumber, fieldsOfValue);
-				return A3($elm$core$Dict$insert, value, fieldsOfValueUpdated, valueDictionary);
-			} else {
-				return A3(
-					$elm$core$Dict$insert,
-					value,
-					$elm$core$Array$fromList(
-						_List_fromArray(
-							[fieldNumber])),
-					valueDictionary);
-			}
-		} else {
-			return valueDictionary;
-		}
-	});
-var $elm$core$Array$foldl = F3(
-	function (func, baseCase, _v0) {
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = F2(
-			function (node, acc) {
-				if (node.$ === 'SubTree') {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldl, helper, acc, subTree);
-				} else {
-					var values = node.a;
-					return A3($elm$core$Elm$JsArray$foldl, func, acc, values);
-				}
-			});
-		return A3(
-			$elm$core$Elm$JsArray$foldl,
-			func,
-			A3($elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
-			tail);
-	});
-var $author$project$SudokuFaults$fieldsToValueDictionary = F2(
-	function (fields, fieldNumbers) {
-		return A3(
-			$elm$core$Array$foldl,
-			$author$project$SudokuFaults$fieldToValueDictionary(fields),
-			$elm$core$Dict$empty,
-			fieldNumbers);
-	});
-var $elm$core$Dict$member = F2(
-	function (key, dict) {
-		var _v0 = A2($elm$core$Dict$get, key, dict);
-		if (_v0.$ === 'Just') {
-			return true;
-		} else {
-			return false;
-		}
-	});
-var $elm$core$Basics$not = _Basics_not;
-var $author$project$SudokuFaults$valueOkayOrNot = F3(
-	function (fields, fieldNumber, value) {
-		return !function (valueDict) {
-			return A2($elm$core$Dict$member, value, valueDict);
-		}(
-			A2(
-				$author$project$SudokuFaults$fieldsToValueDictionary,
-				fields,
-				$author$project$SudokuFaults$fieldToAllEffected(fieldNumber)));
-	});
-var $author$project$Sudoku$generateOptions = F2(
-	function (fields, fieldNumber) {
-		var options = A2(
-			$elm$core$List$filter,
-			A2($author$project$SudokuFaults$valueOkayOrNot, fields, fieldNumber),
-			A2($elm$core$List$range, 1, 9));
-		if (!options.b) {
-			return $author$project$SudokuModel$Edit($elm$core$Maybe$Nothing);
-		} else {
-			if (!options.b.b) {
-				var i = options.a;
-				return $author$project$SudokuModel$Edit(
-					$elm$core$Maybe$Just(i));
-			} else {
-				var ii = options;
-				return $author$project$SudokuModel$Options(
-					$elm$core$Array$fromList(
-						A2(
-							$elm$core$List$take,
-							9,
-							function (maybeImaybeI) {
-								return A2(
-									$elm$core$List$append,
-									maybeImaybeI,
-									A2($elm$core$List$repeat, 7, $elm$core$Maybe$Nothing));
-							}(
-								A2(
-									$elm$core$List$map,
-									function (i) {
-										return $elm$core$Maybe$Just(i);
-									},
-									ii)))));
-			}
-		}
-	});
-var $author$project$SudokuModel$maybeJoin = function (maybeMaybeA) {
-	if ((maybeMaybeA.$ === 'Just') && (maybeMaybeA.a.$ === 'Just')) {
-		var value = maybeMaybeA.a.a;
-		return $elm$core$Maybe$Just(value);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$SudokuModel$getOption = F2(
-	function (field, options) {
-		return $author$project$SudokuModel$maybeJoin(
-			A2($elm$core$Array$get, field, options));
-	});
-var $elm$core$Array$repeat = F2(
-	function (n, e) {
-		return A2(
-			$elm$core$Array$initialize,
-			n,
-			function (_v0) {
-				return e;
-			});
-	});
-var $author$project$SudokuModel$initOptions = function (maybeValue) {
-	if (maybeValue.$ === 'Just') {
-		var value = maybeValue.a;
-		return A3(
-			$elm$core$Array$set,
-			0,
-			$elm$core$Maybe$Just(value),
-			A2($elm$core$Array$repeat, 9, $elm$core$Maybe$Nothing));
-	} else {
-		return A2($elm$core$Array$repeat, 9, $elm$core$Maybe$Nothing);
-	}
-};
-var $author$project$Sudoku$moveField = F2(
-	function (_v0, direction) {
-		var fieldNumber = _v0.a;
-		var fieldOptionNumber = _v0.b;
-		switch (direction.$) {
-			case 'North':
-				return ((!fieldOptionNumber) || ((fieldOptionNumber === 1) || (fieldOptionNumber === 2))) ? _Utils_Tuple2(
-					A2($elm$core$Basics$modBy, 81, fieldNumber - 9),
-					fieldOptionNumber + 6) : _Utils_Tuple2(fieldNumber, fieldOptionNumber - 3);
-			case 'South':
-				return ((fieldOptionNumber === 6) || ((fieldOptionNumber === 7) || (fieldOptionNumber === 8))) ? _Utils_Tuple2(
-					A2($elm$core$Basics$modBy, 81, fieldNumber + 9),
-					fieldOptionNumber - 6) : _Utils_Tuple2(fieldNumber, fieldOptionNumber + 3);
-			case 'East':
-				return ((fieldOptionNumber === 2) || ((fieldOptionNumber === 5) || (fieldOptionNumber === 8))) ? _Utils_Tuple2(
-					(!A2($elm$core$Basics$modBy, 9, fieldNumber + 1)) ? (fieldNumber - 8) : A2($elm$core$Basics$modBy, 81, fieldNumber + 1),
-					fieldOptionNumber - 2) : _Utils_Tuple2(fieldNumber, fieldOptionNumber + 1);
-			default:
-				return ((!fieldOptionNumber) || ((fieldOptionNumber === 3) || (fieldOptionNumber === 6))) ? _Utils_Tuple2(
-					(A2($elm$core$Basics$modBy, 9, fieldNumber - 1) === 8) ? (fieldNumber + 8) : A2($elm$core$Basics$modBy, 81, fieldNumber - 1),
-					fieldOptionNumber + 2) : _Utils_Tuple2(fieldNumber, fieldOptionNumber - 1);
-		}
-	});
-var $author$project$Sudoku$moveFocus = F4(
-	function (field, focus, direction, fields) {
-		var _v0 = function () {
-			var _v1 = _Utils_Tuple3(field, focus, direction);
-			_v1$0:
-			while (true) {
-				if (_v1.b.$ === 'Focus') {
-					switch (_v1.c.$) {
-						case 'North':
-							if (_v1.a.$ === 'Options') {
-								break _v1$0;
-							} else {
-								var _v3 = _v1.b;
-								var fieldNumber = _v3.a;
-								var _v4 = _v1.c;
-								return A2(
-									$author$project$Sudoku$moveField,
-									_Utils_Tuple2(fieldNumber, 0),
-									$author$project$Sudoku$North);
-							}
-						case 'South':
-							if (_v1.a.$ === 'Options') {
-								break _v1$0;
-							} else {
-								var _v5 = _v1.b;
-								var fieldNumber = _v5.a;
-								var _v6 = _v1.c;
-								return A2(
-									$author$project$Sudoku$moveField,
-									_Utils_Tuple2(fieldNumber, 6),
-									$author$project$Sudoku$South);
-							}
-						case 'West':
-							if (_v1.a.$ === 'Options') {
-								break _v1$0;
-							} else {
-								var _v7 = _v1.b;
-								var fieldNumber = _v7.a;
-								var _v8 = _v1.c;
-								return A2(
-									$author$project$Sudoku$moveField,
-									_Utils_Tuple2(fieldNumber, 0),
-									$author$project$Sudoku$West);
-							}
-						default:
-							if (_v1.a.$ === 'Options') {
-								break _v1$0;
-							} else {
-								var _v9 = _v1.b;
-								var fieldNumber = _v9.a;
-								var _v10 = _v1.c;
-								return A2(
-									$author$project$Sudoku$moveField,
-									_Utils_Tuple2(fieldNumber, 2),
-									$author$project$Sudoku$East);
-							}
-					}
-				} else {
-					var _v11 = _v1.b;
-					var dir = _v1.c;
-					return _Utils_Tuple2(0, 0);
-				}
-			}
-			var _v2 = _v1.b;
-			var fieldNumber = _v2.a;
-			var fieldOptionNumber = _v2.b;
-			var dir = _v1.c;
-			return A2(
-				$author$project$Sudoku$moveField,
-				_Utils_Tuple2(fieldNumber, fieldOptionNumber),
-				dir);
-		}();
-		var fieldNumber1 = _v0.a;
-		var fieldOptionNumber1 = _v0.b;
-		return A2(
-			$author$project$SudokuModel$fieldNumberToFocus,
-			fields,
-			_Utils_Tuple2(fieldNumber1, fieldOptionNumber1));
-	});
-var $elm$core$Array$isEmpty = function (_v0) {
-	var len = _v0.a;
-	return !len;
-};
-var $author$project$SudokuModel$optionsIsEmpty = function (options) {
-	return $elm$core$Array$isEmpty(
-		A2(
-			$elm$core$Array$filter,
-			function (option) {
-				return !_Utils_eq(option, $elm$core$Maybe$Nothing);
-			},
-			options));
-};
-var $elm$core$Dict$map = F2(
-	function (func, dict) {
-		if (dict.$ === 'RBEmpty_elm_builtin') {
-			return $elm$core$Dict$RBEmpty_elm_builtin;
-		} else {
-			var color = dict.a;
-			var key = dict.b;
-			var value = dict.c;
-			var left = dict.d;
-			var right = dict.e;
-			return A5(
-				$elm$core$Dict$RBNode_elm_builtin,
-				color,
-				key,
-				A2(func, key, value),
-				A2($elm$core$Dict$map, func, left),
-				A2($elm$core$Dict$map, func, right));
-		}
-	});
-var $elm$core$Array$length = function (_v0) {
-	var len = _v0.a;
-	return len;
-};
-var $author$project$SudokuFaults$optionNumbers = A2($elm$core$Array$initialize, 9, $elm$core$Basics$identity);
-var $author$project$SudokuFaults$removeFieldAndOptions = F2(
-	function (faults, fieldNumber) {
-		return A2(
-			$elm$core$Dict$remove,
-			_Utils_Tuple2(fieldNumber, 9),
-			A2(
-				$elm$core$Dict$remove,
-				_Utils_Tuple2(fieldNumber, 8),
-				A2(
-					$elm$core$Dict$remove,
-					_Utils_Tuple2(fieldNumber, 7),
-					A2(
-						$elm$core$Dict$remove,
-						_Utils_Tuple2(fieldNumber, 6),
-						A2(
-							$elm$core$Dict$remove,
-							_Utils_Tuple2(fieldNumber, 5),
-							A2(
-								$elm$core$Dict$remove,
-								_Utils_Tuple2(fieldNumber, 4),
-								A2(
-									$elm$core$Dict$remove,
-									_Utils_Tuple2(fieldNumber, 3),
-									A2(
-										$elm$core$Dict$remove,
-										_Utils_Tuple2(fieldNumber, 2),
-										A2(
-											$elm$core$Dict$remove,
-											_Utils_Tuple2(fieldNumber, 1),
-											A2(
-												$elm$core$Dict$remove,
-												_Utils_Tuple2(fieldNumber, 0),
-												faults))))))))));
-	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var $author$project$SudokuFaults$valueDictionaryOptionToFault = F5(
-	function (valueDictionary, fieldNumber, options, optionNumber, faults) {
-		var _v0 = A2($elm$core$Array$get, optionNumber, options);
-		if ((_v0.$ === 'Just') && (_v0.a.$ === 'Just')) {
-			var value = _v0.a.a;
-			return ($elm$core$Array$length(
-				A2(
-					$elm$core$Maybe$withDefault,
-					$elm$core$Array$empty,
-					A2($elm$core$Dict$get, value, valueDictionary))) > 0) ? A3(
-				$elm$core$Dict$insert,
-				_Utils_Tuple2(fieldNumber, optionNumber),
-				true,
-				faults) : A2(
-				$elm$core$Dict$remove,
-				_Utils_Tuple2(fieldNumber, optionNumber),
-				faults);
-		} else {
-			return A2(
-				$elm$core$Dict$remove,
-				_Utils_Tuple2(fieldNumber, optionNumber),
-				faults);
-		}
-	});
-var $author$project$SudokuFaults$valueDictionaryToFaults = F4(
-	function (fields, valueDictionary, fieldNumber, faults) {
-		var _v0 = A2($elm$core$Array$get, fieldNumber, fields);
-		if (_v0.$ === 'Just') {
-			switch (_v0.a.$) {
-				case 'Edit':
-					if (_v0.a.a.$ === 'Nothing') {
-						var _v1 = _v0.a.a;
-						return A2($author$project$SudokuFaults$removeFieldAndOptions, faults, fieldNumber);
-					} else {
-						var value = _v0.a.a.a;
-						return ($elm$core$Array$length(
-							A2(
-								$elm$core$Maybe$withDefault,
-								$elm$core$Array$empty,
-								A2($elm$core$Dict$get, value, valueDictionary))) > 1) ? A3(
-							$elm$core$Dict$insert,
-							_Utils_Tuple2(fieldNumber, 0),
-							true,
-							faults) : A2($author$project$SudokuFaults$removeFieldAndOptions, faults, fieldNumber);
-					}
-				case 'Frozen':
-					var value = _v0.a.a;
-					return ($elm$core$Array$length(
-						A2(
-							$elm$core$Maybe$withDefault,
-							$elm$core$Array$empty,
-							A2($elm$core$Dict$get, value, valueDictionary))) > 1) ? A3(
-						$elm$core$Dict$insert,
-						_Utils_Tuple2(fieldNumber, 0),
-						true,
-						faults) : A2($author$project$SudokuFaults$removeFieldAndOptions, faults, fieldNumber);
-				default:
-					var options = _v0.a.a;
-					return A3(
-						$elm$core$Array$foldl,
-						A3($author$project$SudokuFaults$valueDictionaryOptionToFault, valueDictionary, fieldNumber, options),
-						faults,
-						$author$project$SudokuFaults$optionNumbers);
-			}
-		} else {
-			return faults;
-		}
-	});
-var $author$project$SudokuFaults$valuesDictionaryToFaults = F4(
-	function (fields, fieldNumbers, faults, valueDictionary) {
-		return A3(
-			$elm$core$Array$foldl,
-			A2($author$project$SudokuFaults$valueDictionaryToFaults, fields, valueDictionary),
-			faults,
-			fieldNumbers);
-	});
-var $author$project$SudokuFaults$recomputeFaults = F3(
-	function (fields, fieldNumber, faults) {
-		return A2(
-			$elm$core$Dict$map,
-			F2(
-				function (check, subFaults) {
-					var fieldNumbers = A2($author$project$SudokuFaults$fieldToEffected, fieldNumber, check);
-					return A4(
-						$author$project$SudokuFaults$valuesDictionaryToFaults,
-						fields,
-						fieldNumbers,
-						subFaults,
-						A2($author$project$SudokuFaults$fieldsToValueDictionary, fields, fieldNumbers));
-				}),
-			faults);
-	});
-var $author$project$SudokuModel$setField = F3(
-	function (fieldNumber, fields, field) {
-		return A3($elm$core$Array$set, fieldNumber, field, fields);
-	});
-var $author$project$SudokuModel$setOption = F3(
-	function (field, value, options) {
-		var _v0 = A2(
-			$elm$core$List$filter,
-			function (val) {
-				return _Utils_eq(
-					val,
-					$elm$core$Maybe$Just(value));
-			},
-			$elm$core$Array$toList(options));
-		if (!_v0.b) {
-			return A3(
-				$elm$core$Array$set,
-				field,
-				$elm$core$Maybe$Just(value),
-				options);
-		} else {
-			return options;
-		}
-	});
-var $author$project$SudokuModel$fieldFilledOut = F2(
-	function (field, filled) {
-		return filled && function () {
-			switch (field.$) {
-				case 'Edit':
-					if (field.a.$ === 'Nothing') {
-						var _v1 = field.a;
-						return false;
-					} else {
-						return true;
-					}
-				case 'Frozen':
-					return true;
-				default:
-					return false;
-			}
-		}();
-	});
-var $author$project$SudokuModel$fieldsFilledOut = function (fields) {
-	return A3($elm$core$Array$foldl, $author$project$SudokuModel$fieldFilledOut, true, fields);
-};
-var $elm$core$Dict$isEmpty = function (dict) {
-	if (dict.$ === 'RBEmpty_elm_builtin') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $elm$core$Debug$log = _Debug_log;
-var $author$project$SudokuFaults$noFaultsDetected = function (faults) {
-	var faults1 = A2($elm$core$Debug$log, 'faults', faults);
-	return A2(
-		$elm$core$Debug$log,
-		'noFaultsDetected',
-		A3(
-			$elm$core$Dict$foldl,
-			F3(
-				function (dimension, dict, okay) {
-					return okay && $elm$core$Dict$isEmpty(dict);
-				}),
-			true,
-			faults1));
-};
-var $author$project$Sudoku$solved = F2(
-	function (fields, faults) {
-		return $author$project$SudokuModel$fieldsFilledOut(fields) && $author$project$SudokuFaults$noFaultsDetected(faults);
-	});
-var $author$project$Sudoku$update = F3(
+var $author$project$Signup$update = F3(
 	function (msg, model, session) {
-		var isSolved = A2($author$project$Sudoku$solved, model.fields, model.faults);
-		var focusField = A2($author$project$SudokuModel$focusToField, model.fields, model.focus);
-		var _v0 = _Utils_Tuple2(
-			isSolved,
-			_Utils_Tuple3(msg, model.focus, focusField));
-		_v0$18:
-		while (true) {
-			switch (_v0.b.a.$) {
-				case 'ValueChanged':
-					if (((!_v0.a) && (_v0.b.b.$ === 'Focus')) && (_v0.b.c.$ === 'Just')) {
-						switch (_v0.b.c.a.$) {
-							case 'Edit':
-								var _v1 = _v0.b;
-								var value = _v1.a.a;
-								var _v2 = _v1.b;
-								var fieldNumber = _v2.a;
-								var fields = A3(
-									$author$project$SudokuModel$setField,
-									fieldNumber,
-									model.fields,
-									$author$project$SudokuModel$Edit(
-										$elm$core$Maybe$Just(value)));
-								return {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{
-											faults: A3($author$project$SudokuFaults$recomputeFaults, fields, fieldNumber, model.faults),
-											fields: fields
-										}),
-									session: session
-								};
-							case 'Options':
-								var _v3 = _v0.b;
-								var value = _v3.a.a;
-								var _v4 = _v3.b;
-								var fieldNumber = _v4.a;
-								var fieldOptionNumber = _v4.b;
-								var options = _v3.c.a.a;
-								var fields = A3(
-									$author$project$SudokuModel$setField,
-									fieldNumber,
-									model.fields,
-									$author$project$SudokuModel$Options(
-										A3($author$project$SudokuModel$setOption, fieldOptionNumber, value, options)));
-								return {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{
-											faults: A3($author$project$SudokuFaults$recomputeFaults, fields, fieldNumber, model.faults),
-											fields: fields
-										}),
-									session: session
-								};
-							default:
-								break _v0$18;
-						}
-					} else {
-						break _v0$18;
-					}
-				case 'ValueCleared':
-					if ((!_v0.a) && (_v0.b.b.$ === 'Focus')) {
-						if ((_v0.b.c.$ === 'Just') && (_v0.b.c.a.$ === 'Options')) {
-							var _v5 = _v0.b;
-							var _v6 = _v5.a;
-							var _v7 = _v5.b;
-							var fieldNumber = _v7.a;
-							var fieldOptionNumber = _v7.b;
-							var options = _v5.c.a.a;
-							var fields = A3(
-								$author$project$SudokuModel$setField,
-								fieldNumber,
-								model.fields,
-								$author$project$SudokuModel$Options(
-									A2($author$project$SudokuModel$clearOption, fieldOptionNumber, options)));
-							return {
-								cmd: $elm$core$Platform$Cmd$none,
-								model: _Utils_update(
-									model,
-									{
-										faults: A3($author$project$SudokuFaults$recomputeFaults, fields, fieldNumber, model.faults),
-										fields: fields
-									}),
-								session: session
-							};
-						} else {
-							var _v8 = _v0.b;
-							var _v9 = _v8.a;
-							var _v10 = _v8.b;
-							var fieldNumber = _v10.a;
-							var fields = A3(
-								$author$project$SudokuModel$setField,
-								fieldNumber,
-								model.fields,
-								$author$project$SudokuModel$Edit($elm$core$Maybe$Nothing));
-							return {
-								cmd: $elm$core$Platform$Cmd$none,
-								model: _Utils_update(
-									model,
-									{
-										faults: A3($author$project$SudokuFaults$recomputeFaults, fields, fieldNumber, model.faults),
-										fields: fields
-									}),
-								session: session
-							};
-						}
-					} else {
-						break _v0$18;
-					}
-				case 'FocusChanged':
-					if (!_v0.a) {
-						if (((_v0.b.b.$ === 'Focus') && (_v0.b.c.$ === 'Just')) && (_v0.b.c.a.$ === 'Options')) {
-							var _v11 = _v0.b;
-							var fieldNumber = _v11.a.a;
-							var _v12 = _v11.b;
-							var fieldNumberOld = _v12.a;
-							var options = _v11.c.a.a;
-							var fields = $author$project$SudokuModel$optionsIsEmpty(options) ? A3(
-								$author$project$SudokuModel$setField,
-								fieldNumberOld,
-								model.fields,
-								$author$project$SudokuModel$Edit($elm$core$Maybe$Nothing)) : model.fields;
-							return {
-								cmd: $elm$core$Platform$Cmd$none,
-								model: _Utils_update(
-									model,
-									{
-										fields: fields,
-										focus: A2(
-											$author$project$SudokuModel$fieldNumberToFocus,
-											model.fields,
-											_Utils_Tuple2(fieldNumber, 0))
-									}),
-								session: session
-							};
-						} else {
-							var _v13 = _v0.b;
-							var fieldNumber = _v13.a.a;
-							return {
-								cmd: $elm$core$Platform$Cmd$none,
-								model: _Utils_update(
-									model,
-									{
-										focus: A2(
-											$author$project$SudokuModel$fieldNumberToFocus,
-											model.fields,
-											_Utils_Tuple2(fieldNumber, 0))
-									}),
-								session: session
-							};
-						}
-					} else {
-						break _v0$18;
-					}
-				case 'MovedFocus':
-					if ((!_v0.a) && (_v0.b.c.$ === 'Just')) {
-						if ((_v0.b.b.$ === 'Focus') && (_v0.b.c.a.$ === 'Options')) {
-							var _v14 = _v0.b;
-							var dir = _v14.a.a;
-							var _v15 = _v14.b;
-							var fieldNumberOld = _v15.a;
-							var fieldNumberOptionOld = _v15.b;
-							var options = _v14.c.a.a;
-							var oldfocus = A2($author$project$SudokuModel$Focus, fieldNumberOld, fieldNumberOptionOld);
-							var field = $author$project$SudokuModel$Options(options);
-							var focus = A4($author$project$Sudoku$moveFocus, field, oldfocus, dir, model.fields);
-							var fields = function () {
-								if (focus.$ === 'Focus') {
-									var fieldNumber = focus.a;
-									return ($author$project$SudokuModel$optionsIsEmpty(options) && (!_Utils_eq(fieldNumber, fieldNumberOld))) ? A3(
-										$author$project$SudokuModel$setField,
-										fieldNumberOld,
-										model.fields,
-										$author$project$SudokuModel$Edit($elm$core$Maybe$Nothing)) : model.fields;
-								} else {
-									return model.fields;
-								}
-							}();
-							return {
-								cmd: $elm$core$Platform$Cmd$none,
-								model: _Utils_update(
-									model,
-									{fields: fields, focus: focus}),
-								session: session
-							};
-						} else {
-							var _v17 = _v0.b;
-							var dir = _v17.a.a;
-							var focus = _v17.b;
-							var field = _v17.c.a;
-							return {
-								cmd: $elm$core$Platform$Cmd$none,
-								model: _Utils_update(
-									model,
-									{
-										focus: A4($author$project$Sudoku$moveFocus, field, focus, dir, model.fields)
-									}),
-								session: session
-							};
-						}
-					} else {
-						break _v0$18;
-					}
-				case 'OptionsToggled':
-					if (((!_v0.a) && (_v0.b.b.$ === 'Focus')) && (_v0.b.c.$ === 'Just')) {
-						switch (_v0.b.c.a.$) {
-							case 'Edit':
-								var _v18 = _v0.b;
-								var _v19 = _v18.a;
-								var _v20 = _v18.b;
-								var fieldNumber = _v20.a;
-								var maybeValue = _v18.c.a.a;
-								var fields = A3(
-									$author$project$SudokuModel$setField,
-									fieldNumber,
-									model.fields,
-									$author$project$SudokuModel$Options(
-										$author$project$SudokuModel$initOptions(maybeValue)));
-								return {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{
-											faults: A3($author$project$SudokuFaults$recomputeFaults, fields, fieldNumber, model.faults),
-											fields: fields,
-											focus: A2($author$project$SudokuModel$Focus, fieldNumber, 0)
-										}),
-									session: session
-								};
-							case 'Options':
-								var _v21 = _v0.b;
-								var _v22 = _v21.a;
-								var _v23 = _v21.b;
-								var fieldNumber = _v23.a;
-								var fieldOptionNumber = _v23.b;
-								var options = _v21.c.a.a;
-								var fields = A3(
-									$author$project$SudokuModel$setField,
-									fieldNumber,
-									model.fields,
-									$author$project$SudokuModel$Edit(
-										A2($author$project$SudokuModel$getOption, fieldOptionNumber, options)));
-								return {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{
-											faults: A3($author$project$SudokuFaults$recomputeFaults, fields, fieldNumber, model.faults),
-											fields: fields,
-											focus: A2($author$project$SudokuModel$Focus, fieldNumber, 0)
-										}),
-									session: session
-								};
-							default:
-								break _v0$18;
-						}
-					} else {
-						break _v0$18;
-					}
-				case 'OptionFocusChanged':
-					if (!_v0.a) {
-						var _v24 = _v0.b;
-						var _v25 = _v24.a;
-						var fieldNumber = _v25.a;
-						var optionFieldNumber = _v25.b;
-						return {
-							cmd: $elm$core$Platform$Cmd$none,
-							model: _Utils_update(
-								model,
-								{
-									focus: A2($author$project$SudokuModel$Focus, fieldNumber, optionFieldNumber)
-								}),
-							session: session
-						};
-					} else {
-						break _v0$18;
-					}
-				case 'SudokuQuizReceived':
-					var _v26 = _v0.b;
-					var sudokuQuizWebData = _v26.a.a;
-					if (sudokuQuizWebData.$ === 'Success') {
-						var sudokuQuiz = sudokuQuizWebData.a;
-						return {
-							cmd: $elm$core$Platform$Cmd$none,
-							model: _Utils_update(
-								model,
-								{
-									faults: $author$project$SudokuFaults$initFaults,
-									fields: $elm$core$Array$fromList(
-										A2(
-											$elm$core$List$map,
-											function (maybeInt) {
-												if (maybeInt.$ === 'Just') {
-													var _int = maybeInt.a;
-													return $author$project$SudokuModel$Frozen(_int);
-												} else {
-													return $author$project$SudokuModel$Edit($elm$core$Maybe$Nothing);
-												}
-											},
-											A2(
-												$elm$core$List$map,
-												$author$project$SudokuModel$charToCijfer,
-												$elm$core$String$toList(sudokuQuiz.quiz)))),
-									focus: $author$project$SudokuModel$FocusBlurred,
-									retrieving: false
-								}),
-							session: session
-						};
-					} else {
-						return {cmd: $elm$core$Platform$Cmd$none, model: model, session: session};
-					}
-				case 'HighLighted':
-					if ((!_v0.a) && (_v0.b.c.$ === 'Just')) {
-						switch (_v0.b.c.a.$) {
-							case 'Edit':
-								var _v29 = _v0.b;
-								var _v30 = _v29.a;
-								var maybeValue = _v29.c.a.a;
-								return _Utils_eq(model.highlight, maybeValue) ? {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{highlight: $elm$core$Maybe$Nothing}),
-									session: session
-								} : {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{highlight: maybeValue}),
-									session: session
-								};
-							case 'Frozen':
-								var _v31 = _v0.b;
-								var _v32 = _v31.a;
-								var value = _v31.c.a.a;
-								return _Utils_eq(
-									model.highlight,
-									$elm$core$Maybe$Just(value)) ? {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{highlight: $elm$core$Maybe$Nothing}),
-									session: session
-								} : {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{
-											highlight: $elm$core$Maybe$Just(value)
-										}),
-									session: session
-								};
-							default:
-								break _v0$18;
-						}
-					} else {
-						break _v0$18;
-					}
-				case 'Possibilities':
-					if (((!_v0.a) && (_v0.b.b.$ === 'Focus')) && (_v0.b.c.$ === 'Just')) {
-						switch (_v0.b.c.a.$) {
-							case 'Edit':
-								var _v33 = _v0.b;
-								var _v34 = _v33.a;
-								var _v35 = _v33.b;
-								var fieldNumber = _v35.a;
-								var fields = A3(
-									$author$project$SudokuModel$setField,
-									fieldNumber,
-									model.fields,
-									A2($author$project$Sudoku$generateOptions, model.fields, fieldNumber));
-								return {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{
-											faults: A3($author$project$SudokuFaults$recomputeFaults, fields, fieldNumber, model.faults),
-											fields: fields,
-											focus: A2(
-												$author$project$SudokuModel$fieldNumberToFocus,
-												fields,
-												_Utils_Tuple2(fieldNumber, 0))
-										}),
-									session: session
-								};
-							case 'Options':
-								var _v36 = _v0.b;
-								var _v37 = _v36.a;
-								var _v38 = _v36.b;
-								var fieldNumber = _v38.a;
-								var fields = A3(
-									$author$project$SudokuModel$setField,
-									fieldNumber,
-									model.fields,
-									A2($author$project$Sudoku$generateOptions, model.fields, fieldNumber));
-								return {
-									cmd: $elm$core$Platform$Cmd$none,
-									model: _Utils_update(
-										model,
-										{
-											faults: A3($author$project$SudokuFaults$recomputeFaults, fields, fieldNumber, model.faults),
-											fields: fields,
-											focus: A2(
-												$author$project$SudokuModel$fieldNumberToFocus,
-												fields,
-												_Utils_Tuple2(fieldNumber, 0))
-										}),
-									session: session
-								};
-							default:
-								break _v0$18;
-						}
-					} else {
-						break _v0$18;
-					}
-				case 'ButtonClear':
-					var _v39 = _v0.b;
-					var _v40 = _v39.a;
-					return {
-						cmd: $elm$core$Platform$Cmd$none,
-						model: _Utils_update(
-							model,
-							{
-								faults: $author$project$SudokuFaults$initFaults,
-								fields: $author$project$SudokuModel$clearFields(model.fields),
-								focus: $author$project$SudokuModel$FocusBlurred,
-								highlight: $elm$core$Maybe$Nothing
-							}),
-						session: session
-					};
-				case 'ButtonNew':
-					var _v41 = _v0.b;
-					var _v42 = _v41.a;
-					var _v43 = $author$project$Sudoku$init(session);
-					var model1 = _v43.a;
-					var cmd = _v43.b;
-					return {cmd: cmd, model: model1, session: session};
-				default:
-					break _v0$18;
-			}
+		switch (msg.$) {
+			case 'UpdatePlayername':
+				var newName = msg.a;
+				return {
+					cmd: $elm$core$Platform$Cmd$none,
+					model: _Utils_update(
+						model,
+						{playerName: newName}),
+					session: session
+				};
+			case 'DoCancel':
+				return {cmd: $elm$core$Platform$Cmd$none, model: model, session: session};
+			case 'DoCreateGame':
+				var playerName = msg.a;
+				return {
+					cmd: A3($author$project$Signup$doCreateGame, $author$project$Signup$GameCreated, playerName, session),
+					model: _Utils_update(
+						model,
+						{dtoGame: $krisajenkins$remotedata$RemoteData$Loading}),
+					session: session
+				};
+			case 'DoStartGame':
+				return {cmd: $elm$core$Platform$Cmd$none, model: model, session: session};
+			default:
+				var response = msg.a;
+				return {
+					cmd: $elm$core$Platform$Cmd$none,
+					model: _Utils_update(
+						model,
+						{dtoGame: response}),
+					session: session
+				};
 		}
-		var _v44 = _v0.b;
-		return {cmd: $elm$core$Platform$Cmd$none, model: model, session: session};
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		var _v0 = _Utils_Tuple2(msg, model);
 		switch (_v0.a.$) {
-			case 'SudokuMsg':
+			case 'SignupMsg':
 				var subMsg = _v0.a.a;
 				var _v1 = _v0.b;
-				var sudokuModel = _v1.a;
+				var signupModel = _v1.a;
 				var session = _v1.b;
-				var updated = A3($author$project$Sudoku$update, subMsg, sudokuModel, session);
+				var updated = A3($author$project$Signup$update, subMsg, signupModel, session);
 				return A3(
 					$author$project$Main$toModel,
-					A2($author$project$Main$Sudoku, updated.model, session),
-					A2($elm$core$Platform$Cmd$map, $author$project$Main$SudokuMsg, updated.cmd),
+					A2($author$project$Main$Signup, updated.model, session),
+					A2($elm$core$Platform$Cmd$map, $author$project$Main$SignupMsg, updated.cmd),
 					updated.session);
 			case 'LinkClicked':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -8299,903 +6338,1314 @@ var $rundis$elm_bootstrap$Bootstrap$CDN$stylesheet = A3(
 			$elm$html$Html$Attributes$href('https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css')
 		]),
 	_List_Nil);
-var $author$project$SudokuCDN$stylesheet = A3(
+var $author$project$CardsCDN$stylesheet = A3(
 	$elm$html$Html$node,
 	'link',
 	_List_fromArray(
 		[
 			$elm$html$Html$Attributes$rel('stylesheet'),
-			$elm$html$Html$Attributes$href('src/resources/sudoku.css')
+			$elm$html$Html$Attributes$href('src/resources/cards.css')
 		]),
 	_List_Nil);
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $elm$html$Html$div = _VirtualDom_node('div');
-var $author$project$Sudoku$ButtonClear = {$: 'ButtonClear'};
-var $author$project$Sudoku$ButtonNew = {$: 'ButtonNew'};
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
+var $author$project$Signup$DoCancel = {$: 'DoCancel'};
+var $author$project$Signup$DoCreateGame = function (a) {
+	return {$: 'DoCreateGame', a: a};
 };
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
+var $author$project$Signup$DoStartGame = {$: 'DoStartGame'};
+var $author$project$Signup$UpdatePlayername = function (a) {
+	return {$: 'UpdatePlayername', a: a};
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Sudoku$viewButtons = A2(
-	$elm$html$Html$div,
-	_List_fromArray(
-		[
-			$elm$html$Html$Attributes$class('buttons-container')
-		]),
-	_List_fromArray(
-		[
-			A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('buttons-grid')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('button'),
-							$elm$html$Html$Events$onClick($author$project$Sudoku$ButtonNew)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('New Quiz')
-						])),
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('button'),
-							$elm$html$Html$Events$onClick($author$project$Sudoku$ButtonClear)
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Clear')
-						]))
-				]))
-		]));
-var $author$project$Sudoku$viewExplainItem = function (items) {
-	return A2($elm$html$Html$div, _List_Nil, items);
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
 };
-var $elm$html$Html$strong = _VirtualDom_node('strong');
-var $author$project$Sudoku$viewExplainStrong = function (item) {
-	return A2(
-		$elm$html$Html$strong,
-		_List_Nil,
-		_List_fromArray(
-			[
-				$elm$html$Html$text(item)
-			]));
+var $rundis$elm_bootstrap$Bootstrap$Button$attrs = function (attrs_) {
+	return $rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs(attrs_);
 };
-var $author$project$Sudoku$viewExplainText = function (description) {
-	return $elm$html$Html$text(description);
-};
-var $author$project$Sudoku$viewExplanations = A2(
-	$elm$html$Html$div,
-	_List_fromArray(
-		[
-			$elm$html$Html$Attributes$class('explanations-container')
-		]),
-	_List_fromArray(
-		[
-			A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('explanations-text')
-				]),
-			_List_fromArray(
-				[
-					$author$project$Sudoku$viewExplainItem(
-					_List_fromArray(
-						[
-							$author$project$Sudoku$viewExplainStrong('navigate'),
-							$author$project$Sudoku$viewExplainText(' - use the arrow keys to navigate through the grid.')
-						])),
-					$author$project$Sudoku$viewExplainItem(
-					_List_fromArray(
-						[
-							$author$project$Sudoku$viewExplainStrong('edit'),
-							$author$project$Sudoku$viewExplainText(' - a number, backspace, space, delete changes the value in a cell.')
-						])),
-					$author$project$Sudoku$viewExplainItem(
-					_List_fromArray(
-						[
-							$author$project$Sudoku$viewExplainText('toggle '),
-							$author$project$Sudoku$viewExplainStrong('options'),
-							$author$project$Sudoku$viewExplainText(' with the letter \'o\', '),
-							$author$project$Sudoku$viewExplainStrong('highlight'),
-							$author$project$Sudoku$viewExplainText(' the current value with \'h\'.')
-						]))
-				]))
-		]));
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
-var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
-var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
-var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
-var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
-var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
-var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
-var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
-var $elm$svg$Svg$Attributes$strokeLinecap = _VirtualDom_attribute('stroke-linecap');
-var $elm$svg$Svg$Attributes$strokeLinejoin = _VirtualDom_attribute('stroke-linejoin');
-var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
-var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $author$project$Icons$svgFeatherIcon = function (className) {
-	return $elm$svg$Svg$svg(
-		_List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$class('feather feather-' + className),
-				$elm$svg$Svg$Attributes$fill('none'),
-				$elm$svg$Svg$Attributes$height('24'),
-				$elm$svg$Svg$Attributes$stroke('currentColor'),
-				$elm$svg$Svg$Attributes$strokeLinecap('round'),
-				$elm$svg$Svg$Attributes$strokeLinejoin('round'),
-				$elm$svg$Svg$Attributes$strokeWidth('2'),
-				$elm$svg$Svg$Attributes$viewBox('0 0 24 24'),
-				$elm$svg$Svg$Attributes$width('24')
-			]));
-};
-var $author$project$Icons$eye = A2(
-	$author$project$Icons$svgFeatherIcon,
-	'eye',
-	_List_fromArray(
-		[
-			A2(
-			$elm$svg$Svg$path,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$d('M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z')
-				]),
-			_List_Nil),
-			A2(
-			$elm$svg$Svg$circle,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$cx('12'),
-					$elm$svg$Svg$Attributes$cy('12'),
-					$elm$svg$Svg$Attributes$r('3')
-				]),
-			_List_Nil)
-		]));
-var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
-var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
-var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
-var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
-var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
-var $author$project$Icons$eyeOff = A2(
-	$author$project$Icons$svgFeatherIcon,
-	'eye-off',
-	_List_fromArray(
-		[
-			A2(
-			$elm$svg$Svg$path,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$d('M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24')
-				]),
-			_List_Nil),
-			A2(
-			$elm$svg$Svg$line,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$x1('1'),
-					$elm$svg$Svg$Attributes$y1('1'),
-					$elm$svg$Svg$Attributes$x2('23'),
-					$elm$svg$Svg$Attributes$y2('23')
-				]),
-			_List_Nil)
-		]));
-var $author$project$SudokuModel$focusToFieldOption = function (focus) {
-	if (focus.$ === 'FocusBlurred') {
-		return $elm$core$Maybe$Nothing;
-	} else {
-		var fieldOption = focus.b;
-		return $elm$core$Maybe$Just(fieldOption);
+var $author$project$Signup$buildErrorMessage = function (httpError) {
+	switch (httpError.$) {
+		case 'BadUrl':
+			var message = httpError.a;
+			return message;
+		case 'Timeout':
+			return 'Server is taking too long to respond. Please try again later.';
+		case 'NetworkError':
+			return 'Unable to reach server.';
+		case 'BadStatus':
+			var statusCode = httpError.a;
+			return 'Request failed with status code: ' + $elm$core$String$fromInt(statusCode);
+		default:
+			var message = httpError.a;
+			return message;
 	}
 };
-var $author$project$SudokuModel$focusToFieldValue = F2(
-	function (fields, focus) {
-		var _v0 = A2($author$project$SudokuModel$focusToField, fields, focus);
-		if (_v0.$ === 'Just') {
-			switch (_v0.a.$) {
-				case 'Edit':
-					var maybeValue = _v0.a.a;
-					return maybeValue;
-				case 'Frozen':
-					var value = _v0.a.a;
-					return $elm$core$Maybe$Just(value);
-				default:
-					var options = _v0.a.a;
-					var _v1 = $author$project$SudokuModel$focusToFieldOption(focus);
-					if (_v1.$ === 'Just') {
-						var value = _v1.a;
-						return $author$project$SudokuModel$maybeJoin(
-							A2($elm$core$Array$get, value, options));
-					} else {
-						return $elm$core$Maybe$Nothing;
-					}
-			}
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
 		} else {
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $author$project$Icons$maximize = A2(
-	$author$project$Icons$svgFeatherIcon,
-	'maximize',
-	_List_fromArray(
-		[
-			A2(
-			$elm$svg$Svg$path,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$d('M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3')
-				]),
-			_List_Nil)
-		]));
-var $author$project$Icons$minimize = A2(
-	$author$project$Icons$svgFeatherIcon,
-	'minimize',
-	_List_fromArray(
-		[
-			A2(
-			$elm$svg$Svg$path,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$d('M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3')
-				]),
-			_List_Nil)
-		]));
-var $author$project$Sudoku$viewKeyboardNumber = F2(
-	function (enabled, value) {
-		return enabled ? A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('keyboard-cell' + ' enabled'),
-					$elm$html$Html$Events$onClick(
-					$author$project$Sudoku$ValueChanged(value))
-				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text(
-					$elm$core$String$fromInt(value))
-				])) : A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('keyboard-cell' + ' disabled')
-				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text(
-					$elm$core$String$fromInt(value))
-				]));
-	});
-var $author$project$Sudoku$viewKeyboardNumbers = function (enabled) {
-	return $elm$core$Array$toList(
-		A2(
-			$elm$core$Array$initialize,
-			9,
-			function (i) {
-				return A2($author$project$Sudoku$viewKeyboardNumber, enabled, i + 1);
-			}));
-};
-var $author$project$Icons$x = A2(
-	$author$project$Icons$svgFeatherIcon,
-	'x',
-	_List_fromArray(
-		[
-			A2(
-			$elm$svg$Svg$line,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$x1('18'),
-					$elm$svg$Svg$Attributes$y1('6'),
-					$elm$svg$Svg$Attributes$x2('6'),
-					$elm$svg$Svg$Attributes$y2('18')
-				]),
-			_List_Nil),
-			A2(
-			$elm$svg$Svg$line,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$x1('6'),
-					$elm$svg$Svg$Attributes$y1('6'),
-					$elm$svg$Svg$Attributes$x2('18'),
-					$elm$svg$Svg$Attributes$y2('18')
-				]),
-			_List_Nil)
-		]));
-var $author$project$Sudoku$viewKeyboard = F3(
-	function (fields, focus, maybeHighlightValue) {
-		var maybeValue = A2($author$project$SudokuModel$focusToFieldValue, fields, focus);
-		var maybeField = A2($author$project$SudokuModel$focusToField, fields, focus);
-		return A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('keyboard-container')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('keyboard-grid')
-						]),
-					$elm$core$List$concat(
-						_List_fromArray(
-							[
-								function () {
-								_v0$2:
-								while (true) {
-									if (maybeField.$ === 'Just') {
-										switch (maybeField.a.$) {
-											case 'Edit':
-												return $author$project$Sudoku$viewKeyboardNumbers(true);
-											case 'Options':
-												return $author$project$Sudoku$viewKeyboardNumbers(true);
-											default:
-												break _v0$2;
-										}
-									} else {
-										break _v0$2;
-									}
-								}
-								return $author$project$Sudoku$viewKeyboardNumbers(false);
-							}(),
-								function () {
-								_v1$2:
-								while (true) {
-									if (maybeField.$ === 'Just') {
-										switch (maybeField.a.$) {
-											case 'Edit':
-												return _List_fromArray(
-													[
-														A2(
-														$elm$html$Html$div,
-														_List_fromArray(
-															[
-																$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' enabled'),
-																$elm$html$Html$Events$onClick($author$project$Sudoku$OptionsToggled)
-															]),
-														_List_fromArray(
-															[$author$project$Icons$minimize]))
-													]);
-											case 'Options':
-												return _List_fromArray(
-													[
-														A2(
-														$elm$html$Html$div,
-														_List_fromArray(
-															[
-																$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' enabled'),
-																$elm$html$Html$Events$onClick($author$project$Sudoku$OptionsToggled)
-															]),
-														_List_fromArray(
-															[$author$project$Icons$maximize]))
-													]);
-											default:
-												break _v1$2;
-										}
-									} else {
-										break _v1$2;
-									}
-								}
-								return _List_fromArray(
-									[
-										A2(
-										$elm$html$Html$div,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' disabled')
-											]),
-										_List_fromArray(
-											[$author$project$Icons$minimize]))
-									]);
-							}(),
-								function () {
-								var _v2 = _Utils_Tuple2(maybeField, maybeValue);
-								_v2$2:
-								while (true) {
-									if ((_v2.a.$ === 'Just') && (_v2.b.$ === 'Just')) {
-										switch (_v2.a.a.$) {
-											case 'Edit':
-												var value = _v2.b.a;
-												return _List_fromArray(
-													[
-														A2(
-														$elm$html$Html$div,
-														_List_fromArray(
-															[
-																$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' enabled'),
-																$elm$html$Html$Events$onClick($author$project$Sudoku$ValueCleared)
-															]),
-														_List_fromArray(
-															[$author$project$Icons$x]))
-													]);
-											case 'Options':
-												var value = _v2.b.a;
-												return _List_fromArray(
-													[
-														A2(
-														$elm$html$Html$div,
-														_List_fromArray(
-															[
-																$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' enabled'),
-																$elm$html$Html$Events$onClick($author$project$Sudoku$ValueCleared)
-															]),
-														_List_fromArray(
-															[$author$project$Icons$x]))
-													]);
-											default:
-												break _v2$2;
-										}
-									} else {
-										break _v2$2;
-									}
-								}
-								return _List_fromArray(
-									[
-										A2(
-										$elm$html$Html$div,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' disabled')
-											]),
-										_List_fromArray(
-											[$author$project$Icons$x]))
-									]);
-							}(),
-								function () {
-								if ((maybeField.$ === 'Just') && (maybeField.a.$ === 'Options')) {
-									return _List_fromArray(
-										[
-											A2(
-											$elm$html$Html$div,
-											_List_fromArray(
-												[
-													$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' disabled')
-												]),
-											_List_fromArray(
-												[$author$project$Icons$eye]))
-										]);
-								} else {
-									var _v4 = _Utils_Tuple2(maybeHighlightValue, maybeValue);
-									if (_v4.a.$ === 'Just') {
-										if (_v4.b.$ === 'Just') {
-											var highlightValue = _v4.a.a;
-											var value = _v4.b.a;
-											return _Utils_eq(highlightValue, value) ? _List_fromArray(
-												[
-													A2(
-													$elm$html$Html$div,
-													_List_fromArray(
-														[
-															$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' enabled'),
-															$elm$html$Html$Events$onClick($author$project$Sudoku$HighLighted)
-														]),
-													_List_fromArray(
-														[$author$project$Icons$eyeOff]))
-												]) : _List_fromArray(
-												[
-													A2(
-													$elm$html$Html$div,
-													_List_fromArray(
-														[
-															$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' enabled'),
-															$elm$html$Html$Events$onClick($author$project$Sudoku$HighLighted)
-														]),
-													_List_fromArray(
-														[$author$project$Icons$eye]))
-												]);
-										} else {
-											var value = _v4.a.a;
-											var _v5 = _v4.b;
-											return _List_fromArray(
-												[
-													A2(
-													$elm$html$Html$div,
-													_List_fromArray(
-														[
-															$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' enabled'),
-															$elm$html$Html$Events$onClick($author$project$Sudoku$HighLighted)
-														]),
-													_List_fromArray(
-														[$author$project$Icons$eyeOff]))
-												]);
-										}
-									} else {
-										if (_v4.b.$ === 'Just') {
-											var _v6 = _v4.a;
-											var value = _v4.b.a;
-											return _List_fromArray(
-												[
-													A2(
-													$elm$html$Html$div,
-													_List_fromArray(
-														[
-															$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' enabled'),
-															$elm$html$Html$Events$onClick($author$project$Sudoku$HighLighted)
-														]),
-													_List_fromArray(
-														[$author$project$Icons$eye]))
-												]);
-										} else {
-											var _v7 = _v4.a;
-											var _v8 = _v4.b;
-											return _List_fromArray(
-												[
-													A2(
-													$elm$html$Html$div,
-													_List_fromArray(
-														[
-															$elm$html$Html$Attributes$class('keyboard-cell keyboard-cell-span3' + ' disabled')
-														]),
-													_List_fromArray(
-														[$author$project$Icons$eye]))
-												]);
-										}
-									}
-								}
-							}()
-							])))
-				]));
-	});
-var $author$project$Sudoku$FocusChanged = function (a) {
-	return {$: 'FocusChanged', a: a};
-};
-var $author$project$SudokuModel$focusOnField = F2(
-	function (focus, fieldNumber) {
-		if (focus.$ === 'FocusBlurred') {
-			return $author$project$SudokuModel$FocusBlurred;
-		} else {
-			var focusFieldNumber = focus.a;
-			var focusFieldOptionNumber = focus.b;
-			return _Utils_eq(focusFieldNumber, fieldNumber) ? A2($author$project$SudokuModel$Focus, focusFieldNumber, focusFieldOptionNumber) : $author$project$SudokuModel$FocusBlurred;
-		}
-	});
-var $author$project$Sudoku$getBorders = function (fieldNumber) {
-	var row = (fieldNumber / 9) | 0;
-	var column = A2($elm$core$Basics$modBy, 9, fieldNumber);
-	return ((!A2($elm$core$Basics$modBy, 3, row)) ? 'fat-border-top' : ((A2($elm$core$Basics$modBy, 3, row) === 2) ? 'fat-border-bottom' : 'normal-border-vertical')) + (' ' + ((!A2($elm$core$Basics$modBy, 3, column)) ? 'fat-border-left' : ((A2($elm$core$Basics$modBy, 3, column) === 2) ? 'fat-border-right' : 'normal-border-horizontal')));
-};
-var $author$project$Sudoku$getCellClasses = F3(
-	function (_v0, isHighlight, value) {
-		var css = _v0.css;
-		var field = _v0.field;
-		var isFocus = _v0.isFocus;
-		var isFault = _v0.isFault;
-		var animate = _v0.animate;
-		return $elm$html$Html$Attributes$class(
-			'sudoku-cell' + (' ' + (css + (' ' + (function () {
-				switch (field.$) {
-					case 'Frozen':
-						return 'frozen';
-					case 'Edit':
-						return 'edit';
-					default:
-						return 'sudoku-options-grid';
-				}
-			}() + (' ' + ((isFocus ? 'focus' : '') + (' ' + ((isFault ? 'fault' : '') + (' ' + ((isHighlight ? 'highlight' : '') + (' ' + (animate ? ('animation' + $elm$core$String$fromInt(value)) : '')))))))))))));
-	});
-var $author$project$SudokuFaults$getFault = F2(
-	function (fieldNumber, faults) {
-		return A3(
-			$elm$core$Dict$foldl,
-			F3(
-				function (key, dict, fault) {
-					return fault || A2(
-						$elm$core$Maybe$withDefault,
-						false,
-						A2(
-							$elm$core$Dict$get,
-							_Utils_Tuple2(fieldNumber, 0),
-							dict));
-				}),
-			false,
-			faults);
-	});
-var $author$project$SudokuModel$isHighlighted = F2(
-	function (highlight, value) {
-		if (highlight.$ === 'Nothing') {
-			return false;
-		} else {
-			var highlightValue = highlight.a;
-			return _Utils_eq(highlightValue, value);
-		}
-	});
-var $author$project$SudokuModel$modelToField = F2(
-	function (fields, field) {
-		return A2(
-			$elm$core$Maybe$withDefault,
-			$author$project$SudokuModel$Frozen(0),
-			A2($elm$core$Array$get, field, fields));
-	});
-var $author$project$Sudoku$OptionFocusChanged = F2(
-	function (a, b) {
-		return {$: 'OptionFocusChanged', a: a, b: b};
-	});
-var $author$project$Sudoku$getOptionClasses = F3(
-	function (optionNumber, isFocus, isFault) {
-		return $elm$html$Html$Attributes$class(
-			'sudoku-option-cell' + (' ' + ('option' + ($elm$core$String$fromInt(optionNumber) + ((isFocus ? ' focus' : '') + (isFault ? ' fault' : ''))))));
-	});
-var $author$project$SudokuFaults$getOptionFault = F3(
-	function (fieldNumber, optionNumber, faults) {
-		return A3(
-			$elm$core$Dict$foldl,
-			F3(
-				function (key, dict, fault) {
-					return fault || A2(
-						$elm$core$Maybe$withDefault,
-						false,
-						A2(
-							$elm$core$Dict$get,
-							_Utils_Tuple2(fieldNumber, optionNumber),
-							dict));
-				}),
-			false,
-			faults);
-	});
-var $author$project$Sudoku$viewOption = F5(
-	function (options, faults, focus, fieldNumber, optionNumber) {
-		var option = $author$project$SudokuModel$maybeJoin(
-			A2($elm$core$Array$get, optionNumber, options));
-		var isFocus = _Utils_eq(
-			focus,
-			A2($author$project$SudokuModel$Focus, fieldNumber, optionNumber));
-		var isFault = A3($author$project$SudokuFaults$getOptionFault, fieldNumber, optionNumber, faults);
-		if (option.$ === 'Just') {
-			var optionValue = option.a;
-			return A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						A3($author$project$Sudoku$getOptionClasses, optionNumber, isFocus, isFault),
-						$elm$html$Html$Events$onClick(
-						A2($author$project$Sudoku$OptionFocusChanged, fieldNumber, optionNumber))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(
-						$elm$core$String$fromInt(optionValue))
-					]));
-		} else {
-			return A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						A3($author$project$Sudoku$getOptionClasses, optionNumber, isFocus, isFault),
-						$elm$html$Html$Events$onClick(
-						A2($author$project$Sudoku$OptionFocusChanged, fieldNumber, optionNumber))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('')
-					]));
-		}
-	});
-var $author$project$Sudoku$viewOptions = F4(
-	function (options, faults, focus, fieldNumber) {
-		return $elm$core$Array$toList(
-			A2(
-				$elm$core$Array$initialize,
-				9,
-				A4($author$project$Sudoku$viewOption, options, faults, focus, fieldNumber)));
-	});
-var $author$project$Sudoku$viewCell = F3(
-	function (model, animate, fieldNumber) {
-		var focus = A2($author$project$SudokuModel$focusOnField, model.focus, fieldNumber);
-		var field = A2($author$project$SudokuModel$modelToField, model.fields, fieldNumber);
-		var fault = A2($author$project$SudokuFaults$getFault, fieldNumber, model.faults);
-		var borders = $author$project$Sudoku$getBorders(fieldNumber);
-		var cssArgs = {
-			animate: animate,
-			css: borders,
-			field: field,
-			isFault: fault,
-			isFocus: !_Utils_eq(focus, $author$project$SudokuModel$FocusBlurred)
-		};
-		var _v0 = A2($author$project$SudokuFaults$getFault, fieldNumber, model.faults) ? _Utils_Tuple2(' fault-edit', ' fault-frozen') : _Utils_Tuple2('', '');
-		var faultEdit = _v0.a;
-		var faultFrozen = _v0.b;
-		var _v1 = _Utils_Tuple2(field, focus);
-		switch (_v1.a.$) {
-			case 'Frozen':
-				if (_v1.b.$ === 'Focus') {
-					var value = _v1.a.a;
-					var _v2 = _v1.b;
-					return A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A3(
-								$author$project$Sudoku$getCellClasses,
-								cssArgs,
-								A2($author$project$SudokuModel$isHighlighted, model.highlight, value),
-								value),
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$FocusChanged(fieldNumber))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text(
-								$elm$core$String$fromInt(value))
-							]));
-				} else {
-					var value = _v1.a.a;
-					var _v3 = _v1.b;
-					return A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A3(
-								$author$project$Sudoku$getCellClasses,
-								cssArgs,
-								A2($author$project$SudokuModel$isHighlighted, model.highlight, value),
-								value),
-								$elm$html$Html$Events$onClick(
-								$author$project$Sudoku$FocusChanged(fieldNumber))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text(
-								$elm$core$String$fromInt(value))
-							]));
-				}
-			case 'Edit':
-				if (_v1.a.a.$ === 'Just') {
-					if (_v1.b.$ === 'Focus') {
-						var value = _v1.a.a.a;
-						var _v4 = _v1.b;
-						return A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									A3(
-									$author$project$Sudoku$getCellClasses,
-									cssArgs,
-									A2($author$project$SudokuModel$isHighlighted, model.highlight, value),
-									value)
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text(
-									$elm$core$String$fromInt(value))
-								]));
-					} else {
-						var value = _v1.a.a.a;
-						var _v7 = _v1.b;
-						return A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									A3(
-									$author$project$Sudoku$getCellClasses,
-									cssArgs,
-									A2($author$project$SudokuModel$isHighlighted, model.highlight, value),
-									value),
-									$elm$html$Html$Events$onClick(
-									$author$project$Sudoku$FocusChanged(fieldNumber))
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text(
-									$elm$core$String$fromInt(value))
-								]));
-					}
-				} else {
-					if (_v1.b.$ === 'Focus') {
-						var _v5 = _v1.a.a;
-						var _v6 = _v1.b;
-						return A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									A3($author$project$Sudoku$getCellClasses, cssArgs, false, 0)
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text(' ')
-								]));
-					} else {
-						var _v8 = _v1.a.a;
-						var _v9 = _v1.b;
-						return A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									A3($author$project$Sudoku$getCellClasses, cssArgs, false, 0),
-									$elm$html$Html$Events$onClick(
-									$author$project$Sudoku$FocusChanged(fieldNumber))
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text(' ')
-								]));
-					}
-				}
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Size':
+				var size = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						size: $elm$core$Maybe$Just(size)
+					});
+			case 'Coloring':
+				var coloring = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						coloring: $elm$core$Maybe$Just(coloring)
+					});
+			case 'Block':
+				return _Utils_update(
+					options,
+					{block: true});
+			case 'Disabled':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{disabled: val});
 			default:
-				var options = _v1.a.a;
-				var focus1 = _v1.b;
-				return A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class(borders + ' sudoku-options-grid')
-						]),
-					A4($author$project$Sudoku$viewOptions, options, model.faults, focus1, fieldNumber));
+				var attrs = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs)
+					});
 		}
 	});
-var $author$project$Sudoku$viewCells = F2(
-	function (model, animate) {
-		return $elm$core$Array$toList(
-			A2(
-				$elm$core$Array$initialize,
-				81,
-				A2($author$project$Sudoku$viewCell, model, animate)));
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
 	});
-var $author$project$Sudoku$viewSudoku = F2(
-	function (model, animate) {
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $elm$html$Html$Attributes$classList = function (classes) {
+	return $elm$html$Html$Attributes$class(
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				$elm$core$Tuple$first,
+				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$defaultOptions = {attributes: _List_Nil, block: false, coloring: $elm$core$Maybe$Nothing, disabled: false, size: $elm$core$Maybe$Nothing};
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$roleClass = function (role) {
+	switch (role.$) {
+		case 'Primary':
+			return 'primary';
+		case 'Secondary':
+			return 'secondary';
+		case 'Success':
+			return 'success';
+		case 'Info':
+			return 'info';
+		case 'Warning':
+			return 'warning';
+		case 'Danger':
+			return 'danger';
+		case 'Dark':
+			return 'dark';
+		case 'Light':
+			return 'light';
+		default:
+			return 'link';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption = function (size) {
+	switch (size.$) {
+		case 'XS':
+			return $elm$core$Maybe$Nothing;
+		case 'SM':
+			return $elm$core$Maybe$Just('sm');
+		case 'MD':
+			return $elm$core$Maybe$Just('md');
+		case 'LG':
+			return $elm$core$Maybe$Just('lg');
+		default:
+			return $elm$core$Maybe$Just('xl');
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$buttonAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Internal$Button$applyModifier, $rundis$elm_bootstrap$Bootstrap$Internal$Button$defaultOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('btn', true),
+						_Utils_Tuple2('btn-block', options.block),
+						_Utils_Tuple2('disabled', options.disabled)
+					])),
+				$elm$html$Html$Attributes$disabled(options.disabled)
+			]),
+		_Utils_ap(
+			function () {
+				var _v0 = A2($elm$core$Maybe$andThen, $rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption, options.size);
+				if (_v0.$ === 'Just') {
+					var s = _v0.a;
+					return _List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('btn-' + s)
+						]);
+				} else {
+					return _List_Nil;
+				}
+			}(),
+			_Utils_ap(
+				function () {
+					var _v1 = options.coloring;
+					if (_v1.$ === 'Just') {
+						if (_v1.a.$ === 'Roled') {
+							var role = _v1.a.a;
+							return _List_fromArray(
+								[
+									$elm$html$Html$Attributes$class(
+									'btn-' + $rundis$elm_bootstrap$Bootstrap$Internal$Button$roleClass(role))
+								]);
+						} else {
+							var role = _v1.a.a;
+							return _List_fromArray(
+								[
+									$elm$html$Html$Attributes$class(
+									'btn-outline-' + $rundis$elm_bootstrap$Bootstrap$Internal$Button$roleClass(role))
+								]);
+						}
+					} else {
+						return _List_Nil;
+					}
+				}(),
+				options.attributes)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Button$button = F2(
+	function (options, children) {
+		return A2(
+			$elm$html$Html$button,
+			$rundis$elm_bootstrap$Bootstrap$Internal$Button$buttonAttributes(options),
+			children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Disabled = function (a) {
+	return {$: 'Disabled', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$disabled = function (disabled_) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Disabled(disabled_);
+};
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$form = _VirtualDom_node('form');
+var $rundis$elm_bootstrap$Bootstrap$Form$form = F2(
+	function (attributes, children) {
+		return A2($elm$html$Html$form, attributes, children);
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$applyModifier = F2(
+	function (modifier, options) {
+		var value = modifier.a;
+		return _Utils_update(
+			options,
+			{
+				attributes: _Utils_ap(options.attributes, value)
+			});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$defaultOptions = {attributes: _List_Nil};
+var $rundis$elm_bootstrap$Bootstrap$Form$toAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Form$applyModifier, $rundis$elm_bootstrap$Bootstrap$Form$defaultOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('form-group')
+			]),
+		options.attributes);
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$group = F2(
+	function (options, children) {
 		return A2(
 			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('sudoku-container')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$class('sudoku-grid')
-						]),
-					A2($author$project$Sudoku$viewCells, model, animate))
-				]));
+			$rundis$elm_bootstrap$Bootstrap$Form$toAttributes(options),
+			children);
 	});
-var $author$project$Sudoku$view = function (model) {
-	var animate = A2($author$project$Sudoku$solved, model.fields, model.faults) || model.retrieving;
+var $elm$html$Html$label = _VirtualDom_node('label');
+var $rundis$elm_bootstrap$Bootstrap$Form$label = F2(
+	function (attributes, children) {
+		return A2(
+			$elm$html$Html$label,
+			A2(
+				$elm$core$List$cons,
+				$elm$html$Html$Attributes$class('form-control-label'),
+				attributes),
+			children);
+	});
+var $elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
+	return {$: 'MayPreventDefault', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$preventDefaultOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayPreventDefault(decoder));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Button$onClick = function (message) {
+	return $rundis$elm_bootstrap$Bootstrap$Button$attrs(
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$Events$preventDefaultOn,
+				'click',
+				$elm$json$Json$Decode$succeed(
+					_Utils_Tuple2(message, true)))
+			]));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$OnInput = function (a) {
+	return {$: 'OnInput', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$onInput = function (toMsg) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Input$OnInput(toMsg);
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring = function (a) {
+	return {$: 'Coloring', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined = function (a) {
+	return {$: 'Outlined', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary = {$: 'Primary'};
+var $rundis$elm_bootstrap$Bootstrap$Button$outlinePrimary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined($rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary));
+var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary = {$: 'Secondary'};
+var $rundis$elm_bootstrap$Bootstrap$Button$outlineSecondary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined($rundis$elm_bootstrap$Bootstrap$Internal$Button$Secondary));
+var $rundis$elm_bootstrap$Bootstrap$Table$Inversed = {$: 'Inversed'};
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Table$isResponsive = function (option) {
+	if (option.$ === 'Responsive') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$KeyedTBody = function (a) {
+	return {$: 'KeyedTBody', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$TBody = function (a) {
+	return {$: 'TBody', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$InversedRow = function (a) {
+	return {$: 'InversedRow', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$KeyedRow = function (a) {
+	return {$: 'KeyedRow', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$Row = function (a) {
+	return {$: 'Row', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$InversedCell = function (a) {
+	return {$: 'InversedCell', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$Td = function (a) {
+	return {$: 'Td', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$Th = function (a) {
+	return {$: 'Th', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$mapInversedCell = function (cell) {
+	var inverseOptions = function (options) {
+		return A2(
+			$elm$core$List$map,
+			function (opt) {
+				if (opt.$ === 'RoledCell') {
+					var role = opt.a;
+					return $rundis$elm_bootstrap$Bootstrap$Table$InversedCell(role);
+				} else {
+					return opt;
+				}
+			},
+			options);
+	};
+	if (cell.$ === 'Th') {
+		var cellCfg = cell.a;
+		return $rundis$elm_bootstrap$Bootstrap$Table$Th(
+			_Utils_update(
+				cellCfg,
+				{
+					options: inverseOptions(cellCfg.options)
+				}));
+	} else {
+		var cellCfg = cell.a;
+		return $rundis$elm_bootstrap$Bootstrap$Table$Td(
+			_Utils_update(
+				cellCfg,
+				{
+					options: inverseOptions(cellCfg.options)
+				}));
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$mapInversedRow = function (row) {
+	var inversedOptions = function (options) {
+		return A2(
+			$elm$core$List$map,
+			function (opt) {
+				if (opt.$ === 'RoledRow') {
+					var role = opt.a;
+					return $rundis$elm_bootstrap$Bootstrap$Table$InversedRow(role);
+				} else {
+					return opt;
+				}
+			},
+			options);
+	};
+	if (row.$ === 'Row') {
+		var options = row.a.options;
+		var cells = row.a.cells;
+		return $rundis$elm_bootstrap$Bootstrap$Table$Row(
+			{
+				cells: A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$mapInversedCell, cells),
+				options: inversedOptions(options)
+			});
+	} else {
+		var options = row.a.options;
+		var cells = row.a.cells;
+		return $rundis$elm_bootstrap$Bootstrap$Table$KeyedRow(
+			{
+				cells: A2(
+					$elm$core$List$map,
+					function (_v1) {
+						var key = _v1.a;
+						var cell = _v1.b;
+						return _Utils_Tuple2(
+							key,
+							$rundis$elm_bootstrap$Bootstrap$Table$mapInversedCell(cell));
+					},
+					cells),
+				options: inversedOptions(options)
+			});
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$maybeMapInversedTBody = F2(
+	function (isTableInversed, tbody_) {
+		var _v0 = _Utils_Tuple2(isTableInversed, tbody_);
+		if (!_v0.a) {
+			return tbody_;
+		} else {
+			if (_v0.b.$ === 'TBody') {
+				var body = _v0.b.a;
+				return $rundis$elm_bootstrap$Bootstrap$Table$TBody(
+					_Utils_update(
+						body,
+						{
+							rows: A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$mapInversedRow, body.rows)
+						}));
+			} else {
+				var keyedBody = _v0.b.a;
+				return $rundis$elm_bootstrap$Bootstrap$Table$KeyedTBody(
+					_Utils_update(
+						keyedBody,
+						{
+							rows: A2(
+								$elm$core$List$map,
+								function (_v1) {
+									var key = _v1.a;
+									var row = _v1.b;
+									return _Utils_Tuple2(
+										key,
+										$rundis$elm_bootstrap$Bootstrap$Table$mapInversedRow(row));
+								},
+								keyedBody.rows)
+						}));
+			}
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Table$InversedHead = {$: 'InversedHead'};
+var $rundis$elm_bootstrap$Bootstrap$Table$THead = function (a) {
+	return {$: 'THead', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$maybeMapInversedTHead = F2(
+	function (isTableInversed, _v0) {
+		var thead_ = _v0.a;
+		var isHeadInversed = A2(
+			$elm$core$List$any,
+			function (opt) {
+				return _Utils_eq(opt, $rundis$elm_bootstrap$Bootstrap$Table$InversedHead);
+			},
+			thead_.options);
+		return $rundis$elm_bootstrap$Bootstrap$Table$THead(
+			(isTableInversed || isHeadInversed) ? _Utils_update(
+				thead_,
+				{
+					rows: A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$mapInversedRow, thead_.rows)
+				}) : thead_);
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Table$maybeWrapResponsive = F2(
+	function (options, table_) {
+		var responsiveClass = $elm$html$Html$Attributes$class(
+			'table-responsive' + A2(
+				$elm$core$Maybe$withDefault,
+				'',
+				A2(
+					$elm$core$Maybe$map,
+					function (v) {
+						return '-' + v;
+					},
+					A2(
+						$elm$core$Maybe$andThen,
+						$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption,
+						A2(
+							$elm$core$Maybe$andThen,
+							function (opt) {
+								if (opt.$ === 'Responsive') {
+									var val = opt.a;
+									return val;
+								} else {
+									return $elm$core$Maybe$Nothing;
+								}
+							},
+							$elm$core$List$head(
+								A2($elm$core$List$filter, $rundis$elm_bootstrap$Bootstrap$Table$isResponsive, options)))))));
+		return A2($elm$core$List$any, $rundis$elm_bootstrap$Bootstrap$Table$isResponsive, options) ? A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[responsiveClass]),
+			_List_fromArray(
+				[table_])) : table_;
+	});
+var $elm$core$Basics$not = _Basics_not;
+var $rundis$elm_bootstrap$Bootstrap$Table$CellAttr = function (a) {
+	return {$: 'CellAttr', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$cellAttr = function (attr_) {
+	return $rundis$elm_bootstrap$Bootstrap$Table$CellAttr(attr_);
+};
+var $elm$html$Html$Attributes$scope = $elm$html$Html$Attributes$stringProperty('scope');
+var $rundis$elm_bootstrap$Bootstrap$Table$addScopeIfTh = function (cell) {
+	if (cell.$ === 'Th') {
+		var cellConfig = cell.a;
+		return $rundis$elm_bootstrap$Bootstrap$Table$Th(
+			_Utils_update(
+				cellConfig,
+				{
+					options: A2(
+						$elm$core$List$cons,
+						$rundis$elm_bootstrap$Bootstrap$Table$cellAttr(
+							$elm$html$Html$Attributes$scope('row')),
+						cellConfig.options)
+				}));
+	} else {
+		return cell;
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$maybeAddScopeToFirstCell = function (row) {
+	if (row.$ === 'Row') {
+		var options = row.a.options;
+		var cells = row.a.cells;
+		if (!cells.b) {
+			return row;
+		} else {
+			var first = cells.a;
+			var rest = cells.b;
+			return $rundis$elm_bootstrap$Bootstrap$Table$Row(
+				{
+					cells: A2(
+						$elm$core$List$cons,
+						$rundis$elm_bootstrap$Bootstrap$Table$addScopeIfTh(first),
+						rest),
+					options: options
+				});
+		}
+	} else {
+		var options = row.a.options;
+		var cells = row.a.cells;
+		if (!cells.b) {
+			return row;
+		} else {
+			var _v3 = cells.a;
+			var firstKey = _v3.a;
+			var first = _v3.b;
+			var rest = cells.b;
+			return $rundis$elm_bootstrap$Bootstrap$Table$KeyedRow(
+				{
+					cells: A2(
+						$elm$core$List$cons,
+						_Utils_Tuple2(
+							firstKey,
+							$rundis$elm_bootstrap$Bootstrap$Table$addScopeIfTh(first)),
+						rest),
+					options: options
+				});
+		}
+	}
+};
+var $elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
+	return _VirtualDom_keyedNode(
+		_VirtualDom_noScript(tag));
+};
+var $elm$html$Html$Keyed$node = $elm$virtual_dom$VirtualDom$keyedNode;
+var $rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass = F2(
+	function (prefix, role) {
+		return $elm$html$Html$Attributes$class(
+			prefix + ('-' + function () {
+				switch (role.$) {
+					case 'Primary':
+						return 'primary';
+					case 'Secondary':
+						return 'secondary';
+					case 'Success':
+						return 'success';
+					case 'Info':
+						return 'info';
+					case 'Warning':
+						return 'warning';
+					case 'Danger':
+						return 'danger';
+					case 'Light':
+						return 'light';
+					default:
+						return 'dark';
+				}
+			}()));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Table$cellAttribute = function (option) {
+	switch (option.$) {
+		case 'RoledCell':
+			if (option.a.$ === 'Roled') {
+				var role = option.a.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'table', role);
+			} else {
+				var _v1 = option.a;
+				return $elm$html$Html$Attributes$class('table-active');
+			}
+		case 'InversedCell':
+			if (option.a.$ === 'Roled') {
+				var role = option.a.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg-', role);
+			} else {
+				var _v2 = option.a;
+				return $elm$html$Html$Attributes$class('bg-active');
+			}
+		default:
+			var attr_ = option.a;
+			return attr_;
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$cellAttributes = function (options) {
+	return A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$cellAttribute, options);
+};
+var $elm$html$Html$td = _VirtualDom_node('td');
+var $elm$html$Html$th = _VirtualDom_node('th');
+var $rundis$elm_bootstrap$Bootstrap$Table$renderCell = function (cell) {
+	if (cell.$ === 'Td') {
+		var options = cell.a.options;
+		var children = cell.a.children;
+		return A2(
+			$elm$html$Html$td,
+			$rundis$elm_bootstrap$Bootstrap$Table$cellAttributes(options),
+			children);
+	} else {
+		var options = cell.a.options;
+		var children = cell.a.children;
+		return A2(
+			$elm$html$Html$th,
+			$rundis$elm_bootstrap$Bootstrap$Table$cellAttributes(options),
+			children);
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$rowClass = function (option) {
+	switch (option.$) {
+		case 'RoledRow':
+			if (option.a.$ === 'Roled') {
+				var role_ = option.a.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'table', role_);
+			} else {
+				var _v1 = option.a;
+				return $elm$html$Html$Attributes$class('table-active');
+			}
+		case 'InversedRow':
+			if (option.a.$ === 'Roled') {
+				var role_ = option.a.a;
+				return A2($rundis$elm_bootstrap$Bootstrap$Internal$Role$toClass, 'bg', role_);
+			} else {
+				var _v2 = option.a;
+				return $elm$html$Html$Attributes$class('bg-active');
+			}
+		default:
+			var attr_ = option.a;
+			return attr_;
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$rowAttributes = function (options) {
+	return A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$rowClass, options);
+};
+var $elm$html$Html$tr = _VirtualDom_node('tr');
+var $rundis$elm_bootstrap$Bootstrap$Table$renderRow = function (row) {
+	if (row.$ === 'Row') {
+		var options = row.a.options;
+		var cells = row.a.cells;
+		return A2(
+			$elm$html$Html$tr,
+			$rundis$elm_bootstrap$Bootstrap$Table$rowAttributes(options),
+			A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$renderCell, cells));
+	} else {
+		var options = row.a.options;
+		var cells = row.a.cells;
+		return A3(
+			$elm$html$Html$Keyed$node,
+			'tr',
+			$rundis$elm_bootstrap$Bootstrap$Table$rowAttributes(options),
+			A2(
+				$elm$core$List$map,
+				function (_v1) {
+					var key = _v1.a;
+					var cell = _v1.b;
+					return _Utils_Tuple2(
+						key,
+						$rundis$elm_bootstrap$Bootstrap$Table$renderCell(cell));
+				},
+				cells));
+	}
+};
+var $elm$html$Html$tbody = _VirtualDom_node('tbody');
+var $rundis$elm_bootstrap$Bootstrap$Table$renderTBody = function (body) {
+	if (body.$ === 'TBody') {
+		var attributes = body.a.attributes;
+		var rows = body.a.rows;
+		return A2(
+			$elm$html$Html$tbody,
+			attributes,
+			A2(
+				$elm$core$List$map,
+				function (row) {
+					return $rundis$elm_bootstrap$Bootstrap$Table$renderRow(
+						$rundis$elm_bootstrap$Bootstrap$Table$maybeAddScopeToFirstCell(row));
+				},
+				rows));
+	} else {
+		var attributes = body.a.attributes;
+		var rows = body.a.rows;
+		return A3(
+			$elm$html$Html$Keyed$node,
+			'tbody',
+			attributes,
+			A2(
+				$elm$core$List$map,
+				function (_v1) {
+					var key = _v1.a;
+					var row = _v1.b;
+					return _Utils_Tuple2(
+						key,
+						$rundis$elm_bootstrap$Bootstrap$Table$renderRow(
+							$rundis$elm_bootstrap$Bootstrap$Table$maybeAddScopeToFirstCell(row)));
+				},
+				rows));
+	}
+};
+var $elm$html$Html$thead = _VirtualDom_node('thead');
+var $rundis$elm_bootstrap$Bootstrap$Table$theadAttribute = function (option) {
+	switch (option.$) {
+		case 'InversedHead':
+			return $elm$html$Html$Attributes$class('thead-dark');
+		case 'DefaultHead':
+			return $elm$html$Html$Attributes$class('thead-default');
+		default:
+			var attr_ = option.a;
+			return attr_;
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$theadAttributes = function (options) {
+	return A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$theadAttribute, options);
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$renderTHead = function (_v0) {
+	var options = _v0.a.options;
+	var rows = _v0.a.rows;
+	return A2(
+		$elm$html$Html$thead,
+		$rundis$elm_bootstrap$Bootstrap$Table$theadAttributes(options),
+		A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$renderRow, rows));
+};
+var $elm$html$Html$table = _VirtualDom_node('table');
+var $rundis$elm_bootstrap$Bootstrap$Table$tableClass = function (option) {
+	switch (option.$) {
+		case 'Inversed':
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class('table-dark'));
+		case 'Striped':
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class('table-striped'));
+		case 'Bordered':
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class('table-bordered'));
+		case 'Hover':
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class('table-hover'));
+		case 'Small':
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class('table-sm'));
+		case 'Responsive':
+			return $elm$core$Maybe$Nothing;
+		case 'Reflow':
+			return $elm$core$Maybe$Just(
+				$elm$html$Html$Attributes$class('table-reflow'));
+		default:
+			var attr_ = option.a;
+			return $elm$core$Maybe$Just(attr_);
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$tableAttributes = function (options) {
+	return A2(
+		$elm$core$List$cons,
+		$elm$html$Html$Attributes$class('table'),
+		A2(
+			$elm$core$List$filterMap,
+			$elm$core$Basics$identity,
+			A2($elm$core$List$map, $rundis$elm_bootstrap$Bootstrap$Table$tableClass, options)));
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$table = function (rec) {
+	var isInversed = A2(
+		$elm$core$List$any,
+		function (opt) {
+			return _Utils_eq(opt, $rundis$elm_bootstrap$Bootstrap$Table$Inversed);
+		},
+		rec.options);
+	var classOptions = A2(
+		$elm$core$List$filter,
+		function (opt) {
+			return !$rundis$elm_bootstrap$Bootstrap$Table$isResponsive(opt);
+		},
+		rec.options);
+	return A2(
+		$rundis$elm_bootstrap$Bootstrap$Table$maybeWrapResponsive,
+		rec.options,
+		A2(
+			$elm$html$Html$table,
+			$rundis$elm_bootstrap$Bootstrap$Table$tableAttributes(classOptions),
+			_List_fromArray(
+				[
+					$rundis$elm_bootstrap$Bootstrap$Table$renderTHead(
+					A2($rundis$elm_bootstrap$Bootstrap$Table$maybeMapInversedTHead, isInversed, rec.thead)),
+					$rundis$elm_bootstrap$Bootstrap$Table$renderTBody(
+					A2($rundis$elm_bootstrap$Bootstrap$Table$maybeMapInversedTBody, isInversed, rec.tbody))
+				])));
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$simpleTable = function (_v0) {
+	var thead_ = _v0.a;
+	var tbody_ = _v0.b;
+	return $rundis$elm_bootstrap$Bootstrap$Table$table(
+		{options: _List_Nil, tbody: tbody_, thead: thead_});
+};
+var $rundis$elm_bootstrap$Bootstrap$Table$tbody = F2(
+	function (attributes, rows) {
+		return $rundis$elm_bootstrap$Bootstrap$Table$TBody(
+			{attributes: attributes, rows: rows});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Table$td = F2(
+	function (options, children) {
+		return $rundis$elm_bootstrap$Bootstrap$Table$Td(
+			{children: children, options: options});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Text = {$: 'Text'};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Input = function (a) {
+	return {$: 'Input', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Type = function (a) {
+	return {$: 'Type', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$create = F2(
+	function (tipe, options) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Input$Input(
+			{
+				options: A2(
+					$elm$core$List$cons,
+					$rundis$elm_bootstrap$Bootstrap$Form$Input$Type(tipe),
+					options)
+			});
+	});
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$applyModifier = F2(
+	function (modifier, options) {
+		switch (modifier.$) {
+			case 'Size':
+				var size_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						size: $elm$core$Maybe$Just(size_)
+					});
+			case 'Id':
+				var id_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						id: $elm$core$Maybe$Just(id_)
+					});
+			case 'Type':
+				var tipe = modifier.a;
+				return _Utils_update(
+					options,
+					{tipe: tipe});
+			case 'Disabled':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{disabled: val});
+			case 'Value':
+				var value_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						value: $elm$core$Maybe$Just(value_)
+					});
+			case 'Placeholder':
+				var value_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						placeholder: $elm$core$Maybe$Just(value_)
+					});
+			case 'OnInput':
+				var onInput_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						onInput: $elm$core$Maybe$Just(onInput_)
+					});
+			case 'Validation':
+				var validation_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						validation: $elm$core$Maybe$Just(validation_)
+					});
+			case 'Readonly':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{readonly: val});
+			case 'PlainText':
+				var val = modifier.a;
+				return _Utils_update(
+					options,
+					{plainText: val});
+			default:
+				var attrs_ = modifier.a;
+				return _Utils_update(
+					options,
+					{
+						attributes: _Utils_ap(options.attributes, attrs_)
+					});
+		}
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$defaultOptions = {attributes: _List_Nil, disabled: false, id: $elm$core$Maybe$Nothing, onInput: $elm$core$Maybe$Nothing, placeholder: $elm$core$Maybe$Nothing, plainText: false, readonly: false, size: $elm$core$Maybe$Nothing, tipe: $rundis$elm_bootstrap$Bootstrap$Form$Input$Text, validation: $elm$core$Maybe$Nothing, value: $elm$core$Maybe$Nothing};
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $elm$html$Html$Attributes$readonly = $elm$html$Html$Attributes$boolProperty('readOnly');
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$sizeAttribute = function (size) {
+	return A2(
+		$elm$core$Maybe$map,
+		function (s) {
+			return $elm$html$Html$Attributes$class('form-control-' + s);
+		},
+		$rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(size));
+};
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$typeAttribute = function (inputType) {
+	return $elm$html$Html$Attributes$type_(
+		function () {
+			switch (inputType.$) {
+				case 'Text':
+					return 'text';
+				case 'Password':
+					return 'password';
+				case 'DatetimeLocal':
+					return 'datetime-local';
+				case 'Date':
+					return 'date';
+				case 'Month':
+					return 'month';
+				case 'Time':
+					return 'time';
+				case 'Week':
+					return 'week';
+				case 'Number':
+					return 'number';
+				case 'Email':
+					return 'email';
+				case 'Url':
+					return 'url';
+				case 'Search':
+					return 'search';
+				case 'Tel':
+					return 'tel';
+				default:
+					return 'color';
+			}
+		}());
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$FormInternal$validationToString = function (validation) {
+	if (validation.$ === 'Success') {
+		return 'is-valid';
+	} else {
+		return 'is-invalid';
+	}
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$validationAttribute = function (validation) {
+	return $elm$html$Html$Attributes$class(
+		$rundis$elm_bootstrap$Bootstrap$Form$FormInternal$validationToString(validation));
+};
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$toAttributes = function (modifiers) {
+	var options = A3($elm$core$List$foldl, $rundis$elm_bootstrap$Bootstrap$Form$Input$applyModifier, $rundis$elm_bootstrap$Bootstrap$Form$Input$defaultOptions, modifiers);
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class(
+				options.plainText ? 'form-control-plaintext' : 'form-control'),
+				$elm$html$Html$Attributes$disabled(options.disabled),
+				$elm$html$Html$Attributes$readonly(options.readonly || options.plainText),
+				$rundis$elm_bootstrap$Bootstrap$Form$Input$typeAttribute(options.tipe)
+			]),
+		_Utils_ap(
+			A2(
+				$elm$core$List$filterMap,
+				$elm$core$Basics$identity,
+				_List_fromArray(
+					[
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$id, options.id),
+						A2($elm$core$Maybe$andThen, $rundis$elm_bootstrap$Bootstrap$Form$Input$sizeAttribute, options.size),
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$value, options.value),
+						A2($elm$core$Maybe$map, $elm$html$Html$Attributes$placeholder, options.placeholder),
+						A2($elm$core$Maybe$map, $elm$html$Html$Events$onInput, options.onInput),
+						A2($elm$core$Maybe$map, $rundis$elm_bootstrap$Bootstrap$Form$Input$validationAttribute, options.validation)
+					])),
+			options.attributes));
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$view = function (_v0) {
+	var options = _v0.a.options;
+	return A2(
+		$elm$html$Html$input,
+		$rundis$elm_bootstrap$Bootstrap$Form$Input$toAttributes(options),
+		_List_Nil);
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$input = F2(
+	function (tipe, options) {
+		return $rundis$elm_bootstrap$Bootstrap$Form$Input$view(
+			A2($rundis$elm_bootstrap$Bootstrap$Form$Input$create, tipe, options));
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$text = $rundis$elm_bootstrap$Bootstrap$Form$Input$input($rundis$elm_bootstrap$Bootstrap$Form$Input$Text);
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $rundis$elm_bootstrap$Bootstrap$Table$thead = F2(
+	function (options, rows) {
+		return $rundis$elm_bootstrap$Bootstrap$Table$THead(
+			{options: options, rows: rows});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Table$tr = F2(
+	function (options, cells) {
+		return $rundis$elm_bootstrap$Bootstrap$Table$Row(
+			{cells: cells, options: options});
+	});
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$Value = function (a) {
+	return {$: 'Value', a: a};
+};
+var $rundis$elm_bootstrap$Bootstrap$Form$Input$value = function (value_) {
+	return $rundis$elm_bootstrap$Bootstrap$Form$Input$Value(value_);
+};
+var $author$project$Signup$view = function (model) {
+	var _v0 = function () {
+		var _v1 = model.dtoGame;
+		switch (_v1.$) {
+			case 'NotAsked':
+				return {doCreateDisabled: false, doStartDisabled: true, gameUuid: '', playerNameDisabled: false, playerUuid: '', statusText: 'Initialising.'};
+			case 'Loading':
+				return {doCreateDisabled: true, doStartDisabled: true, gameUuid: '', playerNameDisabled: true, playerUuid: '', statusText: 'Loading.'};
+			case 'Failure':
+				var error = _v1.a;
+				return {
+					doCreateDisabled: true,
+					doStartDisabled: true,
+					gameUuid: '',
+					playerNameDisabled: true,
+					playerUuid: '',
+					statusText: 'Error: ' + $author$project$Signup$buildErrorMessage(error)
+				};
+			default:
+				var dtoGame = _v1.a;
+				return {doCreateDisabled: true, doStartDisabled: false, gameUuid: dtoGame.gameUuid, playerNameDisabled: true, playerUuid: dtoGame.playerUuid, statusText: 'Success.'};
+		}
+	}();
+	var statusText = _v0.statusText;
+	var playerNameDisabled = _v0.playerNameDisabled;
+	var doCreateDisabled = _v0.doCreateDisabled;
+	var doStartDisabled = _v0.doStartDisabled;
+	var playerUuid = _v0.playerUuid;
+	var gameUuid = _v0.gameUuid;
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('center')
+				$elm$html$Html$Attributes$class('container')
 			]),
 		_List_fromArray(
 			[
-				$author$project$Sudoku$viewExplanations,
-				A2($author$project$Sudoku$viewSudoku, model, animate),
-				$author$project$Sudoku$viewButtons,
-				A3($author$project$Sudoku$viewKeyboard, model.fields, model.focus, model.highlight)
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(statusText)
+					])),
+				A2(
+				$rundis$elm_bootstrap$Bootstrap$Form$form,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$group,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Form$label,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Your name or alias')
+									])),
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$text(
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Form$Input$onInput($author$project$Signup$UpdatePlayername),
+										$rundis$elm_bootstrap$Bootstrap$Form$Input$value(model.playerName),
+										$rundis$elm_bootstrap$Bootstrap$Form$Input$disabled(playerNameDisabled)
+									]))
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$group,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Form$label,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Player identifier')
+									])),
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$text(
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Form$Input$value(playerUuid),
+										$rundis$elm_bootstrap$Bootstrap$Form$Input$disabled(true)
+									]))
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$group,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$rundis$elm_bootstrap$Bootstrap$Form$label,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Game identifier')
+									])),
+								$rundis$elm_bootstrap$Bootstrap$Form$Input$text(
+								_List_fromArray(
+									[
+										$rundis$elm_bootstrap$Bootstrap$Form$Input$value(gameUuid),
+										$rundis$elm_bootstrap$Bootstrap$Form$Input$disabled(true)
+									]))
+							])),
+						A2(
+						$rundis$elm_bootstrap$Bootstrap$Form$group,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$rundis$elm_bootstrap$Bootstrap$Table$simpleTable(
+								_Utils_Tuple2(
+									A2($rundis$elm_bootstrap$Bootstrap$Table$thead, _List_Nil, _List_Nil),
+									A2(
+										$rundis$elm_bootstrap$Bootstrap$Table$tbody,
+										_List_Nil,
+										_List_fromArray(
+											[
+												A2(
+												$rundis$elm_bootstrap$Bootstrap$Table$tr,
+												_List_Nil,
+												_List_fromArray(
+													[
+														A2(
+														$rundis$elm_bootstrap$Bootstrap$Table$td,
+														_List_Nil,
+														_List_fromArray(
+															[
+																A2(
+																$rundis$elm_bootstrap$Bootstrap$Button$button,
+																_List_fromArray(
+																	[
+																		$rundis$elm_bootstrap$Bootstrap$Button$outlineSecondary,
+																		$rundis$elm_bootstrap$Bootstrap$Button$attrs(_List_Nil),
+																		$rundis$elm_bootstrap$Bootstrap$Button$onClick($author$project$Signup$DoCancel)
+																	]),
+																_List_fromArray(
+																	[
+																		$elm$html$Html$text('Cancel')
+																	]))
+															])),
+														A2(
+														$rundis$elm_bootstrap$Bootstrap$Table$td,
+														_List_Nil,
+														_List_fromArray(
+															[
+																A2(
+																$rundis$elm_bootstrap$Bootstrap$Button$button,
+																_List_fromArray(
+																	[
+																		$rundis$elm_bootstrap$Bootstrap$Button$outlinePrimary,
+																		$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+																		_List_fromArray(
+																			[
+																				$elm$html$Html$Attributes$disabled(doCreateDisabled)
+																			])),
+																		$rundis$elm_bootstrap$Bootstrap$Button$onClick(
+																		$author$project$Signup$DoCreateGame(model.playerName))
+																	]),
+																_List_fromArray(
+																	[
+																		$elm$html$Html$text('New game')
+																	]))
+															])),
+														A2(
+														$rundis$elm_bootstrap$Bootstrap$Table$td,
+														_List_Nil,
+														_List_fromArray(
+															[
+																A2(
+																$rundis$elm_bootstrap$Bootstrap$Button$button,
+																_List_fromArray(
+																	[
+																		$rundis$elm_bootstrap$Bootstrap$Button$outlinePrimary,
+																		$rundis$elm_bootstrap$Bootstrap$Button$attrs(
+																		_List_fromArray(
+																			[
+																				$elm$html$Html$Attributes$disabled(doStartDisabled)
+																			])),
+																		$rundis$elm_bootstrap$Bootstrap$Button$onClick($author$project$Signup$DoStartGame)
+																	]),
+																_List_fromArray(
+																	[
+																		$elm$html$Html$text('Start game')
+																	]))
+															]))
+													]))
+											]))))
+							]))
+					]))
 			]));
 };
 var $author$project$Main$view = function (model) {
@@ -9205,13 +7655,13 @@ var $author$project$Main$view = function (model) {
 		body: _List_fromArray(
 			[
 				$rundis$elm_bootstrap$Bootstrap$CDN$stylesheet,
-				$author$project$SudokuCDN$stylesheet,
+				$author$project$CardsCDN$stylesheet,
 				A2(
 				$elm$html$Html$map,
-				$author$project$Main$SudokuMsg,
-				$author$project$Sudoku$view(model1))
+				$author$project$Main$SignupMsg,
+				$author$project$Signup$view(model1))
 			]),
-		title: 'Sudoku'
+		title: 'Jokeren'
 	};
 };
 var $author$project$Main$main = $elm$browser$Browser$application(

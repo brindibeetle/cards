@@ -2,14 +2,13 @@ module Main exposing (main)
 
 import Browser exposing (Document, UrlRequest)
 import Browser.Navigation as Nav
+import CardsCDN
 import Url exposing (Url)
 import Html exposing (..)
 import Bootstrap.CDN as CDN
 
 import Session exposing (..)
-import Sudoku exposing (..)
-import SudokuModel exposing (..)
-import SudokuCDN exposing (..)
+import Signup exposing (..)
 import Domain.InitFlags exposing (..)
 
 main : Program String Model Msg
@@ -27,12 +26,12 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model of
-        Sudoku sudokuModel session ->
-            Sudoku.subscriptions sudokuModel |> Sub.map SudokuMsg
+        Signup signupModel session ->
+            Signup.subscriptions signupModel |> Sub.map SignupMsg
 
 
 type Model =
-    Sudoku SudokuModel.Model Session
+    Signup Signup.Model Session
     
 
 -- refresh page : 
@@ -40,9 +39,9 @@ init : String -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
     let
         session = Session.initialSession (getInitFlags flags)
-        ( model, cmd ) = Sudoku.init session
+        ( model, cmd ) = Signup.init session
     in
-        ( Sudoku model session, cmd |> Cmd.map SudokuMsg)
+        ( Signup model session, cmd |> Cmd.map SignupMsg)
 
 
 -- #####
@@ -53,12 +52,12 @@ init flags url navKey =
 view : Model -> Document Msg
 view model =
     case model of
-        Sudoku model1 session ->
-            { title = "Sudoku"
+        Signup model1 session ->
+            { title = "Jokeren"
             , body = 
                 [ CDN.stylesheet
-                , SudokuCDN.stylesheet
-                , Sudoku.view model1 |> Html.map SudokuMsg
+                , CardsCDN.stylesheet
+                , Signup.view model1 |> Html.map SignupMsg
                 ]
             }
 
@@ -66,15 +65,15 @@ view model =
 toSession : Model -> Session
 toSession model =
     case model of
-        Sudoku _ session ->
+        Signup _ session ->
             session
 
 
 toModel :  Model -> Cmd Msg -> Session -> ( Model, Cmd Msg )
 toModel model cmd session =
     case ( session.page, model ) of
-        ( SudokuPage, Sudoku sudokuModel session1 ) ->
-            ( Sudoku sudokuModel session1, cmd )
+        ( SignupPage, Signup signupModel session1 ) ->
+            ( Signup signupModel session1, cmd )
 
 
 -- #####
@@ -83,7 +82,7 @@ toModel model cmd session =
 
 
 type Msg
-    = SudokuMsg Sudoku.Msg
+    = SignupMsg Signup.Msg
     | LinkClicked UrlRequest
     | UrlChanged Url
 
@@ -91,11 +90,11 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case (msg, model) of
-        ( SudokuMsg subMsg, Sudoku sudokuModel session ) ->
+        ( SignupMsg subMsg, Signup signupModel session ) ->
            let
-                updated = Sudoku.update subMsg sudokuModel session
+                updated = Signup.update subMsg signupModel session
            in
-                toModel (Sudoku updated.model session) (updated.cmd |> Cmd.map SudokuMsg) updated.session
+                toModel (Signup updated.model session) (updated.cmd |> Cmd.map SignupMsg) updated.session
 
         ( LinkClicked _, _ ) ->
             ( model, Cmd.none )
