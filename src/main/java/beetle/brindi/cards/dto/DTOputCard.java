@@ -21,12 +21,4 @@ public class DTOputCard {
 
     private String specialType;
 
-    public Card makeCard(){
-        switch ( specialType ) {
-            case "":
-                return new Card( suit, rank, back );
-            default:
-                return new Card (specialType, back );
-        }
-    }
 }

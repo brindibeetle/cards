@@ -1,4 +1,4 @@
-module Signup exposing (..)
+port module Signup exposing (..)
 
 import Bootstrap.Table as Table
 import Bootstrap.Form as Form
@@ -7,11 +7,10 @@ import Bootstrap.Button as Button
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Http
-import Json.Decode as Decode exposing (..)
-import Json.Decode.Pipeline as Pipeline exposing (..)
-import RemoteData exposing (WebData)
+import Json.Encode as Encode exposing (..)
+
 import Session exposing (..)
+import Domain.DTOgame exposing (DTOgame, decodeDTOGame)
 
 
 -- ####
@@ -20,20 +19,17 @@ import Session exposing (..)
 
 
 type alias Model =
-    { playerName : String
-    , playerUuid : String
-    , gameUuid : String
-    , dtoGame : WebData DTOgame
+    {  phase : Phase
     }
+
+
+type Phase = PhaseInit | PhaseCreateAsked | PhaseCreated | PhaseStart
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     (
-        { playerName = ""
-        , playerUuid = ""
-        , gameUuid = ""
-        , dtoGame = RemoteData.NotAsked
+        { phase = PhaseInit
         }
         , Cmd.none
     )
@@ -44,19 +40,12 @@ init session =
 -- #### 
 
 
-view : Model -> Html Msg
-view model =
+view : Model -> Session -> Html Msg
+view model session =
     let
-        { statusText, playerNameDisabled, doCreateDisabled, doStartDisabled, playerUuid, gameUuid } =
-                case model.dtoGame of
-                    RemoteData.NotAsked ->
-                        { statusText = "Initialising.", playerNameDisabled = False, doCreateDisabled = False, doStartDisabled = True, playerUuid = "", gameUuid = "" }
-                    RemoteData.Loading ->
-                        { statusText = "Loading.", playerNameDisabled = True, doCreateDisabled = True, doStartDisabled = True, playerUuid = "", gameUuid = "" }
-                    RemoteData.Failure error ->
-                        { statusText = "Error: " ++ ( buildErrorMessage error), playerNameDisabled = True, doCreateDisabled = True, doStartDisabled = True, playerUuid = "", gameUuid = "" }
-                    RemoteData.Success dtoGame ->
-                        { statusText = "Success.", playerNameDisabled = True, doCreateDisabled = True, doStartDisabled = False, playerUuid = dtoGame.playerUuid, gameUuid = dtoGame.gameUuid }
+        statusText = "test"
+        { phase } = model
+        { playerName, playerUuid, gameUuid } = session
     in
     div [ class "container" ]
         [
@@ -67,7 +56,7 @@ view model =
             , Form.form []
             [ Form.group []
                 [ Form.label [] [ text "Your name or alias"]
-                , Input.text [ Input.onInput UpdatePlayername, Input.value model.playerName, Input.disabled playerNameDisabled ]
+                , Input.text [ Input.onInput UpdatePlayername, Input.value playerName, Input.disabled ( phase /= PhaseInit ) ]
                 ]
             , Form.group [ ]
                 [ Form.label [] [ text "Player identifier"]
@@ -89,12 +78,14 @@ view model =
                                     ]
                                 , Table.td [ ]
                                     [ Button.button
-                                        [ Button.outlinePrimary, Button.attrs [ disabled doCreateDisabled ], Button.onClick ( DoCreateGame model.playerName ) ]
+                                        [ Button.outlinePrimary, Button.attrs [ disabled ( phase /= PhaseInit || playerName == "") ]
+                                            , Button.onClick ( DoCreateGame playerName ) ]
                                         [ text "New game" ]
                                     ]
                                 , Table.td [  ]
                                     [ Button.button
-                                        [ Button.outlinePrimary, Button.attrs [ disabled doStartDisabled ], Button.onClick DoStartGame  ]
+                                        [ Button.outlinePrimary, Button.attrs [ disabled ( phase /= PhaseCreated ) ]
+                                            , Button.onClick DoStartGame  ]
                                         [ text "Start game" ]
                                     ]
                                 ]
@@ -106,8 +97,17 @@ view model =
 
 
 -- ####
+-- ####   PORTS
+-- ####
+
+
+port signupSend : String -> Cmd msg
+port signupReceiver : (Encode.Value -> msg) -> Sub msg
+
+
+-- ####
 -- ####   UPDATE
--- #### 
+-- ####
 
 
 type Msg =
@@ -115,18 +115,18 @@ type Msg =
     | DoCancel
     | DoCreateGame String
     | DoStartGame
-    | GameCreated (WebData DTOgame)
+    | Recv Encode.Value
 
 
 update : Msg -> Model -> Session -> { model : Model, session : Session, cmd : Cmd Msg } 
 update msg model session =
     case msg of
         UpdatePlayername newName ->
-            { model =
-                { model
+            { model = model
+            , session =
+                { session
                 | playerName = newName
                 }
-            , session = session
             , cmd = Cmd.none
             }
 
@@ -134,20 +134,34 @@ update msg model session =
             { model = model, session = session, cmd = Cmd.none }
 
         DoCreateGame playerName ->
-            { model = { model | dtoGame = RemoteData.Loading }
+            { model =
+                { model | phase = PhaseCreateAsked }
             , session = session
-            , cmd = doCreateGame GameCreated playerName session }
+            , cmd = signupSend playerName  }
 
         DoStartGame ->
-            { model = model, session = session, cmd = Cmd.none }
-
-        GameCreated response ->
             { model =
-                { model
-                | dtoGame = response
-                }
+                { model | phase = PhaseStart }
             , session = session
             , cmd = Cmd.none
+            }
+
+        Recv message ->
+            let
+                a = Debug.log "Recv message" message
+                dtoGame = Debug.log "dtoGame = " ( decodeDTOGame message )
+            in
+            {
+                model =
+                    { model
+                    | phase = PhaseCreated
+                    }
+                , session =
+                    { session
+                    | playerUuid = dtoGame.playerUuid
+                    , gameUuid = dtoGame.gameUuid
+                    }
+                , cmd = Cmd.none
             }
 
 
@@ -158,60 +172,9 @@ update msg model session =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    signupReceiver Recv
 
 
-
--- ###
--- ###    ENDPOINTS
--- ###
-
-cardsApiUrl : Session -> String
-cardsApiUrl _ =
-    "http://localhost:8080/v1/cards"
-
-type alias DTOgame =
-    {
-        gameUuid : String
-        , playerUuid : String
-    }
-
-doCreateGame : (WebData DTOgame -> Msg) -> String -> Session -> Cmd Msg
-doCreateGame msg playerName session =
-    let
-        requestUrl = cardsApiUrl session ++ "/jokeren/new?playerName=" ++ playerName
-    in
-        Http.get
-            { url = requestUrl
-            , expect = Http.expectJson (RemoteData.fromResult >> msg) dtoGameDecoder
-            }
-
-dtoGameDecoder : Decoder DTOgame
-dtoGameDecoder =
-    Decode.succeed DTOgame
-        |> Pipeline.required "gameUuid" string
-        |> Pipeline.required "playerUuid" string
-
-
-
--- ###
--- ###    UTILS
--- ###
-
-buildErrorMessage : Http.Error -> String
-buildErrorMessage httpError =
-    case httpError of
-        Http.BadUrl message ->
-            message
-
-        Http.Timeout ->
-            "Server is taking too long to respond. Please try again later."
-
-        Http.NetworkError ->
-            "Unable to reach server."
-
-        Http.BadStatus statusCode ->
-            "Request failed with status code: " ++ String.fromInt statusCode
-
-        Http.BadBody message ->
-            message
+-- ####
+-- ####   HELPER
+-- ####

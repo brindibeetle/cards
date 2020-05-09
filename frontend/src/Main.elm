@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser exposing (Document, UrlRequest)
 import Browser.Navigation as Nav
 import CardsCDN
+import Play
 import Url exposing (Url)
 import Html exposing (..)
 import Bootstrap.CDN as CDN
@@ -10,6 +11,7 @@ import Bootstrap.CDN as CDN
 import Session exposing (..)
 import Signup exposing (..)
 import Domain.InitFlags exposing (..)
+
 
 main : Program String Model Msg
 main =
@@ -29,9 +31,13 @@ subscriptions model =
         Signup signupModel session ->
             Signup.subscriptions signupModel |> Sub.map SignupMsg
 
+        Play playModel session ->
+            Play.subscriptions playModel |> Sub.map PlayMsg
+
 
 type Model =
     Signup Signup.Model Session
+    | Play Play.Model Session
     
 
 -- refresh page : 
@@ -53,11 +59,20 @@ view : Model -> Document Msg
 view model =
     case model of
         Signup model1 session ->
-            { title = "Jokeren"
+            { title = "Jokeren, Aanmelden"
             , body = 
                 [ CDN.stylesheet
                 , CardsCDN.stylesheet
-                , Signup.view model1 |> Html.map SignupMsg
+                , Signup.view model1 session |> Html.map SignupMsg
+                ]
+            }
+
+        Play model1 session ->
+            { title = "Jokeren, Spelen"
+            , body =
+                [ CDN.stylesheet
+                , CardsCDN.stylesheet
+                , Play.view model1 |> Html.map PlayMsg
                 ]
             }
 
@@ -68,12 +83,18 @@ toSession model =
         Signup _ session ->
             session
 
+        Play _ session ->
+            session
+
 
 toModel :  Model -> Cmd Msg -> Session -> ( Model, Cmd Msg )
 toModel model cmd session =
-    case ( session.page, model ) of
-        ( SignupPage, Signup signupModel session1 ) ->
+    case model of
+        Signup signupModel session1 ->
             ( Signup signupModel session1, cmd )
+
+        Play playModel session1 ->
+            ( Play playModel session1, cmd )
 
 
 -- #####
@@ -83,6 +104,7 @@ toModel model cmd session =
 
 type Msg
     = SignupMsg Signup.Msg
+    | PlayMsg Play.Msg
     | LinkClicked UrlRequest
     | UrlChanged Url
 
@@ -90,16 +112,32 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case (msg, model) of
+
+        ( SignupMsg Signup.DoStartGame, Signup signupModel session ) ->
+           let
+                ( updatedModel, updatedCmd ) = Play.init ( Session.getDTOgame session )
+           in
+                toModel (Play updatedModel session) (updatedCmd |> Cmd.map PlayMsg) session
+
         ( SignupMsg subMsg, Signup signupModel session ) ->
            let
                 updated = Signup.update subMsg signupModel session
            in
-                toModel (Signup updated.model session) (updated.cmd |> Cmd.map SignupMsg) updated.session
+                toModel (Signup updated.model updated.session) (updated.cmd |> Cmd.map SignupMsg) updated.session
+
+        ( PlayMsg subMsg, Play playModel session ) ->
+           let
+                updated = Play.update subMsg playModel session
+           in
+                toModel (Play updated.model updated.session) (updated.cmd |> Cmd.map PlayMsg) updated.session
 
         ( LinkClicked _, _ ) ->
             ( model, Cmd.none )
 
         ( UrlChanged _, _ ) ->
+            ( model, Cmd.none )
+
+        ( _, _ ) ->
             ( model, Cmd.none )
 
 

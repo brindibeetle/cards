@@ -23,10 +23,12 @@ public class Players {
         return players.size();
     }
 
-    public Players( UUID uuid, Player firstPlayer ) {
+    public Players( String firstPlayer ) {
+        UUID playerUuid = UUID.randomUUID();
         players = new HashMap<>();
-        players.put(uuid, firstPlayer);
-        current = uuid;
+
+        players.put(playerUuid, new Player(firstPlayer));
+        current = playerUuid;
     }
 
     public void add ( UUID uuid, Player player ) {
@@ -40,5 +42,12 @@ public class Players {
     public Player nextPlayer() {
         // some implementation, maybe with a linked list?
         return players.get(current);
+    }
+
+    public UUID addPlayer(String playerName) {
+        UUID playerUuid = UUID.randomUUID();
+        this.add(playerUuid, new Player(playerName));
+        if ( current == null ) current = playerUuid;
+        return  playerUuid;
     }
 }

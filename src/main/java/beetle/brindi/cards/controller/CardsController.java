@@ -1,71 +1,67 @@
 package beetle.brindi.cards.controller;
 
-import beetle.brindi.cards.dto.DTOcard;
-import beetle.brindi.cards.dto.DTOcards;
 import beetle.brindi.cards.dto.DTOgame;
-import beetle.brindi.cards.dto.DTOputCard;
+import beetle.brindi.cards.dto.DTOplay;
 import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.service.CardsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.UUID;
-
-import static beetle.brindi.cards.domain.GameType.JOKEREN;
-
-@RestController
-@RequestMapping("/v1/cards")
+@Controller
 @RequiredArgsConstructor
 public class CardsController {
 
     private final CardsService cardsService;
 
-    @GetMapping(value = "/jokeren/new", produces = MediaType.APPLICATION_JSON_VALUE )
+    @CrossOrigin
+    @SendTo("/created")
+    @MessageMapping("/create")
     public DTOgame createGameJokeren(@RequestParam String playerName ) {
         try {
-            return cardsService.createGame(JOKEREN, playerName);
+            DTOgame dtoGame = cardsService.createGame(playerName);
+            return dtoGame;
         }
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
         }
     }
 
-    @GetMapping(value = "/jokeren/deal", produces = MediaType.APPLICATION_JSON_VALUE )
-    public DTOcards dealJokeren(@RequestParam UUID gameUuid, @RequestParam UUID playerUuid) {
+    @CrossOrigin
+    @SendTo("/played")
+    @MessageMapping("/play")
+    public DTOplay play(@RequestParam DTOplay dtoPlay) {
         try {
-            return cardsService.deal( JOKEREN, gameUuid, playerUuid);
+            DTOplay play = cardsService.play(dtoPlay);
+            return play;
         }
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
         }
     }
 
-    @GetMapping(value = "/jokeren/draw", produces = MediaType.APPLICATION_JSON_VALUE )
-    public DTOcard drawJokeren(@RequestParam UUID gameUuid, @RequestParam UUID playerUuid) {
-        try {
-            return cardsService.draw( JOKEREN, gameUuid, playerUuid);
-        }
-        catch (CardsException ce) {
-            throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
-        }
-    }
-
-    @PostMapping(value = "/jokeren/put", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE )
-    public DTOcard putJokeren(@RequestBody DTOputCard dtoPutCard) {
-        try {
-            return cardsService.put( JOKEREN, dtoPutCard );
-        }
-        catch (CardsException ce) {
-            throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
-        }
-    }
+//    @GetMapping(value = "/jokeren/draw", produces = MediaType.APPLICATION_JSON_VALUE )
+//    public DTOcard drawJokeren(@RequestParam UUID gameUuid, @RequestParam UUID playerUuid) {
+//        try {
+//            return cardsService.draw( JOKEREN, gameUuid, playerUuid);
+//        }
+//        catch (CardsException ce) {
+//            throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
+//        }
+//    }
+//
+//    @PostMapping(value = "/jokeren/put", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE )
+//    public DTOcard putJokeren(@RequestBody DTOputCard dtoPutCard) {
+//        try {
+//            return cardsService.put( JOKEREN, dtoPutCard );
+//        }
+//        catch (CardsException ce) {
+//            throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
+//        }
+//    }
 
 }

@@ -17,23 +17,55 @@ public class Game {
 
     private Players players;
 
-    public Game() {
+    private Game() {
         deck = new Deck();
         players = new Players();
     }
-    public void addPlayer(UUID uuid, Player player){
-        players.add(uuid, player);
+    public Game(Deck deck) {
+        this();
+        this.deck = deck;
     }
 
-    public List<Card> dealCards(Integer number){
-        return deck.take(number, Place.STOCK, Place.HAND );
+    public UUID addPlayer(String playerName){
+        UUID playerUuid = players.addPlayer(playerName);
+        deck.addPlayer(playerUuid);
+        return playerUuid;
     }
 
-    public Card drawCard() {
-        return deck.take(1, Place.STOCK, Place.HAND ).get(0);
+    public List<Card> dealCards(UUID playerUuid, Integer number){
+        List<Card> cards = deck.takeFromStock(number);
+        deck.putToHand(playerUuid, cards);
+        return cards;
     }
 
-    public Card putCard(Card card) {
-        return deck.take(card, Place.HAND, Place.STOCK );
+    public List<Card> drawCard(UUID playerUuid) {
+        List<Card> cards = deck.takeFromStock(1);
+        deck.putToHand(playerUuid, cards);
+        return cards;
     }
+
+    public List<Card> getCard(UUID playerUuid) {
+        List<Card> cards = deck.takeFromStockBottom(1 );
+        deck.putToHand(playerUuid, cards);
+        return cards;
+    }
+
+    public void putCards(UUID playerUuid, List<Card> cards) {
+        deck.takeFromHand(playerUuid, cards );
+        deck.putToStock(cards);
+    }
+
+    public List<Card> putCardsOnTable(UUID playerUuid, Integer place, List<Card> cards) {
+        deck.takeFromHand(playerUuid, cards );
+        deck.putToTable(place, cards);
+        return cards;
+    }
+
+    public Card.Back getTopOfStock() {
+        return deck.showBackOfTopOfStock();
+    }
+    public Card getBottomOfStock() {
+        return deck.showBottomCardOfStock();
+    }
+
 }

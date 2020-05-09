@@ -1,14 +1,16 @@
 module Session exposing (..)
 
 import Bootstrap.Navbar as Navbar
-import RemoteData exposing (RemoteData, WebData, succeed)
+import Domain.DTOgame exposing (DTOgame)
 
 import Domain.InitFlags exposing (..)
 
 type alias Session =
-    { page : Page
-    , message : Message
+    { message : Message
     , initFlags : InitFlags
+    , playerName : String
+    , playerUuid : String
+    , gameUuid : String
     }
 
 
@@ -21,49 +23,45 @@ type Message =
             
 initialSession : InitFlags -> Session
 initialSession initFlags =
-    { page = SignupPage
-    , message = Empty
+    { message = Empty
     , initFlags = initFlags
+    , playerName = ""
+    , playerUuid = ""
+    , gameUuid = ""
     }
 
 succeed : Session -> String -> Session
 succeed session message =
     { session 
-    | message = Succeeded message
-    , page = SignupPage }
+    | message = Succeeded message }
 
 succeed1 : Session -> String -> Session
 succeed1 session message =
     { session 
-    | message = Succeeded message
-    , page = SignupPage }
+    | message = Succeeded message }
 
 fail : Session -> String -> Session
 fail session message =
     { session 
-    | message = Error message
-    , page = SignupPage }
+    | message = Error message }
 
 
 warn : Session -> String -> Session
 warn session message =
     { session 
-    | message = Warning message
-    , page = SignupPage }
+    | message = Warning message }
 
 
-changedPageSession : Page -> Session ->  Session
-changedPageSession page session =
-    { session
-    | page = page
-    , message = Empty
-    }
+--type Page
+--    = SignupPage
+--    | PlayPage
+--
+
+-- ####
+-- ####   HELPER
+-- ####
 
 
-type Page
-    = SignupPage
-
-
-getSudokuApiBaseUrl : Session -> String
-getSudokuApiBaseUrl session =
-    session.initFlags.sudoku_api_base_url
+getDTOgame: Session -> DTOgame
+getDTOgame { playerUuid, gameUuid} =
+    { playerUuid = playerUuid, gameUuid = gameUuid}

@@ -19,7 +19,7 @@ public class DTOcard {
     public DTOcard(Card card){
         suit = card.getSuitString();
         rank = card.getRankString();
-        back =card.getBackString();
+        back = card.getBackString();
         specialType = card.getSpecialTypeString();
     }
 }
