@@ -148,8 +148,7 @@ update msg model session =
 
         Recv message ->
             let
-                a = Debug.log "Recv message" message
-                dtoGame = Debug.log "dtoGame = " ( decodeDTOGame message )
+                dtoGame = decodeDTOGame message
             in
             {
                 model =

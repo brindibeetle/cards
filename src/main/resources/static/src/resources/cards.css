@@ -201,9 +201,31 @@ div.hand-card {
     margin-left: -5vw;
     position: relative;
 }
+div.hand-card-dragging {
+    margin-left: -5vw;
+    position: relative;
+}
+div.hand-card-dragging:first-child {
+    margin-left: 0;
+}
+div.hand-card-dragging-container {
+    display: grid;
+    grid-template-columns: repeat(14, [col] 1fr) ;
+    grid-template-rows:  repeat(1, [row] 1fr) ;
+}
 div.hand-card-selected {
     margin-top: -5vw;
 }
+div.hand-card-selected-hide {
+    animation-name: cardhide;
+    animation-duration: 0.01s;
+    animation-fill-mode: forwards;
+}
+@keyframes cardhide {
+    0% { display: block; visibility: block;  }
+    100% { display: none; visibility: hidden; }
+}
+
 div.card-hand-bottom {
     margin-left: -7vw;
     position: relative;
@@ -217,10 +239,9 @@ div.table-container {
 
     text-align: center;
     width: 100vw;
-    height: 50vw;
-
-    top: 20vh;
-    left: 10vw;
+    height: 50vh;
+    top: 25vh;
+    left: 1vw;
 }
 div.table-space {
     display: grid;
@@ -228,6 +249,9 @@ div.table-space {
     grid-template-rows:  repeat(1, [row] 1fr) ;
 
     text-align: center;
+}
+div.table-space-card:first-child {
+    margin-left: 0;
 }
 div.table-space-card {
     margin-left: -5vw;

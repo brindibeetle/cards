@@ -19,7 +19,7 @@ type alias Model =
         , table : List ( List DTOcard )
         , topCardBack : Back
         , bottomCard : DTOcard
-        , dragDrop : DragDrop.Model DragDropLocation DragDropLocation
+        , dragDrop : DragDrop.Model DragId DropId
         , phase : Phase
     }
 
@@ -31,11 +31,16 @@ type Phase =
     | PutCard
 
 
-type DragDropLocation =
-    TopCard
-    | BottomCard
-    | Hand Int
-    | Table Int
+type DragId =
+    DragTopCard
+    | DragBottomCard
+    | DragHand Int
+    | DragTable Int
+
+type DropId =
+    DropBottomCard
+    | DropHand Int
+    | DropTable Int
 
 
 -- refresh page :
@@ -52,7 +57,7 @@ init { playerUuid, gameUuid } =
             , dragDrop = DragDrop.init
             , phase = DrawCard
             }
-            , playSend (Debug.log "Play.init" (dtoPlayEncoder dtoPlay ) )
+            , playSend (dtoPlayEncoder dtoPlay )
         )
 
 
@@ -84,7 +89,7 @@ view model =
                             [ DTOcard.viewBack topCardBack ]
                         ]
                 ]
-            , div ( class "table-container" :: droppableToTableSpace model 0 )
+            , div ( class "table-container" :: droppableToTableSpace model ( List.length table + 1 ) )
                 ( List.indexedMap (viewTableSpace model) table )
             , div [ class "hand-container" ]
                 ( List.indexedMap (viewHand model) hand )
@@ -93,39 +98,64 @@ view model =
 
 viewHand : Model -> Int -> ( DTOcard, Bool ) -> Html Msg
 viewHand model index dtoCardSelected =
-    div
-        ( List.concat
-            [ ( draggableFromHand model index )
-            , ( droppableToHand model index )
-            , ( clickHand model index )
+    if Tuple.second dtoCardSelected then
+        ( showSelectedCards model index ( Tuple.first dtoCardSelected ) )
+    else
+        div
+            ( List.concat
+                [ ( draggableFromHand model index )
+                , ( droppableToHand model index )
+                , ( clickHand model index )
+                ]
+            )
+            [ div
+                [ class "hand-card" ]
+                [ DTOcard.view ( Tuple.first dtoCardSelected ) ]
             ]
-        )
-        [ div
-            [ if Tuple.second dtoCardSelected then class "hand-card hand-card-selected" else class "hand-card" ]
-            [ DTOcard.view ( Tuple.first dtoCardSelected ) ]
-        ]
-
 
 viewTableSpace : Model -> Int -> List DTOcard -> Html Msg
 viewTableSpace model index cards =
-    div
-        ( droppableToTableSpace model index )
-        [ div
+    div ( List.append
+            ( droppableToTableSpace model index )
             [ class "table-space"]
-            ( List.indexedMap (viewTableSpaceCard model) cards )
-        ]
+        )
+        ( List.indexedMap (viewTableSpaceCard model) cards )
 
 
 viewTableSpaceCard : Model -> Int -> DTOcard -> Html Msg
 viewTableSpaceCard model index card =
     div
-        []
-        [ div
-            [ class "table-space-card"]
+        [ class "table-space-card"]
+        [ DTOcard.view card ]
+
+
+showSelectedCards : Model -> Int -> DTOcard -> Html Msg
+showSelectedCards model index card =
+    let
+        maybeFrom = DragDrop.getDragId model.dragDrop
+        isMeld = handSelected model.hand True
+                        |> List.map Tuple.first
+                        |> DTOcard.isMeld
+    in
+        div
+            ( List.concat
+                [ if isMeld then ( draggableFromHand model index ) else []
+                , ( clickHand model index )
+                , [ case maybeFrom of
+                        Just ( DragHand i ) ->
+                            class "hand-card hand-card-selected hand-card-selected-hide"
+                        _ ->
+                            class "hand-card hand-card-selected"
+                  ]
+                ]
+            )
             [ DTOcard.view card ]
-        ]
 
-
+showDraggingCard : DTOcard -> Html Msg
+showDraggingCard card =
+    div
+        [ class "hand-card-dragging" ]
+        [ DTOcard.view card ]
 -- ####
 -- ####   PORTS
 -- ####
@@ -144,7 +174,7 @@ port dragstart : Decode.Value -> Cmd msg
 
 type Msg =
     Receiver Encode.Value
-    | DragDropMsg (DragDrop.Msg DragDropLocation DragDropLocation)
+    | DragDropMsg (DragDrop.Msg DragId DropId)
     | Select Int
 
 
@@ -153,14 +183,19 @@ update msg model session =
     case msg of
         Receiver encoded ->
             let
-                 { action, cards, topCardBack, bottomCard, numberOfCards } = dtoPlayDecodeValue ( Debug.log "Receiver encoded " encoded )
+                 { action, cards, topCardBack, bottomCard, numberOfCards } = dtoPlayDecodeValue encoded
             in
                 case action of
                     TABLE ->
                         { model =
                             { model
-                            | hand = handRemoveSelected model.hand
-                            , table = tableAdd model.table cards numberOfCards
+                            | hand = handSelected model.hand False
+                            , table =
+                                case cards of
+                                    [] ->
+                                        model.table
+                                    _ ->
+                                        tableAdd model.table cards ( Debug.log "update TABLE numberofcards" numberOfCards )
                             , topCardBack = topCardBack
                             , bottomCard = bottomCard
                             , phase = PutCard
@@ -231,7 +266,7 @@ update msg model session =
                                 }
                                 , Cmd.none
                             )
-                        Just ( BottomCard, Hand index, _ ) ->
+                        Just ( DragBottomCard, DropHand index, _ ) ->
                             let
                                 dtoPlay = DTOplay.makeGet session index
                             in
@@ -240,9 +275,9 @@ update msg model session =
                                 | dragDrop = dragDropModel
                                 , phase = Pending
                                 }
-                                , playSend (Debug.log "Just ( BottomCard, Hand int" (dtoPlayEncoder dtoPlay ) )
+                                , playSend (dtoPlayEncoder dtoPlay )
                             )
-                        Just ( TopCard, Hand index, _ ) ->
+                        Just ( DragTopCard, DropHand index, _ ) ->
                             let
                                 dtoPlay = DTOplay.makeDraw session index
                             in
@@ -251,9 +286,9 @@ update msg model session =
                                 | dragDrop = dragDropModel
                                 , phase = Pending
                                 }
-                                , playSend (Debug.log "Just ( BottomCard, Hand int" (dtoPlayEncoder dtoPlay ) )
+                                , playSend ( dtoPlayEncoder dtoPlay )
                             )
-                        Just ( Hand index, BottomCard, _ ) ->
+                        Just ( DragHand index, DropBottomCard, _ ) ->
                             case getHandCard model index of
                                 Just dtoCard ->
                                     let
@@ -264,43 +299,63 @@ update msg model session =
                                         | dragDrop = dragDropModel
                                         , phase = Pending
                                         }
-                                        , playSend (Debug.log "Just ( Hand int, BottomCard" (dtoPlayEncoder dtoPlay ) )
+                                        , playSend ( dtoPlayEncoder dtoPlay )
                                     )
 
                                 Nothing ->
-                                    ( model, Cmd.none )
-
-                        Just ( Hand from, Hand to, _ ) ->
-                            case getHandCard model from of
-                                Just card ->
-                                    let
-                                        a = Debug.log "Hand from to hand from " from
-                                        b = Debug.log "Hand from to hand to " to
-                                    in
                                     (
                                         { model
-                                        | hand = handMove model.hand from to
+                                        | dragDrop = dragDropModel
+                                        }
+                                        , Cmd.none
+                                    )
+
+                        Just ( DragHand from, DropHand to, _ ) ->
+                            case getHandCard model from of
+                                Just card ->
+                                    (
+                                        { model
+                                        | dragDrop = dragDropModel
+                                        , hand = handMove model.hand from to
                                         }
                                         , Cmd.none
                                     )
 
                                 Nothing ->
-                                     ( model, Cmd.none )
+                                    (
+                                        { model
+                                        | dragDrop = dragDropModel
+                                        }
+                                        , Cmd.none
+                                    )
 
-                        Just ( Hand from, Table to, _ ) ->
-                            let
-                                dtoPlay = DTOplay.makeTable session model.hand to
-                            in
+                        Just ( DragHand from, DropTable to, _ ) ->
+                            if getHandSelect model from then
+                                let
+                                    dtoPlay = DTOplay.makeTable session model.hand ( Debug.log "Just ( DragHand from, DropTable to, _ ) to " to )
+                                in
+                                (
+                                    { model
+                                    | dragDrop = dragDropModel
+                                    , phase = Pending
+                                    }
+                                    , playSend ( dtoPlayEncoder dtoPlay )
+                                )
+                            else
+                                (
+                                    { model
+                                    | dragDrop = dragDropModel
+                                    }
+                                    , Cmd.none
+                                )
+
+                        Just (_, _, _ ) ->
                             (
                                 { model
                                 | dragDrop = dragDropModel
-                                , phase = Pending
                                 }
-                                , playSend (Debug.log "Just ( Hand int, Table to " (dtoPlayEncoder dtoPlay ) )
+                                , Cmd.none
                             )
-
-                        Just (_, _, _ ) ->
-                            ( model, Cmd.none )
             in
                 { model = model1
                 , session = session
@@ -313,9 +368,6 @@ update msg model session =
                 }
 
         Select int ->
-            let
-                a = Debug.log "Select int " int
-            in
             { model =
                 { model
                 | hand = List.indexedMap (\i ( card, selected ) -> if i == int then ( card, not selected ) else ( card, selected ) )  model.hand
@@ -352,10 +404,6 @@ getHandSelect model index =
 
 handAdd: List ( DTOcard, Bool ) -> List DTOcard -> Int -> List ( DTOcard, Bool )     -- 0,1,2,3,4     7  2 => 0,1,2,7,3,4
 handAdd hand cards index =
-    let
-        a = Debug.log "handadd hand" hand
-        b = Debug.log "handadd index" index
-    in
     List.concat
         [
             List.take (index + 1) hand                           -- 0,1,2
@@ -366,10 +414,6 @@ handAdd hand cards index =
 
 handRemove: List ( DTOcard, Bool ) -> Int -> List ( DTOcard, Bool )
 handRemove hand index =                            -- 0,1,2,3,4   2 => 0,1,3,4
-    let
-        a = Debug.log "handRemove hand" hand
-        b = Debug.log "handRemove index" index
-    in
     List.concat
         [
             List.take index hand                  -- 0,1
@@ -405,7 +449,7 @@ draggableFromHand model index =
             []
 
         _ ->
-            DragDrop.draggable DragDropMsg ( Hand index )
+            DragDrop.draggable DragDropMsg ( DragHand index )
 
 
 droppableToHand: Model -> Int -> List (Attribute Msg)
@@ -415,10 +459,10 @@ droppableToHand model index =
             []
 
         ( DrawCard, _ ) ->
-            DragDrop.droppable DragDropMsg ( Hand index )
+            DragDrop.droppable DragDropMsg ( DropHand index )
 
-        ( _, Just ( Hand indexFrom) ) ->
-            DragDrop.droppable DragDropMsg ( Hand index )
+        ( _, Just ( DragHand indexFrom) ) ->
+            DragDrop.droppable DragDropMsg ( DropHand index )
 
         ( _, _ ) ->
             []
@@ -428,7 +472,7 @@ draggableFromBottom: Model -> List (Attribute Msg)
 draggableFromBottom model =
     case model.phase of
         DrawCard ->
-            DragDrop.draggable DragDropMsg BottomCard
+            DragDrop.draggable DragDropMsg DragBottomCard
 
         _ ->
             []
@@ -438,7 +482,7 @@ droppableToBottom: Model -> List (Attribute Msg)
 droppableToBottom model =
     case model.phase of
         PutCard ->
-            DragDrop.droppable DragDropMsg BottomCard
+            DragDrop.droppable DragDropMsg DropBottomCard
 
         _ ->
             []
@@ -448,20 +492,11 @@ draggableFromTop: Model -> List (Attribute Msg)
 draggableFromTop model =
     case model.phase of
         DrawCard ->
-            DragDrop.draggable DragDropMsg TopCard
+            DragDrop.draggable DragDropMsg DragTopCard
 
         _ ->
             []
 
-
-droppableToTop: Model -> List (Attribute Msg)
-droppableToTop model =
-    case model.phase of
-        PutCard ->
-            DragDrop.droppable DragDropMsg TopCard
-
-        _ ->
-            []
 
 clickHand: Model -> Int -> List (Attribute Msg)
 clickHand model index =
@@ -475,43 +510,31 @@ clickHand model index =
 
 droppableToTableSpace: Model -> Int -> List (Attribute Msg)
 droppableToTableSpace model index =
-    let
-        a = Debug.log "droppableToTableSpace model.phase " model.phase
-        b = Debug.log "droppableToTableSpace index " index
-    in
-        case ( model.phase, DragDrop.getDragId model.dragDrop ) of
-            ( Pending, _ ) ->
-                []
+    case ( model.phase, DragDrop.getDragId model.dragDrop ) of
+        ( Pending, _ ) ->
+            []
 
-            ( PutCard, _ ) ->
-                let
-                    c = Debug.log "PutCard" "( DragDrop.droppable DragDropMsg ( Table index ) )"
-                in
-                    DragDrop.droppable DragDropMsg ( Table index )
+        ( PutCard, _ ) ->
+            DragDrop.droppable DragDropMsg ( DropTable index )
 
-            ( _, _ ) ->
-                []
+        ( _, _ ) ->
+            []
 
 
-handRemoveSelected: List ( DTOcard, Bool ) -> List ( DTOcard, Bool )
-handRemoveSelected dtoCardSelected =
-    dtoCardSelected |> List.filter (\(dtoCard, selected) -> not selected )
+handSelected: List ( DTOcard, Bool ) -> Bool -> List ( DTOcard, Bool )
+handSelected dtoCardSelected selectFilter =
+    dtoCardSelected |> List.filter (\(dtoCard, selected) -> selectFilter == selected )
+
+
 
 
 tableAdd: List ( List DTOcard ) -> List DTOcard -> Int -> List ( List DTOcard )
 tableAdd table cards index =
-    let
-        a = Debug.log "tableAdd cards" cards
-        b = Debug.log "tableAdd index" index
-    in
-        Debug.log "tableADd result"
-        (
-            List.concat
-            [
-                List.take (index + 1) table                           -- 0,1,2
-                , [ cards ]
-                , List.drop (index + 1) table                         -- 3,4
-            ]
-        )
+    List.concat
+    [
+        List.take (index + 1) table                           -- 0,1,2
+        , [ cards ]
+        , List.drop (index + 1) table                         -- 3,4
+    ]
 
 

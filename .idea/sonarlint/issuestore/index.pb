@@ -5,13 +5,11 @@ F
 clevercloud/maven.json,b/4/b45119b3c6bc9036fe3ee4d97663aec5a01ae17f
 :
 
-.gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
+.gitignore,a\5\a5cc2925ca8258af241be7e5b0381edf30266302
 Q
-!frontend/src/Domain/InitFlags.elm,7/d/7d8c8dfc865a5d02b08a297edb91e36ae6d68aeb
+!frontend/src/Domain/InitFlags.elm,7\d\7d8c8dfc865a5d02b08a297edb91e36ae6d68aeb
 9
-	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
-R
-"frontend/src/Domain/SudokuQuiz.elm,3/e/3e88aa1fd520f587aa079bc379a7042d8114ac12
+	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
 q
 Asrc/main/java/beetle/brindi/cards/repository/CardsRepository.java,6\d\6dae98bf430584159014e105a912e4d33875ba2a
 g
@@ -19,17 +17,11 @@ g
 o
 ?src/main/java/beetle/brindi/cards/exception/CardsException.java,a\8\a8319c6e86a19bb0ea5cd5956ad6fb4cf395b8d4
 e
-5src/main/java/beetle/brindi/cards/SingletonClass.java,d\7\d7796fae1b14d29e727e0c9b72eda9fad66a0551
-e
 5src/main/java/beetle/brindi/cards/domain/Players.java,9\6\968c5d2e6b12cc46142289ce71d4f31d69344c46
 q
 Asrc/main/java/beetle/brindi/cards/controller/CardsController.java,d\4\d4a91db2bf65eaca7a9085e682fb64242b335269
 c
-3src/main/java/beetle/brindi/cards/dto/DTOcards.java,3\1\31d5a1ba3661b296ef4b924590c547a7594c679e
-c
 3src/main/java/beetle/brindi/cards/domain/Games.java,6\3\633ffcf448204a25337cd6d4036cc0a0d6461a92
-f
-6src/main/java/beetle/brindi/cards/domain/GameType.java,c\5\c5d5061d274f69b3cf70d1cc7dcced2b06e18328
 d
 4src/main/java/beetle/brindi/cards/domain/Player.java,d\9\d92b1c5878da28a8749a14392b378ac2e63f516b
 b
@@ -48,3 +40,31 @@ b
 2src/main/java/beetle/brindi/cards/dto/DTOcard.java,6\a\6ac3a09895f52c7c94c5bc647f1f414a946e6d60
 b
 2src/main/java/beetle/brindi/cards/domain/Card.java,a\8\a80f4d89e0dceceb86c518780c464f36eef989e6
+G
+frontend/src/Signup.elm,2\9\29294bd0a09868c5b0469df441ff53c11f335203
+I
+frontend/src/CardsCDN.elm,5\3\53deb91d56f1b5757bff4004ea9e8d6ad89b8129
+E
+frontend/src/Main.elm,3\d\3dcec4f50071d5230c24f95672fcdb4a7f205413
+e
+5src/main/java/beetle/brindi/cards/CardsSingleton.java,c\4\c4c481aed4b9ac83c7ca816a7ca8c13fd71cd327
+f
+6src/main/java/beetle/brindi/cards/WebSocketConfig.java,d\b\db54a76e3679785b046a2c72cf2bc3ed8c11fdfe
+H
+frontend/src/Session.elm,7\e\7e7cf0690bd8dfd296dd99413ddd936e2d6ac74b
+O
+frontend/src/Domain/DTOcard.elm,a\9\a9b4b08407847b03dccb59bc8dda8018b05213c6
+O
+frontend/src/Domain/DTOgame.elm,3\f\3f0392d80a631c3ac179aa704cb79ce1684706d4
+E
+frontend/src/Play.elm,e\3\e33247f39fae95ea51c7c8670aa0506683510972
+e
+5src/main/java/beetle/brindi/cards/dto/DTOputCard.java,e\c\ec137b14c39d3e5f152bbb76a83f20bc521f7cba
+A
+frontend/elm.json,b\e\beadf617a28743c64d95867692519de96a88f2fc
+b
+2src/main/java/beetle/brindi/cards/dto/DTOplay.java,0\7\07883fa89d4afd91a00d5141ad2d7d84c4065280
+O
+frontend/src/Domain/DTOplay.elm,8\e\8e45327dd406f9ae697d2da31261913375376061
+c
+3src/main/java/beetle/brindi/cards/domain/Cards.java,e\3\e328037a95132d4a3ccaa542c7cc9739aec49b5d

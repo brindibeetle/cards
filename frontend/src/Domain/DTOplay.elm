@@ -1,6 +1,6 @@
 module Domain.DTOplay exposing (..)
 
-import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder)
+import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, meldSorter)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
@@ -77,16 +77,10 @@ dtoPlayDecodeValue : Encode.Value -> DTOplay
 dtoPlayDecodeValue encoded =
     case Decode.decodeValue dtoPlayDecoder encoded of
         Ok dtoPlay ->
-            let
-                a = Debug.log "OK" encoded
-            in
-                dtoPlay
+            dtoPlay
 
         Err message ->
-            let
-                a = Debug.log "Err" message
-            in
-                emptyDTOplay
+            emptyDTOplay
 
 
 -- ####
@@ -164,7 +158,7 @@ makeTable session dtoCardSelecteds tableSpace =
      {
          gameUuid = session.gameUuid
          , playerUuid = session.playerUuid
-         , cards = dtoCardSelecteds |> List.filterMap (\(dtoCard, selected) -> if selected then Just dtoCard else Nothing )
+         , cards = Debug.log "makeTable" ( dtoCardSelecteds |> List.filterMap (\(dtoCard, selected) -> if selected then Just dtoCard else Nothing ) |> meldSorter )
          , numberOfCards = tableSpace
          , action = TABLE
          , topCardBack = DARK

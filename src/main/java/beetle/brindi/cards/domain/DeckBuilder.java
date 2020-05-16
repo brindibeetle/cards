@@ -16,7 +16,6 @@ public class DeckBuilder {
     List<Card.SpecialType> specialTypes;
 
     List<Card> cards;
-    List<Place> places;
 
     public DeckBuilder()
     {
@@ -25,7 +24,6 @@ public class DeckBuilder {
         suits = new ArrayList<>();
         backs = new ArrayList<>();
         specialTypes = new ArrayList<>();
-        places = new ArrayList<>();
     }
 
     public DeckBuilder addAllRanks() {
@@ -76,13 +74,6 @@ public class DeckBuilder {
     public DeckBuilder shuffle() {
         Collections.shuffle(this.cards);
 
-        return this;
-    }
-
-    public DeckBuilder addPlaces(Place place) {
-        for (Card card : cards) {
-            places.add(place);
-        }
         return this;
     }
 

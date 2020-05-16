@@ -8,7 +8,7 @@ import Json.Encode as Encode
 
 type DTOcard =
     Regular RegularCard
-    | Special SpecialCard
+    | Special { specialType : SpecialType, back : Back  }
 
 type Rank = ACE | KING | QUEEN | JACK | N10 | N9 | N8 | N7 | N6 | N5 | N4 | N3 | N2
 
@@ -21,7 +21,6 @@ type Back = DARK | LIGHT
 type alias RegularCard = { suit : Suit, rank : Rank, back : Back }
 
 type alias SpecialCard = { specialType : SpecialType, back : Back  }
-
 
 defaultDTOcard : DTOcard
 defaultDTOcard =
@@ -124,16 +123,10 @@ decodeDTOcard : Encode.Value -> DTOcard
 decodeDTOcard payload =
     case Decode.decodeValue dtoCardDecoder payload of
         Ok dtoGame ->
-            let
-                a = Debug.log "OK" payload
-            in
-                dtoGame
+            dtoGame
 
         Err message ->
-            let
-                a = Debug.log "Err" message
-            in
-                defaultDTOcard
+            defaultDTOcard
 
 
 -- ####
@@ -359,4 +352,240 @@ viewBack back =
     div [ class "char-holder" ]
         ( List.map viewChar ( getCharsBack back ) )
 
+
+-- ####
+-- ####   MELD sets of cards and runs of cards
+-- ####
+
+
+isMeld : List DTOcard -> Bool
+isMeld cards =
+    List.length cards >= 3
+    &&
+    (
+        (
+            ( cardsRegulars cards |> List.map .rank |> allOfOneKind )
+            &&
+            ( cardsRegulars cards |> List.map .suit |> allDifferent )
+            &&
+            List.length cards <= 4
+        )
+        ||
+        (
+            ( cardsRegulars cards |> List.map .suit |> allOfOneKind )
+            &&
+            ranksSuccessive
+                ( cardsRegulars cards |> List.map .rank )
+                ( cardsSpecials cards |> List.length )
+            &&
+            ( cardsRegulars cards |> List.map .rank |> allDifferent )
+            &&
+            List.length cards <= 13
+            -- &&
+            -- todo ACE always BEGIN or END of a run, never in between
+        )
+    )
+
+
+cardsRegulars : List DTOcard -> List { suit : Suit, rank : Rank, back : Back }
+cardsRegulars cards =
+    List.filterMap cardRegular cards
+
+cardRegular : DTOcard -> Maybe { suit : Suit, rank : Rank, back : Back }
+cardRegular card =
+    case card of
+        Special _ -> Nothing
+        Regular rcard -> Just rcard
+
+cardsSpecials : List DTOcard -> List { specialType : SpecialType, back : Back }
+cardsSpecials cards =
+    List.filterMap cardSpecial cards
+
+cardSpecial : DTOcard -> Maybe { specialType : SpecialType, back : Back }
+cardSpecial card =
+    case card of
+        Special scard -> Just scard
+        Regular _ -> Nothing
+
+
+specialToCard : SpecialCard -> DTOcard
+specialToCard scard =
+    Special scard
+
+
+regularToCard : RegularCard -> DTOcard
+regularToCard rcard =
+    Regular rcard
+
+
+allOfOneKind : List a -> Bool
+allOfOneKind lista =
+    List.foldl allOfOneKindHelper ( True, Nothing ) lista
+    |> Tuple.first
+
+
+allOfOneKindHelper : a -> ( Bool, Maybe a ) -> ( Bool, Maybe a )
+allOfOneKindHelper aa ( bool, maybeA ) =
+    case maybeA of
+        Nothing ->
+            ( bool, Just aa )
+        Just aa1 ->
+            ( bool && aa1 == aa, Just aa )
+
+
+allDifferent : List a -> Bool
+allDifferent lista =
+    List.foldl allDifferentHelper ( True, [] ) lista
+    |> Tuple.first
+
+
+allDifferentHelper : a -> ( Bool, List a ) -> ( Bool, List a )
+allDifferentHelper a1 ( bool, lista ) =
+    ( bool && not ( List.member a1 lista ), a1 :: lista )
+
+
+ranksSuccessive : List Rank -> Int -> Bool
+ranksSuccessive ranks jokers =
+    List.foldl rankHasSuccessor ( ranks, 0) ranks
+    |> (\(_, noSuccessor) -> noSuccessor <= jokers + 1 )
+
+
+rankHasSuccessor : Rank -> ( List Rank, Int ) -> ( List Rank, Int )
+rankHasSuccessor rank ( ranks, noSuccessor ) =
+    ( ranks
+    , noSuccessor +
+        if List.member ( successor rank ) ranks then 0 else 1
+    )
+
+
+successor : Rank -> Rank
+successor rank =
+    case rank of
+        ACE -> N2
+        KING -> ACE
+        QUEEN -> KING
+        JACK -> QUEEN
+        N10 -> JACK
+        N9 ->  N10
+        N8 ->  N9
+        N7 ->  N8
+        N6 ->  N7
+        N5 ->  N6
+        N4 ->  N5
+        N3 ->  N4
+        N2 ->  N3
+
+numerizeRank : Rank -> Int
+numerizeRank rank =
+    case rank of
+        ACE -> 1
+        KING -> 13
+        QUEEN -> 12
+        JACK -> 11
+        N10 -> 10
+        N9 ->  9
+        N8 ->  8
+        N7 ->  7
+        N6 ->  6
+        N5 ->  5
+        N4 ->  4
+        N3 ->  3
+        N2 ->  2
+
+
+numerizeSuit : Suit -> Int
+numerizeSuit suit =
+    case suit of
+        DIAMONDS -> 1
+        CLUBS -> 2
+        HEARTS -> 3
+        SPADES -> 4
+
+
+meldRunSorter : List RegularCard -> List RegularCard
+meldRunSorter cards =
+    -- aces in a run come either before 2 or after king
+    let
+        withoutAcesSorted = List.filter ( \{ rank } -> rank /= ACE ) cards |>  List.sortBy ( \rcard -> .rank rcard |> numerizeRank )
+        onlyAces = List.filter ( \{ rank } -> rank == ACE ) cards
+        lowestRank = List.head withoutAcesSorted
+        highestRank = List.drop ( List.length withoutAcesSorted - 1) withoutAcesSorted |> List.head
+
+    in
+        case ( onlyAces, lowestRank, highestRank ) of
+            ( [], _, _ ) ->
+                withoutAcesSorted
+
+            ( _, Nothing, _ ) ->
+                withoutAcesSorted
+
+            ( _, _, Nothing ) ->
+                withoutAcesSorted
+
+            ( ace::rest, Just lowest, Just highest ) ->
+                if ( lowest.rank |> numerizeRank |> (+) -2 ) > ( highest.rank |> numerizeRank |> (-) 13 ) then
+                    List.append withoutAcesSorted onlyAces
+                else
+                    List.append onlyAces withoutAcesSorted
+
+
+meldSorter : List DTOcard -> List DTOcard
+meldSorter cards =
+     if ( cardsRegulars cards |> List.map .rank |> allOfOneKind ) then
+        cards
+     else
+        let
+            rcards = cardsRegulars cards |> meldRunSorter
+            scards = cardsSpecials cards
+        in
+            distributeJokersInSortedMeldRun [] rcards scards
+
+distributeJokersInSortedMeldRun : List DTOcard -> List RegularCard -> List SpecialCard -> List DTOcard
+distributeJokersInSortedMeldRun cards rCards sCards =
+    case ( rCards, sCards ) of
+        ( [], _ ) ->
+            List.append cards ( sCards |> List.map specialToCard )
+
+        ( _, [] ) ->
+            List.append cards ( rCards |> List.map regularToCard )
+
+        ( rCard::rCardsRest, sCard::sCardsRest ) ->
+            let
+                highestCardsRank = List.drop ( List.length rCards - 1) rCards
+                    |> List.head |> Maybe.map .rank |>  Maybe.map numerizeRank |> Maybe.withDefault 14
+                numberOfCards = ( List.length rCards ) + ( List.length sCards )
+                numberOfPlacesLeft = highestCardsRank - numerizeRank rCard.rank + 1 |> max 0
+            in
+                if numberOfCards > numberOfPlacesLeft then
+                    distributeJokersInSortedMeldRun
+                        ( List.append cards [ specialToCard sCard ] )
+                        rCards
+                        sCardsRest
+                else
+                    distributeJokersInSortedMeldRun
+                        ( List.append cards [ regularToCard rCard ] )
+                        rCardsRest
+                        sCards
+
+
+cardSorter : DTOcard -> DTOcard -> Order
+cardSorter card1 card2 =
+    case ( card1, card2 ) of
+        ( Special _, Special _ ) -> EQ
+        ( Special _, _ ) -> LT
+        ( _, Special _ ) -> GT
+        ( Regular rCard1, Regular rCard2 ) ->
+            case ( suitSorter rCard1.suit rCard2.suit ) of
+                EQ -> rankSorter rCard1.rank rCard2.rank
+                sort -> sort
+
+
+suitSorter : Suit -> Suit -> Order
+suitSorter suit1 suit2 =
+    compare (numerizeSuit suit1) (numerizeSuit suit2)
+
+
+rankSorter : Rank -> Rank -> Order
+rankSorter rank1 rank2 =
+    compare (numerizeRank rank1) (numerizeRank rank2)
 

@@ -29,16 +29,10 @@ decodeDTOGame : Encode.Value -> DTOgame
 decodeDTOGame payload =
     case Decode.decodeValue dtoGameDecoder payload of
         Ok dtoGame ->
-            let
-                a = Debug.log "OK" payload
-            in
-                dtoGame
+            dtoGame
 
         Err message ->
-            let
-                a = Debug.log "Err" message
-            in
-                emtptyDTOgame
+            emtptyDTOgame
 
 
 

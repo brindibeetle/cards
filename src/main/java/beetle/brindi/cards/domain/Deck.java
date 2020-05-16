@@ -26,7 +26,7 @@ public class Deck {
 
     private List<Card> cardsStock;
     private Map<Integer, List<Card>> cardsTable;
-    private Map<UUID, Set<Card>> cardsHand;
+    private Map<UUID, List<Card>> cardsHand;
 
     public Deck() {
         cardsStock = new ArrayList<>();
@@ -78,21 +78,22 @@ public class Deck {
     }
 
     public void takeFromHand(UUID playerUuid, List<Card> cards ) {
-        Set<Card> cardsPlayer = cardsHand.get(playerUuid);
+        List<Card> cardsPlayer = cardsHand.get(playerUuid);
 
-        List<Card> notFound = cards.stream().filter( card -> ! cardsPlayer.contains( card )).collect(toList());
-
-        if ( ! notFound.isEmpty() )
-            throw new CardsException(HttpStatus.CONFLICT, "These cards are not present in the players hand, player : " + playerUuid + ", cards : " + notFound );
-
-        cardsPlayer.removeAll(cards);
+        cards.forEach(card ->
+        {
+            if (!cardsPlayer.remove(card))
+            {
+                throw new CardsException(HttpStatus.CONFLICT, "The card is not present in the players hand, player : " + playerUuid + ", card : " + card);
+            }
+        });
     }
 
     public void putToHand(UUID playerUuid, List<Card> cards ) {
         cardsHand.get(playerUuid).addAll(cards);
     }
     public void addPlayer(UUID playerUuid) {
-        cardsHand.put(playerUuid, new HashSet<>());
+        cardsHand.put(playerUuid, new ArrayList<>());
     }
 
     public void putToTable(Integer place, List<Card> cards) {
@@ -106,5 +107,7 @@ public class Deck {
     public Card.Back showBackOfTopOfStock() {
         return cardsStock.get(0).getBack();
     }
+
+
 }
 
