@@ -392,10 +392,10 @@ update msg model session =
                                 , makePutRequest session cards 0 to TABLE |> cardsRequestEncoder |> playSend
                             )
 
-                        Just ( DragHand i, DropTable to, _ ) ->
+                        Just ( DragHand from, DropTable to, _ ) ->
                             case Maybe.map2
                                 (::)
-                                ( Array.fromList model.hand |> Array.get i |> Maybe.map Tuple.first )
+                                ( Array.fromList model.hand |> Array.get from |> Maybe.map Tuple.first )
                                 ( Array.fromList model.table |> Array.get to )
                             of
                                 Just cards ->
@@ -405,10 +405,9 @@ update msg model session =
                                     (
                                         { model
                                         | dragDrop = dragDropModel
-                                        , hand = removeFromHand i model.hand
                                         , phase = Pending
                                         }
-                                        , makeSlideRequest session (meldSorter cards) 0 to TABLE |> cardsRequestEncoder |> playSend
+                                        , makeSlideRequest session (meldSorter cards) from to TABLE |> cardsRequestEncoder |> playSend
                                         --, playSend ( dtoPlayEncoder ( DTOplay.makeTableMod session cards to ) )
                                     )
 

@@ -26,8 +26,6 @@ d
 4src/main/java/beetle/brindi/cards/domain/Player.java,d\9\d92b1c5878da28a8749a14392b378ac2e63f516b
 b
 2src/main/java/beetle/brindi/cards/domain/Deck.java,b\b\bbbe07f40457b174598e16796d4ebc5dd9d367ca
-c
-3src/main/java/beetle/brindi/cards/domain/Place.java,d\d\dd772734046b41623171c398e2ceabb84d79ae2c
 i
 9src/main/java/beetle/brindi/cards/domain/DeckBuilder.java,0\5\05bcb26b560c3dd50b3bc507df29b25ddf6401b8
 b
