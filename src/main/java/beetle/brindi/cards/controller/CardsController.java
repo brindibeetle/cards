@@ -1,6 +1,8 @@
 package beetle.brindi.cards.controller;
 
+import beetle.brindi.cards.dto.DTOcardsRequest;
 import beetle.brindi.cards.dto.DTOgame;
+import beetle.brindi.cards.dto.DTOhandResponse;
 import beetle.brindi.cards.dto.DTOplay;
 import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.service.CardsService;
@@ -34,10 +36,10 @@ public class CardsController {
     @CrossOrigin
     @SendTo("/played")
     @MessageMapping("/play")
-    public DTOplay play(@RequestParam DTOplay dtoPlay) {
+    public DTOhandResponse play(@RequestParam DTOcardsRequest cardsRequest) {
         try {
-            DTOplay play = cardsService.play(dtoPlay);
-            return play;
+            DTOhandResponse response = cardsService.play(cardsRequest);
+            return response;
         }
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );

@@ -122,4 +122,8 @@ public class Card {
                 return "";
         }
     }
+
+    public static Card defaultCard() {
+        return new Card(SpecialType.JOKER, Back.DARK);
+    }
 }

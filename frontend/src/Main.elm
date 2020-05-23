@@ -115,7 +115,7 @@ update msg model =
 
         ( SignupMsg Signup.DoStartGame, Signup signupModel session ) ->
            let
-                ( updatedModel, updatedCmd ) = Play.init ( Session.getDTOgame session )
+                ( updatedModel, updatedCmd ) = Play.init session
            in
                 toModel (Play updatedModel session) (updatedCmd |> Cmd.map PlayMsg) session
 

@@ -22,4 +22,8 @@ public class DTOcard {
         back = card.getBackString();
         specialType = card.getSpecialTypeString();
     }
+
+    public static DTOcard defaultCard(){
+        return new DTOcard( Card.defaultCard() );
+    }
 }

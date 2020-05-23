@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,7 +57,28 @@ public class Game {
     }
 
     public List<Card> putCardsOnTable(UUID playerUuid, Integer place, List<Card> cards) {
-        deck.takeFromHand(playerUuid, cards );
+        List<Card> tableCards = deck.getFromTable(place);
+
+        List<Card> newCards = new ArrayList();
+        cards.forEach(
+                card ->
+                {
+                    if (! tableCards.contains(card) )
+                        newCards.add(card);
+                });
+
+        List<Card> oldCards = new ArrayList();
+        tableCards.forEach(
+                card ->
+                {
+                    if (! cards.contains(card) )
+                        oldCards.add(card);
+                });
+
+
+        deck.takeFromHand(playerUuid, newCards );
+        deck.putToHand(playerUuid, oldCards );
+
         deck.putToTable(place, cards);
         return cards;
     }

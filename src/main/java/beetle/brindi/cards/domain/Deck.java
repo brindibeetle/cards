@@ -99,6 +99,12 @@ public class Deck {
     public void putToTable(Integer place, List<Card> cards) {
         cardsTable.put(place, cards);
     }
+    public List<Card> getFromTable(Integer place) {
+        List<Card>cards = cardsTable.get(place);
+        if ( cards == null )
+            cards = new ArrayList<>();
+        return cards;
+    }
 
     public Card showBottomCardOfStock() {
         return cardsStock.get(cardsStock.size() - 1);

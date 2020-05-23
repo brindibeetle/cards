@@ -23,7 +23,7 @@ public class DTOplay {
 
     private List<DTOcard> cards;
 
-    private Integer numberOfCards;
+    private Integer actionNumber;
 
     private Action action;
 
@@ -32,6 +32,7 @@ public class DTOplay {
 
     public enum Action {
         TABLE,
+        TABLEMOD,
         DEAL,
         PUT,
         GET,

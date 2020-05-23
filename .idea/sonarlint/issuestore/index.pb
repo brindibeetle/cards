@@ -64,7 +64,17 @@ A
 frontend/elm.json,b\e\beadf617a28743c64d95867692519de96a88f2fc
 b
 2src/main/java/beetle/brindi/cards/dto/DTOplay.java,0\7\07883fa89d4afd91a00d5141ad2d7d84c4065280
-O
-frontend/src/Domain/DTOplay.elm,8\e\8e45327dd406f9ae697d2da31261913375376061
-c
-3src/main/java/beetle/brindi/cards/domain/Cards.java,e\3\e328037a95132d4a3ccaa542c7cc9739aec49b5d
+Q
+!src/main/resources/static/main.js,9\c\9c7ea218e88b96129ece547872569f1f9aa41e0e
+L
+frontend/src/weg/DTOplay.elm,4\a\4a1282fa8821821fde082203f10a0589782ef5e3
+T
+$frontend/src/Domain/HandResponse.elm,3\b\3b6d5c3c69492f519cc18074c5a81aa9730c42ad
+T
+$frontend/src/Domain/CardsRequest.elm,9\3\93dedc8b1291419752dd668329519fc911d138d5
+j
+:src/main/java/beetle/brindi/cards/dto/DTOcardsRequest.java,9\0\9023927dbb934849dd1ce0a32ac6ec3e81687823
+j
+:src/main/java/beetle/brindi/cards/dto/DTOhandResponse.java,6\7\670b9c9c794cf8b1ff7e1b609935d38991ca83e4
+`
+0src/main/java/beetle/brindi/cards/dto/Place.java,8\a\8aebe731a6964385c17021567170af00df429602

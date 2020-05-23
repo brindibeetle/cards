@@ -8,9 +8,12 @@ import beetle.brindi.cards.domain.Game;
 import beetle.brindi.cards.domain.Player;
 import beetle.brindi.cards.domain.Players;
 import beetle.brindi.cards.dto.DTOcard;
+import beetle.brindi.cards.dto.DTOcardsRequest;
 import beetle.brindi.cards.dto.DTOgame;
+import beetle.brindi.cards.dto.DTOhandResponse;
 import beetle.brindi.cards.dto.DTOplay;
 import beetle.brindi.cards.dto.DTOputCard;
+import beetle.brindi.cards.dto.Place;
 import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.repository.CardsRepository;
 import lombok.RequiredArgsConstructor;
@@ -76,93 +79,117 @@ public class CardsService {
     }
 
 
-    public DTOplay play(DTOplay dtoPlay) {
-        UUID gameUuid = dtoPlay.getGameUuid();
-        UUID playerUuid = dtoPlay.getPlayerUuid();
-        int numberOfCards = dtoPlay.getNumberOfCards();
-        List<Card> cards = dtoPlay.getCards().stream().map(Card::new).collect(Collectors.toList());
+    public DTOhandResponse play(DTOcardsRequest cardsRequest) {
+        UUID gameUuid = cardsRequest.getGameUuid();
+        UUID playerUuid = cardsRequest.getPlayerUuid();
+        DTOcardsRequest.TypeRequest typeRequest = cardsRequest.getTypeRequest();
+        List<Card> cards = cardsRequest.getCards().stream().map(Card::new).collect(Collectors.toList());
+        int handPosition = cardsRequest.getHandPosition();
+        int tablePosition = cardsRequest.getTablePosition();
+        Place place = cardsRequest.getPlace();
 
-        switch (dtoPlay.getAction()) {
-            case TABLE:
-                dtoPlay =
-                    DTOplay.builder()
-                        .cards(putCardsOnTable (gameUuid, playerUuid, numberOfCards, cards ))
-                        .playerUuid(playerUuid)
-                        .gameUuid(gameUuid)
-                        .bottomCard(getBottomOfStock(gameUuid))
-                        .topCardBack(getTopOfStock(gameUuid).toString())
-                        .action(DTOplay.Action.TABLE)
-                        .numberOfCards(numberOfCards)
-                        .build()
+        DTOhandResponse handResponse = null;
+        switch (typeRequest) {
+            case PUT:
+                switch (place) {
+                    case TABLE:
+                        handResponse =
+                                DTOhandResponse.builder()
+                                        .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
+                                        .bottomCard(getBottomOfStock(gameUuid))
+                                        .topCardBack(getTopOfStock(gameUuid).toString())
+                                        .typeResponse(DTOhandResponse.TypeResponse.PUT)
+                                        .handPosition(handPosition)
+                                        .tablePosition(tablePosition)
+                                        .place(place)
+                                        .build()
+                        ;
+                        return handResponse;
+                    case STACKBOTTOM:
+                        handResponse =
+                                DTOhandResponse.builder()
+                                        .cards(putCards(gameUuid, playerUuid, cards ))
+                                        .bottomCard(getBottomOfStock(gameUuid))
+                                        .topCardBack(getTopOfStock(gameUuid).toString())
+                                        .typeResponse(DTOhandResponse.TypeResponse.PUT)
+                                        .handPosition(handPosition)
+                                        .tablePosition(tablePosition)
+                                        .place(place)
+                                        .build()
+                        ;
+                        return handResponse;
+                }
+
+            case SLIDE:
+                handResponse =
+                        DTOhandResponse.builder()
+                                .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
+                                .bottomCard(getBottomOfStock(gameUuid))
+                                .topCardBack(getTopOfStock(gameUuid).toString())
+                                .typeResponse(DTOhandResponse.TypeResponse.SLIDE)
+                                .handPosition(handPosition)
+                                .tablePosition(tablePosition)
+                                .place(place)
+                                .build()
                 ;
-                return dtoPlay;
+                return handResponse;
 
             case DEAL:
-                dtoPlay =
-                    DTOplay.builder()
-                        .cards(deal (gameUuid, playerUuid, numberOfCards))
-                        .playerUuid(playerUuid)
-                        .gameUuid(gameUuid)
+                handResponse =
+                        DTOhandResponse.builder()
+                        .cards(deal (gameUuid, playerUuid ))
                         .bottomCard(getBottomOfStock(gameUuid))
                         .topCardBack(getTopOfStock(gameUuid).toString())
-                        .action(DTOplay.Action.DEAL)
-                        .numberOfCards(0)
+                        .typeResponse(DTOhandResponse.TypeResponse.DEAL)
+                        .handPosition(0)
+                        .tablePosition(0)
+                        .place(place)
+
                         .build()
                     ;
-                return dtoPlay;
+                return handResponse;
 
             case GET:
-                dtoPlay =
-                    DTOplay.builder()
-                        .cards(getCard (gameUuid, playerUuid))
-                        .playerUuid(playerUuid)
-                        .gameUuid(gameUuid)
-                        .bottomCard(getBottomOfStock(gameUuid))
-                        .topCardBack(getTopOfStock(gameUuid).toString())
-                        .action(DTOplay.Action.GET)
-                        .numberOfCards(numberOfCards)
-                        .build()
-                ;
-                return dtoPlay;
+                switch (place) {
+                    case STACKBOTTOM:
+                        handResponse =
+                                DTOhandResponse.builder()
+                                        .cards(getCard (gameUuid, playerUuid))
+                                        .bottomCard(getBottomOfStock(gameUuid))
+                                        .topCardBack(getTopOfStock(gameUuid).toString())
+                                        .typeResponse(DTOhandResponse.TypeResponse.GET)
+                                        .handPosition(handPosition)
+                                        .tablePosition(0)
+                                        .place(place)
+                                        .build()
+                        ;
+                        return handResponse;
 
-            case DRAW:
-                dtoPlay =
-                    DTOplay.builder()
-                        .cards(drawCard (gameUuid, playerUuid))
-                        .playerUuid(playerUuid)
-                        .gameUuid(gameUuid)
-                        .bottomCard(getBottomOfStock(gameUuid))
-                        .topCardBack(getTopOfStock(gameUuid).toString())
-                        .action(DTOplay.Action.DRAW)
-                        .numberOfCards(numberOfCards)
-                        .build()
-                ;
-                return dtoPlay;
-
-            case PUT:
-                dtoPlay =
-                    DTOplay.builder()
-                        .cards(putCard (gameUuid, playerUuid,cards))
-                        .playerUuid(playerUuid)
-                        .gameUuid(gameUuid)
-                        .bottomCard(getBottomOfStock(gameUuid))
-                        .topCardBack(getTopOfStock(gameUuid).toString())
-                        .action(DTOplay.Action.PUT)
-                        .numberOfCards(numberOfCards)
-                        .build()
-                ;
-                return dtoPlay;
+                    case STACKTOP:
+                        handResponse =
+                                DTOhandResponse.builder()
+                                        .cards(drawCard(gameUuid, playerUuid))
+                                        .bottomCard(getBottomOfStock(gameUuid))
+                                        .topCardBack(getTopOfStock(gameUuid).toString())
+                                        .typeResponse(DTOhandResponse.TypeResponse.GET)
+                                        .handPosition(handPosition)
+                                        .tablePosition(0)
+                                        .place(place)
+                                        .build()
+                        ;
+                        return handResponse;
+                }
 
             default:
-                throw new CardsException(HttpStatus.CONFLICT, "Undefined ACTION : " + dtoPlay.getAction());
+                throw new CardsException(HttpStatus.CONFLICT, "Undefined typeRequest : " + typeRequest);
         }
     }
 
-    public List<DTOcard> deal (UUID gameUuid, UUID playerUuid, int numberOfCards){
+    public List<DTOcard> deal (UUID gameUuid, UUID playerUuid ){
         Game game = getGame(gameUuid);
         Player player = getPlayer(game, playerUuid);
 
-        List<Card> cards = game.dealCards(playerUuid, numberOfCards);
+        List<Card> cards = game.dealCards(playerUuid, 13);
 
         return cards.stream()
             .map(DTOcard::new)
@@ -191,7 +218,7 @@ public class CardsService {
                 .collect(Collectors.toList());
     }
 
-    private List<DTOcard> putCard (UUID gameUuid, UUID playerUuid, List<Card> cards){
+    private List<DTOcard> putCards (UUID gameUuid, UUID playerUuid, List<Card> cards){
         Game game = getGame(gameUuid);
         Player player = getPlayer(game, playerUuid);
 

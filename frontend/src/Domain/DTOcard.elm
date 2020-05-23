@@ -446,8 +446,22 @@ allDifferentHelper a1 ( bool, lista ) =
 
 ranksSuccessive : List Rank -> Int -> Bool
 ranksSuccessive ranks jokers =
-    List.foldl rankHasSuccessor ( ranks, 0) ranks
-    |> (\(_, noSuccessor) -> noSuccessor <= jokers + 1 )
+    let
+        withoutAcesSorted = List.filter ( \rank  -> rank /= ACE ) ranks |>  List.sortBy ( numerizeRank )
+        onlyAces = List.filter ( \rank -> rank == ACE ) ranks
+        lowestRank = List.head withoutAcesSorted |> Maybe.map numerizeRank |> Maybe.withDefault 0
+        highestRank = List.drop ( List.length withoutAcesSorted - 1) withoutAcesSorted |> List.head |> Maybe.map numerizeRank |> Maybe.withDefault 0
+        ( lRank, hRank ) =
+            case onlyAces of
+                [] ->
+                    ( lowestRank, highestRank )
+                _::_ ->
+                    if ( lowestRank - 2 ) > ( 13 - highestRank ) then
+                        ( lowestRank, 14 )
+                    else
+                        ( 1, highestRank )
+    in
+        ( hRank - lRank + 1 ) <= List.length ranks + jokers
 
 
 rankHasSuccessor : Rank -> ( List Rank, Int ) -> ( List Rank, Int )
@@ -510,7 +524,6 @@ meldRunSorter cards =
         onlyAces = List.filter ( \{ rank } -> rank == ACE ) cards
         lowestRank = List.head withoutAcesSorted
         highestRank = List.drop ( List.length withoutAcesSorted - 1) withoutAcesSorted |> List.head
-
     in
         case ( onlyAces, lowestRank, highestRank ) of
             ( [], _, _ ) ->
@@ -553,10 +566,11 @@ distributeJokersInSortedMeldRun cards rCards sCards =
             let
                 highestCardsRank = List.drop ( List.length rCards - 1) rCards
                     |> List.head |> Maybe.map .rank |>  Maybe.map numerizeRank |> Maybe.withDefault 14
-                numberOfCards = ( List.length rCards ) + ( List.length sCards )
+                lowestCardsRank = rCard.rank |>  numerizeRank
+                cardsToDistribute = ( List.length rCards ) + ( List.length sCards )
                 numberOfPlacesLeft = highestCardsRank - numerizeRank rCard.rank + 1 |> max 0
             in
-                if numberOfCards > numberOfPlacesLeft then
+                if cardsToDistribute > numberOfPlacesLeft && lowestCardsRank > List.length cards + 1 then
                     distributeJokersInSortedMeldRun
                         ( List.append cards [ specialToCard sCard ] )
                         rCards

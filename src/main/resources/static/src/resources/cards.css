@@ -216,14 +216,23 @@ div.hand-card-dragging-container {
 div.hand-card-selected {
     margin-top: -5vw;
 }
-div.hand-card-selected-hide {
-    animation-name: cardhide;
+div.hand-drag-hide {
+    animation-name: card-drag-hide;
     animation-duration: 0.01s;
     animation-fill-mode: forwards;
 }
-@keyframes cardhide {
+div.hand-card-hide {
+    animation-name: card-hide;
+    animation-duration: 0.01s;
+    animation-fill-mode: forwards;
+}
+@keyframes card-drag-hide {
     0% { display: block; visibility: block;  }
     100% { display: none; visibility: hidden; }
+}
+@keyframes card-hide {
+    0% { display: none; visibility: hidden; }
+    100% { display: block; visibility: block;  }
 }
 
 div.card-hand-bottom {
