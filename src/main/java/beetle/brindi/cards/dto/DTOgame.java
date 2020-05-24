@@ -12,7 +12,7 @@ public class DTOgame {
 
     UUID gameUuid;
 
-    UUID playerUuid;
+    public UUID playerUuid;
 
     public DTOgame(UUID uuid, Game game ){
         super();

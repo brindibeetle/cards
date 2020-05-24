@@ -3,16 +3,21 @@ package beetle.brindi.cards.controller;
 import beetle.brindi.cards.dto.DTOcardsRequest;
 import beetle.brindi.cards.dto.DTOgame;
 import beetle.brindi.cards.dto.DTOhandResponse;
-import beetle.brindi.cards.dto.DTOplay;
+import beetle.brindi.cards.dto.DTOplayerIdentifierRequest;
 import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.service.CardsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,13 +25,17 @@ public class CardsController {
 
     private final CardsService cardsService;
 
+//    @Autowired
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
     @CrossOrigin
-    @SendTo("/created")
     @MessageMapping("/create")
-    public DTOgame createGameJokeren(@RequestParam String playerName ) {
+    public void createGameJokeren(@RequestParam DTOplayerIdentifierRequest playerIdentifier) {
         try {
-            DTOgame dtoGame = cardsService.createGame(playerName);
-            return dtoGame;
+            DTOgame dtoGame = cardsService.createGame(playerIdentifier);
+            UUID playerUuid = playerIdentifier.getPlayerUuid();
+
+            simpMessagingTemplate.convertAndSend("/created/" + playerUuid.toString(), dtoGame);
         }
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );

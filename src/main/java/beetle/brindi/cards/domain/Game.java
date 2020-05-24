@@ -18,6 +18,8 @@ public class Game {
 
     private Players players;
 
+    private Player creator;
+
     private Game() {
         deck = new Deck();
         players = new Players();
@@ -27,10 +29,9 @@ public class Game {
         this.deck = deck;
     }
 
-    public UUID addPlayer(String playerName){
-        UUID playerUuid = players.addPlayer(playerName);
-        deck.addPlayer(playerUuid);
-        return playerUuid;
+    public void addPlayer(String playerName, UUID playerUuidd){
+        players.addPlayer(playerName, playerUuidd);
+        deck.addPlayer(playerUuidd);
     }
 
     public List<Card> dealCards(UUID playerUuid, Integer number){
@@ -90,4 +91,7 @@ public class Game {
         return deck.showBottomCardOfStock();
     }
 
+    public void setCreator(UUID playerUuid) {
+        this.creator = players.get(playerUuid);
+    }
 }

@@ -4,6 +4,7 @@
   <script src="/webjars/jquery/jquery.min.js"></script>
   <script src="/webjars/sockjs-client/sockjs.min.js"></script>
   <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+  <script src="/webjars/uuid/uuid.js"></script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,10 +34,13 @@
     var socket  = new SockJS('http://localhost:8080/cards-ws');
     var stompClient = Stomp.over(socket);
 
+    var playerUuid = uuid.v4();
+    console.log("playerUuid = " + playerUuid );
+
     stompClient.connect({}, function(frame) {
         console.log('Connected: ' + frame);
 
-        stompClient.subscribe('/created', function(message) {
+        stompClient.subscribe('/created/' + playerUuid, function(message) {
             console.log("signupReceiver: " + message.body);
             app.ports.signupReceiver.send(JSON.parse(message.body));
         });
@@ -51,7 +55,7 @@
     app.ports.signupSend.subscribe(function(message) {
         console.log("index.html: " + message);
 
-        stompClient.send("/cards/v1/create", {},JSON.stringify({'name': message}));
+        stompClient.send("/cards/v1/create", {},JSON.stringify({'playerName': message, 'playerUuid': playerUuid}));
     });
 
     <!-- ports Play.elm-->

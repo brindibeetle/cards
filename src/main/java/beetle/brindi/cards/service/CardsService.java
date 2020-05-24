@@ -5,6 +5,7 @@ import beetle.brindi.cards.domain.Card;
 import beetle.brindi.cards.domain.Deck;
 import beetle.brindi.cards.domain.DeckBuilder;
 import beetle.brindi.cards.domain.Game;
+import beetle.brindi.cards.domain.Games;
 import beetle.brindi.cards.domain.Player;
 import beetle.brindi.cards.domain.Players;
 import beetle.brindi.cards.dto.DTOcard;
@@ -12,6 +13,7 @@ import beetle.brindi.cards.dto.DTOcardsRequest;
 import beetle.brindi.cards.dto.DTOgame;
 import beetle.brindi.cards.dto.DTOhandResponse;
 import beetle.brindi.cards.dto.DTOplay;
+import beetle.brindi.cards.dto.DTOplayerIdentifierRequest;
 import beetle.brindi.cards.dto.DTOputCard;
 import beetle.brindi.cards.dto.Place;
 import beetle.brindi.cards.exception.CardsException;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,7 +35,7 @@ public class CardsService {
     // instantiated by Lombok (RequiredArgsConstructor)
     private final CardsRepository cardsRepository;
 
-    public DTOgame createGame(String playerName) {
+    public DTOgame createGame(DTOplayerIdentifierRequest playerIdentifier) {
 
         UUID gameUUID = UUID.randomUUID();
 
@@ -55,7 +58,11 @@ public class CardsService {
                 .build();
 
         Game game = new Game(deck);
-        game.addPlayer(playerName);
+
+        UUID playerUuid =  playerIdentifier.getPlayerUuid();
+        game.addPlayer(playerIdentifier.getPlayerName(), playerUuid);
+        game.setCreator(playerUuid);
+
         CardsSingleton.getInstance().getGames().getGames().put(gameUUID, game);
 
         return new DTOgame( gameUUID, game );
@@ -69,6 +76,17 @@ public class CardsService {
         }
         return game;
     }
+
+    public List<DTOgame> getGames () {
+        CardsSingleton singleton = CardsSingleton.getInstance();
+        Map<UUID, Game> games = singleton.getGames().getGames();
+
+        List<DTOgame> dtoGames = new ArrayList<>();
+        games.entrySet().stream().forEach(e -> dtoGames.add(new DTOgame( e.getKey(), e.getValue()) ));
+
+        return dtoGames;
+    }
+
     private Player getPlayer (Game game, UUID playerUuid) {
         CardsSingleton singleton = CardsSingleton.getInstance();
         Player player = game.getPlayers().get( playerUuid );

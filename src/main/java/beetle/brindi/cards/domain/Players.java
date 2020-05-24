@@ -23,8 +23,7 @@ public class Players {
         return players.size();
     }
 
-    public Players( String firstPlayer ) {
-        UUID playerUuid = UUID.randomUUID();
+    public Players( String firstPlayer, UUID playerUuid ) {
         players = new HashMap<>();
 
         players.put(playerUuid, new Player(firstPlayer));
@@ -44,10 +43,9 @@ public class Players {
         return players.get(current);
     }
 
-    public UUID addPlayer(String playerName) {
-        UUID playerUuid = UUID.randomUUID();
+    public void addPlayer(String playerName, UUID playerUuid) {
+        Player player = new Player(playerName);
         this.add(playerUuid, new Player(playerName));
         if ( current == null ) current = playerUuid;
-        return  playerUuid;
     }
 }
