@@ -1,10 +1,10 @@
-module Domain.HandResponse exposing (..)
+module Domain.PlayResponse exposing (..)
 
 --
 -- personal response to the player
 -- -> later we will split this
 
-import Domain.CardsRequest exposing (Place(..))
+import Domain.PlayRequest exposing (Place(..))
 import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, meldSorter)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
@@ -12,7 +12,7 @@ import Json.Encode as Encode
 import Session exposing (Session)
 
 
-type alias HandResponse =
+type alias PlayResponse =
     {
         bottomCard : DTOcard
         , topCardBack : Back
@@ -31,8 +31,8 @@ type TypeResponse =
     | SlideResponse
 
 
-emptyHandResponse : HandResponse
-emptyHandResponse =
+emptyPlayResponse : PlayResponse
+emptyPlayResponse =
     {
         bottomCard = defaultDTOcard
         , topCardBack = DARK
@@ -47,9 +47,9 @@ emptyHandResponse =
 -- ####
 
 
-handResponseDecoder : Decoder HandResponse
-handResponseDecoder =
-    Decode.succeed HandResponse
+playResponseDecoder : Decoder PlayResponse
+playResponseDecoder =
+    Decode.succeed PlayResponse
         |> Pipeline.required "bottomCard" dtoCardDecoder
         |> Pipeline.required "topCardBack" backDecoder
         |> Pipeline.required "typeResponse" typeResponseDecoder
@@ -87,11 +87,11 @@ placeFromString string =
         _ -> Decode.fail ( "Invalid Place: " ++ string )
 
 
-handResponseDecodeValue : Encode.Value -> HandResponse
-handResponseDecodeValue encoded =
-    case Decode.decodeValue handResponseDecoder encoded of
-        Ok handResponse ->
-           handResponse
+playResponseDecodeValue : Encode.Value -> PlayResponse
+playResponseDecodeValue encoded =
+    case Decode.decodeValue playResponseDecoder encoded of
+        Ok playResponse ->
+           playResponse
 
         Err message ->
-           emptyHandResponse
+           emptyPlayResponse

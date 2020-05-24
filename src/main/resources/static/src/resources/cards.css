@@ -360,3 +360,8 @@ div.end-animation-card4 {
   75%  {display:none;}
   100% {display:none;}
 }
+
+/* Signup */
+label.signup-label {
+    color: white;
+}

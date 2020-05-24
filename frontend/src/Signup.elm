@@ -1,10 +1,13 @@
 port module Signup exposing (..)
 
+import Bootstrap.Form.Select as Select
 import Bootstrap.Table as Table
 import Bootstrap.Form as Form
-import Bootstrap.Form.Input as Input
+import Bootstrap.Form.Input as Input exposing (..)
 import Bootstrap.Button as Button
 
+import Domain.SignupRequest exposing (..)
+import Domain.SignupResponse exposing (TypeResponse(..), signupResponseDecodeValue)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Json.Encode as Encode exposing (..)
@@ -19,7 +22,9 @@ import Domain.DTOgame exposing (DTOgame, decodeDTOGame)
 
 
 type alias Model =
-    {  phase : Phase
+    { phase : Phase
+    , games : List String
+    , joinGame : String
     }
 
 
@@ -30,8 +35,11 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     (
         { phase = PhaseInit
+        , games = []
+        , joinGame = ""
         }
-        , Cmd.none
+        --, Cmd.none
+        , makeGamesRequest |> signupRequestEncoder |> signupSend
     )
 
 
@@ -44,26 +52,32 @@ view : Model -> Session -> Html Msg
 view model session =
     let
         statusText = "test"
-        { phase } = model
+        { phase, joinGame } = model
         { playerName, playerUuid, gameUuid } = session
     in
     div [ class "container" ]
         [
             div []
             [
-                text statusText
+                Html.text statusText
             ]
             , Form.form []
             [ Form.group []
-                [ Form.label [] [ text "Your name or alias"]
+                [ Form.label [ class "signup-label" ] [ Html.text "Your name or alias"]
                 , Input.text [ Input.onInput UpdatePlayername, Input.value playerName, Input.disabled ( phase /= PhaseInit ) ]
                 ]
             , Form.group [ ]
-                [ Form.label [] [ text "Player identifier"]
+                [ Form.label [ class "signup-label" ] [ Html.text "Games that are playing"]
+                , Select.select
+                    [ Select.onChange UpdateJoinGame ]
+                    ( List.map viewGame model.games )
+                ]
+            , Form.group [ ]
+                [ Form.label [ class "signup-label" ] [ Html.text "Player identifier"]
                 , Input.text [ Input.value playerUuid, Input.disabled True ]
                 ]
             , Form.group []
-                [ Form.label [] [ text "Game identifier"]
+                [ Form.label [ class "signup-label" ] [ Html.text "Game identifier"]
                 , Input.text [ Input.value gameUuid, Input.disabled True ]
                 ]
             , Form.group []
@@ -74,19 +88,25 @@ view model session =
                                 [ Table.td []
                                     [ Button.button
                                         [ Button.outlineSecondary, Button.attrs [ ], Button.onClick DoCancel ]
-                                        [ text "Cancel" ]
+                                        [ Html.text "Cancel" ]
                                     ]
                                 , Table.td [ ]
                                     [ Button.button
-                                        [ Button.outlinePrimary, Button.attrs [ disabled ( phase /= PhaseInit || playerName == "") ]
+                                        [ Button.outlinePrimary, Button.attrs [ Html.Attributes.disabled ( phase /= PhaseInit || playerName == "") ]
                                             , Button.onClick ( DoCreateGame playerName ) ]
-                                        [ text "New game" ]
+                                        [ Html.text "New game" ]
+                                    ]
+                                , Table.td [ ]
+                                    [ Button.button
+                                        [ Button.outlinePrimary, Button.attrs [ Html.Attributes.disabled ( phase /= PhaseInit || playerName == "" || joinGame == "") ]
+                                            , Button.onClick ( DoJoinGame joinGame playerName ) ]
+                                        [ Html.text "Join game" ]
                                     ]
                                 , Table.td [  ]
                                     [ Button.button
-                                        [ Button.outlinePrimary, Button.attrs [ disabled ( phase /= PhaseCreated ) ]
+                                        [ Button.outlinePrimary, Button.attrs [ Html.Attributes.disabled ( phase /= PhaseCreated ) ]
                                             , Button.onClick DoStartGame  ]
-                                        [ text "Start game" ]
+                                        [ Html.text "Start game" ]
                                     ]
                                 ]
                             ]
@@ -96,12 +116,16 @@ view model session =
         ]
 
 
+viewGame : String -> Select.Item Msg
+viewGame game =
+    Select.item [ Html.Attributes.value game ] [ Html.text game ]
+
 -- ####
 -- ####   PORTS
 -- ####
 
 
-port signupSend : String -> Cmd msg
+port signupSend : Encode.Value -> Cmd msg
 port signupReceiver : (Encode.Value -> msg) -> Sub msg
 
 
@@ -112,9 +136,11 @@ port signupReceiver : (Encode.Value -> msg) -> Sub msg
 
 type Msg =
     UpdatePlayername String
+    | UpdateJoinGame String
     | DoCancel
     | DoCreateGame String
     | DoStartGame
+    | DoJoinGame String String
     | Recv Encode.Value
 
 
@@ -130,6 +156,15 @@ update msg model session =
             , cmd = Cmd.none
             }
 
+        UpdateJoinGame gameUuid ->
+            { model =
+                { model
+                | joinGame = gameUuid
+                }
+            , session = session
+            , cmd = Cmd.none
+            }
+
         DoCancel ->
             { model = model, session = session, cmd = Cmd.none }
 
@@ -137,7 +172,13 @@ update msg model session =
             { model =
                 { model | phase = PhaseCreateAsked }
             , session = session
-            , cmd = signupSend playerName  }
+            , cmd = makeCreateRequest playerName |> signupRequestEncoder |> signupSend  }
+
+        DoJoinGame gameUuid playerName ->
+            { model =
+                { model | phase = PhaseCreateAsked }
+            , session = session
+            , cmd = makeJoinRequest gameUuid playerName |> signupRequestEncoder |> signupSend  }
 
         DoStartGame ->
             { model =
@@ -146,22 +187,70 @@ update msg model session =
             , cmd = Cmd.none
             }
 
-        Recv message ->
+        Recv encoded ->
             let
-                dtoGame = decodeDTOGame message
+                { playerUuid, gameUuid, typeResponse, games } = signupResponseDecodeValue encoded
             in
-            {
-                model =
-                    { model
-                    | phase = PhaseCreated
-                    }
-                , session =
-                    { session
-                    | playerUuid = dtoGame.playerUuid
-                    , gameUuid = dtoGame.gameUuid
-                    }
-                , cmd = Cmd.none
-            }
+                case typeResponse of
+                    CreateResponse ->
+                        {
+                            model =
+                                { model
+                                | phase = PhaseCreated
+                                }
+                            , session =
+                                { session
+                                | playerUuid = playerUuid
+                                , gameUuid = gameUuid
+                                }
+                            , cmd = Cmd.none
+                        }
+
+                    JoinResponse ->
+                        {
+                            model =
+                                { model
+                                | phase = PhaseCreated
+                                }
+                            , session =
+                                { session
+                                | playerUuid = playerUuid
+                                , gameUuid = gameUuid
+                                }
+                            , cmd = Cmd.none
+                        }
+
+
+                    GamesResponse ->
+                        {
+                            model =
+                                { model
+                                | phase = PhaseInit
+                                , games = "" :: games
+                                }
+                            , session =
+                                { session
+                                | playerUuid = playerUuid
+                                , gameUuid = gameUuid
+                                }
+                            , cmd = Cmd.none
+                        }
+
+
+                    StartResponse ->
+                        {
+                            model =
+                                { model
+                                | phase = PhaseStart
+                                }
+                            , session =
+                                { session
+                                | playerUuid = playerUuid
+                                , gameUuid = gameUuid
+                                }
+                            , cmd = Cmd.none
+                        }
+
 
 
 -- ####

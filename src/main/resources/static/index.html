@@ -24,12 +24,6 @@
 
 <script type="text/javascript">
 
-    <!--    Start the Elm application.-->
-    var app = Elm.Main.init({
-      flags: flags,
-      node: document.getElementById('elm')
-    });
-
     <!--Create your WebSocket.-->
     var socket  = new SockJS('http://localhost:8080/cards-ws');
     var stompClient = Stomp.over(socket);
@@ -40,31 +34,44 @@
     stompClient.connect({}, function(frame) {
         console.log('Connected: ' + frame);
 
-        stompClient.subscribe('/created/' + playerUuid, function(message) {
+        <!--    Start the Elm application.-->
+        var app = Elm.Main.init({
+          flags: flags,
+          node: document.getElementById('elm')
+        });
+
+        stompClient.subscribe('/signedup/' + playerUuid, function(message) {
             console.log("signupReceiver: " + message.body);
+            var signupParsed = JSON.parse(message.body);
+            var gameUuid = signupParsed.gameUuid;
+            var typeResponse = signupParsed.typeResponse;
+
+            if (typeResponse == "CREATE" || typeResponse == "JOIN") {
+                console.log("subscribe to gameUuid = " + gameUuid);
+
+                stompClient.subscribe('/played/'  + gameUuid, function(message) {
+                    console.log("playReceiver: " + message.body);
+                    app.ports.playReceiver.send(JSON.parse(message.body));
+                });
+            }
             app.ports.signupReceiver.send(JSON.parse(message.body));
         });
 
-        stompClient.subscribe('/played', function(message) {
-            console.log("playReceiver: " + message.body);
-            app.ports.playReceiver.send(JSON.parse(message.body));
-        });
+      <!-- ports Signup.elm -->
+      app.ports.signupSend.subscribe(function(message) {
+          console.log("index.html: " + message);
+
+          stompClient.send("/cards/v1/signup", {},JSON.stringify({'signupRequest': message, 'playerUuid': playerUuid}));
+      });
+
+      <!-- ports Play.elm-->
+      app.ports.playSend.subscribe(function(message) {
+          console.log("index.html: PLAY message=" + JSON.stringify(message));
+
+         stompClient.send("/cards/v1/play", {},JSON.stringify(message));
+      });
+
     });
-
-    <!-- ports Signup.elm -->
-    app.ports.signupSend.subscribe(function(message) {
-        console.log("index.html: " + message);
-
-        stompClient.send("/cards/v1/create", {},JSON.stringify({'playerName': message, 'playerUuid': playerUuid}));
-    });
-
-    <!-- ports Play.elm-->
-    app.ports.playSend.subscribe(function(message) {
-        console.log("index.html: PLAY message=" + JSON.stringify(message));
-
-       stompClient.send("/cards/v1/play", {},JSON.stringify(message));
-    });
-
 <!--    stompClient.connect({}, function(frame) {-->
 <!--        console.log('Connected: ' + frame);-->
 <!--        stompClient.subscribe('/played', function(message) {-->

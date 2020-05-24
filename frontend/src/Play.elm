@@ -1,10 +1,10 @@
 port module Play exposing (..)
 
 import Array
-import Domain.CardsRequest exposing (..)
 import Domain.DTOcard as DTOcard exposing (Back(..), DTOcard, defaultDTOcard, meldSorter)
 import Domain.DTOgame exposing (DTOgame)
-import Domain.HandResponse exposing (TypeResponse(..), handResponseDecodeValue)
+import Domain.PlayRequest exposing (Place(..), makeDealRequest, makeGetRequest, makePutRequest, makeSlideRequest, playRequestEncoder)
+import Domain.PlayResponse exposing (TypeResponse(..), playResponseDecodeValue)
 import Html exposing (Attribute, Html, div)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick, onDoubleClick)
@@ -56,7 +56,7 @@ init session =
         , dragDrop = DragDrop.init
         , phase = DrawCard
         }
-        , makeDealRequest session |> cardsRequestEncoder |> playSend
+        , makeDealRequest session |> playRequestEncoder |> playSend
     )
 
 
@@ -230,7 +230,7 @@ update msg model session =
     case msg of
         Receiver encoded ->
             let
-                 { bottomCard, topCardBack, typeResponse, place, cards, handPosition, tablePosition } = handResponseDecodeValue encoded
+                 { bottomCard, topCardBack, typeResponse, place, cards, handPosition, tablePosition } = playResponseDecodeValue encoded
             in
                 case ( typeResponse, place ) of
                     ( PutResponse, TABLE ) ->
@@ -331,7 +331,7 @@ update msg model session =
                                 | dragDrop = dragDropModel
                                 , phase = Pending
                                 }
-                                , makeGetRequest session index STACKBOTTOM |> cardsRequestEncoder |> playSend
+                                , makeGetRequest session index STACKBOTTOM |> playRequestEncoder |> playSend
                             )
                         Just ( DragTopCard, DropHand index, _ ) ->
                             (
@@ -339,7 +339,7 @@ update msg model session =
                                 | dragDrop = dragDropModel
                                 , phase = Pending
                                 }
-                                , makeGetRequest session index STACKTOP |> cardsRequestEncoder |> playSend
+                                , makeGetRequest session index STACKTOP |> playRequestEncoder |> playSend
                             )
                         Just ( DragHand index, DropBottomCard, _ ) ->
                             case getHandCard model index of
@@ -350,7 +350,7 @@ update msg model session =
 
                                         , phase = Pending
                                         }
-                                        , makePutRequest session [ card ] index 0 STACKBOTTOM |> cardsRequestEncoder |> playSend
+                                        , makePutRequest session [ card ] index 0 STACKBOTTOM |> playRequestEncoder |> playSend
                                     )
 
                                 Nothing ->
@@ -389,7 +389,7 @@ update msg model session =
                                 | dragDrop = dragDropModel
                                 , phase = Pending
                                 }
-                                , makePutRequest session cards 0 to TABLE |> cardsRequestEncoder |> playSend
+                                , makePutRequest session cards 0 to TABLE |> playRequestEncoder |> playSend
                             )
 
                         Just ( DragHand from, DropTable to, _ ) ->
@@ -407,7 +407,7 @@ update msg model session =
                                         | dragDrop = dragDropModel
                                         , phase = Pending
                                         }
-                                        , makeSlideRequest session (meldSorter cards) from to TABLE |> cardsRequestEncoder |> playSend
+                                        , makeSlideRequest session (meldSorter cards) from to TABLE |> playRequestEncoder |> playSend
                                         --, playSend ( dtoPlayEncoder ( DTOplay.makeTableMod session cards to ) )
                                     )
 

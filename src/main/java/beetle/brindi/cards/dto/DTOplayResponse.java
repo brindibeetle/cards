@@ -13,7 +13,7 @@ import java.util.UUID;
 //@AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DTOhandResponse {
+public class DTOplayResponse {
 
     private DTOcard bottomCard;
 
@@ -36,7 +36,7 @@ public class DTOhandResponse {
         SLIDE,
     }
 
-    public DTOhandResponse(DTOcard bottomCard, String topCardBack, TypeResponse typeResponse, Place place, List<DTOcard> cards, Integer handPosition, Integer tablePosition) {
+    public DTOplayResponse(DTOcard bottomCard, String topCardBack, TypeResponse typeResponse, Place place, List<DTOcard> cards, Integer handPosition, Integer tablePosition) {
         this.bottomCard = (bottomCard == null) ? DTOcard.defaultCard() : bottomCard;
         this.topCardBack = (topCardBack == null) ? DTOcard.defaultCard().getBack() : topCardBack;
         this.typeResponse = (typeResponse == null) ? TypeResponse.GET : typeResponse;

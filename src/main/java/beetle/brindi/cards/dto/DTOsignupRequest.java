@@ -1,7 +1,6 @@
 package beetle.brindi.cards.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,10 +10,20 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DTOplayerIdentifierRequest {
+public class DTOsignupRequest {
+
+    private TypeRequest typeRequest;
 
     private String playerName;
 
     private UUID playerUuid;
 
+    private UUID gameUuid;
+
+    public enum TypeRequest {
+        CREATE,
+        JOIN,
+        GAMES;
+
+    }
 }

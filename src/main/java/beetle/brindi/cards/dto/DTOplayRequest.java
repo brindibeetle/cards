@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DTOcardsRequest {
+public class DTOplayRequest {
 
     private TypeRequest typeRequest;
 

@@ -1,12 +1,11 @@
-module Domain.CardsRequest exposing (..)
-
+module Domain.PlayRequest exposing (..)
 
 import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, meldSorter)
 import Json.Encode as Encode
 import Session exposing (Session)
 
 
-type alias CardsRequest =
+type alias PlayRequest =
     {
         typeRequest : TypeRequest
         , gameUuid : String
@@ -36,8 +35,8 @@ type Place =
 -- ####
 
 
-cardsRequestEncoder : CardsRequest -> Encode.Value
-cardsRequestEncoder { typeRequest, gameUuid, playerUuid, cards, handPosition, tablePosition , place } =
+playRequestEncoder : PlayRequest -> Encode.Value
+playRequestEncoder { typeRequest, gameUuid, playerUuid, cards, handPosition, tablePosition , place } =
     Encode.object
         [ ( "typeRequest", typeRequestEncoder typeRequest )
         , ( "gameUuid", Encode.string gameUuid )
@@ -72,7 +71,7 @@ placeEncoder place =
 -- ####
 
 
-makeDealRequest : Session -> CardsRequest
+makeDealRequest : Session -> PlayRequest
 makeDealRequest session =
     {
             typeRequest = DealRequest
@@ -85,7 +84,7 @@ makeDealRequest session =
         }
 
 
-makePutRequest : Session -> List DTOcard -> Int -> Int -> Place -> CardsRequest
+makePutRequest : Session -> List DTOcard -> Int -> Int -> Place -> PlayRequest
 makePutRequest session cards handPosition tablePosition place =
     {
             typeRequest = PutRequest
@@ -98,7 +97,7 @@ makePutRequest session cards handPosition tablePosition place =
         }
 
 
-makeSlideRequest : Session -> List DTOcard -> Int -> Int -> Place -> CardsRequest
+makeSlideRequest : Session -> List DTOcard -> Int -> Int -> Place -> PlayRequest
 makeSlideRequest session cards handPosition tablePosition place =
     {
             typeRequest = SlideRequest
@@ -111,7 +110,7 @@ makeSlideRequest session cards handPosition tablePosition place =
         }
 
 
-makeGetRequest : Session -> Int -> Place -> CardsRequest
+makeGetRequest : Session -> Int -> Place -> PlayRequest
 makeGetRequest session handPosition place =
     {
             typeRequest = GetRequest
