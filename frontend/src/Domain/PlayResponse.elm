@@ -4,12 +4,10 @@ module Domain.PlayResponse exposing (..)
 -- personal response to the player
 -- -> later we will split this
 
-import Domain.PlayRequest exposing (Place(..))
 import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, meldSorter)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
-import Session exposing (Session)
 
 
 type alias PlayResponse =
@@ -17,7 +15,6 @@ type alias PlayResponse =
         bottomCard : DTOcard
         , topCardBack : Back
         , typeResponse : TypeResponse
-        , place : Place
         , cards : List DTOcard
         , handPosition : Int
         , tablePosition : Int
@@ -25,10 +22,11 @@ type alias PlayResponse =
 
 
 type TypeResponse =
-    PutResponse
-    | GetResponse
+    PutOnTableResponse
+    | SlideOnTableReponse
     | DealResponse
-    | SlideResponse
+    | PutOnStackBottomResponse
+    | GetResponse
 
 
 emptyPlayResponse : PlayResponse
@@ -37,7 +35,6 @@ emptyPlayResponse =
         bottomCard = defaultDTOcard
         , topCardBack = DARK
         , typeResponse = DealResponse
-        , place = STACKBOTTOM
         , cards = []
         , handPosition = 0
         , tablePosition = 0
@@ -53,7 +50,6 @@ playResponseDecoder =
         |> Pipeline.required "bottomCard" dtoCardDecoder
         |> Pipeline.required "topCardBack" backDecoder
         |> Pipeline.required "typeResponse" typeResponseDecoder
-        |> Pipeline.required "place" placeDecoder
         |> Pipeline.required "cards" ( Decode.list dtoCardDecoder )
         |> Pipeline.optional "handPosition" Decode.int 0
         |> Pipeline.optional "tablePosition" Decode.int 0
@@ -66,25 +62,12 @@ typeResponseDecoder =
 typeResponseFromString : String -> Decoder TypeResponse
 typeResponseFromString string =
     case Debug.log "typeResponseFromString string = " string of
-        "PUT" -> Decode.succeed PutResponse
-        "SLIDE" -> Decode.succeed SlideResponse
-        "GET" -> Decode.succeed GetResponse
+        "PUT_ON_TABLE" -> Decode.succeed PutOnTableResponse
+        "SLIDE_ON_TABLE" -> Decode.succeed SlideOnTableReponse
         "DEAL" -> Decode.succeed DealResponse
+        "PUT_ON_STACK_BOTTOM" -> Decode.succeed PutOnStackBottomResponse
+        "GET" -> Decode.succeed GetResponse
         _ -> Decode.fail ( "Invalid TypeResponse: " ++ string )
-
-
-placeDecoder : Decoder Place
-placeDecoder =
-    Decode.string |> Decode.andThen placeFromString
-
-
-placeFromString : String -> Decoder Place
-placeFromString string =
-    case string of
-        "STACKBOTTOM" -> Decode.succeed STACKBOTTOM
-        "STACKTOP" -> Decode.succeed STACKTOP
-        "TABLE" -> Decode.succeed TABLE
-        _ -> Decode.fail ( "Invalid Place: " ++ string )
 
 
 playResponseDecodeValue : Encode.Value -> PlayResponse

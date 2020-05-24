@@ -25,13 +25,12 @@ public class DTOplayRequest {
 
     private Integer tablePosition;
 
-    private Place place;
-
     public enum TypeRequest {
-        GET,
-        PUT,
+        GET_FROM_STACK_BOTTOM,
+        GET_FROM_STACK_TOP,
+        PUT_ON_STACK_BOTTOM,
         DEAL,
-        SLIDE;
-
+        PUT_ON_TABLE,
+        SLIDE_ON_TABLE;
     }
 }

@@ -36,52 +36,43 @@ public class PlayService {
         List<Card> cards = playRequest.getCards().stream().map(Card::new).collect(Collectors.toList());
         int handPosition = playRequest.getHandPosition();
         int tablePosition = playRequest.getTablePosition();
-        Place place = playRequest.getPlace();
 
         DTOplayResponse playResponse = null;
         switch (typeRequest) {
-            case PUT:
-                switch (place) {
-                    case STACKTOP:
-                        return playResponse;
-                    case TABLE:
-                        playResponse =
-                                DTOplayResponse.builder()
-                                        .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
-                                        .bottomCard(getBottomOfStock(gameUuid))
-                                        .topCardBack(getTopOfStock(gameUuid).toString())
-                                        .typeResponse(DTOplayResponse.TypeResponse.PUT)
-                                        .handPosition(handPosition)
-                                        .tablePosition(tablePosition)
-                                        .place(place)
-                                        .build()
-                        ;
-                        return playResponse;
-                    case STACKBOTTOM:
-                        playResponse =
-                                DTOplayResponse.builder()
-                                        .cards(putCards(gameUuid, playerUuid, cards ))
-                                        .bottomCard(getBottomOfStock(gameUuid))
-                                        .topCardBack(getTopOfStock(gameUuid).toString())
-                                        .typeResponse(DTOplayResponse.TypeResponse.PUT)
-                                        .handPosition(handPosition)
-                                        .tablePosition(tablePosition)
-                                        .place(place)
-                                        .build()
-                        ;
-                        return playResponse;
-                }
+            case PUT_ON_TABLE:
+                    playResponse =
+                            DTOplayResponse.builder()
+                                    .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
+                                    .bottomCard(getBottomOfStock(gameUuid))
+                                    .topCardBack(getTopOfStock(gameUuid).toString())
+                                    .typeResponse(DTOplayResponse.TypeResponse.PUT_ON_TABLE)
+                                    .handPosition(handPosition)
+                                    .tablePosition(tablePosition)
+                                    .build()
+                    ;
+                    return playResponse;
+            case PUT_ON_STACK_BOTTOM:
+                playResponse =
+                        DTOplayResponse.builder()
+                                .cards(putCards(gameUuid, playerUuid, cards ))
+                                .bottomCard(getBottomOfStock(gameUuid))
+                                .topCardBack(getTopOfStock(gameUuid).toString())
+                                .typeResponse(DTOplayResponse.TypeResponse.PUT_ON_STACK_BOTTOM)
+                                .handPosition(handPosition)
+                                .tablePosition(tablePosition)
+                                .build()
+                ;
+                return playResponse;
 
-            case SLIDE:
+            case SLIDE_ON_TABLE:
                 playResponse =
                         DTOplayResponse.builder()
                                 .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
                                 .bottomCard(getBottomOfStock(gameUuid))
                                 .topCardBack(getTopOfStock(gameUuid).toString())
-                                .typeResponse(DTOplayResponse.TypeResponse.SLIDE)
+                                .typeResponse(DTOplayResponse.TypeResponse.SLIDE_ON_TABLE)
                                 .handPosition(handPosition)
                                 .tablePosition(tablePosition)
-                                .place(place)
                                 .build()
                 ;
                 return playResponse;
@@ -95,42 +86,36 @@ public class PlayService {
                         .typeResponse(DTOplayResponse.TypeResponse.DEAL)
                         .handPosition(0)
                         .tablePosition(0)
-                        .place(place)
 
                         .build()
                     ;
                 return playResponse;
 
-            case GET:
-                switch (place) {
-                    case STACKBOTTOM:
-                        playResponse =
-                                DTOplayResponse.builder()
-                                        .cards(getCard (gameUuid, playerUuid))
-                                        .bottomCard(getBottomOfStock(gameUuid))
-                                        .topCardBack(getTopOfStock(gameUuid).toString())
-                                        .typeResponse(DTOplayResponse.TypeResponse.GET)
-                                        .handPosition(handPosition)
-                                        .tablePosition(0)
-                                        .place(place)
-                                        .build()
-                        ;
-                        return playResponse;
+            case GET_FROM_STACK_BOTTOM:
+                playResponse =
+                        DTOplayResponse.builder()
+                                .cards(getCard (gameUuid, playerUuid))
+                                .bottomCard(getBottomOfStock(gameUuid))
+                                .topCardBack(getTopOfStock(gameUuid).toString())
+                                .typeResponse(DTOplayResponse.TypeResponse.GET)
+                                .handPosition(handPosition)
+                                .tablePosition(0)
+                                .build()
+                ;
+                return playResponse;
 
-                    case STACKTOP:
-                        playResponse =
-                                DTOplayResponse.builder()
-                                        .cards(drawCard(gameUuid, playerUuid))
-                                        .bottomCard(getBottomOfStock(gameUuid))
-                                        .topCardBack(getTopOfStock(gameUuid).toString())
-                                        .typeResponse(DTOplayResponse.TypeResponse.GET)
-                                        .handPosition(handPosition)
-                                        .tablePosition(0)
-                                        .place(place)
-                                        .build()
-                        ;
-                        return playResponse;
-                }
+            case GET_FROM_STACK_TOP:
+                playResponse =
+                        DTOplayResponse.builder()
+                                .cards(drawCard(gameUuid, playerUuid))
+                                .bottomCard(getBottomOfStock(gameUuid))
+                                .topCardBack(getTopOfStock(gameUuid).toString())
+                                .typeResponse(DTOplayResponse.TypeResponse.GET)
+                                .handPosition(handPosition)
+                                .tablePosition(0)
+                                .build()
+                ;
+                return playResponse;
 
             default:
                 throw new CardsException(HttpStatus.CONFLICT, "Undefined typeRequest : " + typeRequest);

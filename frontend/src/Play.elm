@@ -2,8 +2,7 @@ port module Play exposing (..)
 
 import Array
 import Domain.DTOcard as DTOcard exposing (Back(..), DTOcard, defaultDTOcard, meldSorter)
-import Domain.DTOgame exposing (DTOgame)
-import Domain.PlayRequest exposing (Place(..), makeDealRequest, makeGetRequest, makePutRequest, makeSlideRequest, playRequestEncoder)
+import Domain.PlayRequest exposing (..)
 import Domain.PlayResponse exposing (TypeResponse(..), playResponseDecodeValue)
 import Html exposing (Attribute, Html, div)
 import Html.Attributes exposing (class)
@@ -230,10 +229,10 @@ update msg model session =
     case msg of
         Receiver encoded ->
             let
-                 { bottomCard, topCardBack, typeResponse, place, cards, handPosition, tablePosition } = playResponseDecodeValue encoded
+                 { bottomCard, topCardBack, typeResponse, cards, handPosition, tablePosition } = playResponseDecodeValue encoded
             in
-                case ( typeResponse, place ) of
-                    ( PutResponse, TABLE ) ->
+                case typeResponse of
+                    PutOnTableResponse ->
                         { model =
                             { model
                             | hand = handSelected model.hand False |> List.map (\card -> ( card, False ) )
@@ -251,7 +250,7 @@ update msg model session =
                         , cmd = Cmd.none
                         }
 
-                    ( SlideResponse, TABLE ) ->
+                    SlideOnTableReponse ->
                         { model =
                             { model
                             | hand = removeFromHand handPosition model.hand
@@ -269,7 +268,7 @@ update msg model session =
                         , cmd = Cmd.none
                         }
 
-                    ( DealResponse, _ ) ->
+                    DealResponse ->
                         let
                             a = Debug.log "DealResponse cards=" cards
                         in
@@ -284,7 +283,7 @@ update msg model session =
                         , cmd = Cmd.none
                         }
 
-                    ( PutResponse, STACKBOTTOM ) ->
+                    PutOnStackBottomResponse ->
                         { model =
                             { model
                             | hand = handRemove model.hand handPosition
@@ -296,7 +295,7 @@ update msg model session =
                         , cmd = Cmd.none
                         }
 
-                    ( GetResponse, _ ) ->
+                    GetResponse ->
                         { model =
                             { model
                             | hand = handAdd model.hand cards handPosition
@@ -307,9 +306,6 @@ update msg model session =
                         , session = session
                         , cmd = Cmd.none
                         }
-
-                    ( _, _ ) ->
-                        { model = model, session = session, cmd = Cmd.none }
 
         DragDropMsg msg_ ->
             let
@@ -331,7 +327,7 @@ update msg model session =
                                 | dragDrop = dragDropModel
                                 , phase = Pending
                                 }
-                                , makeGetRequest session index STACKBOTTOM |> playRequestEncoder |> playSend
+                                , makeGetFromStackBottomRequest session index |> playRequestEncoder |> playSend
                             )
                         Just ( DragTopCard, DropHand index, _ ) ->
                             (
@@ -339,7 +335,7 @@ update msg model session =
                                 | dragDrop = dragDropModel
                                 , phase = Pending
                                 }
-                                , makeGetRequest session index STACKTOP |> playRequestEncoder |> playSend
+                                , makeGetFromStackTopRequest session index |> playRequestEncoder |> playSend
                             )
                         Just ( DragHand index, DropBottomCard, _ ) ->
                             case getHandCard model index of
@@ -350,7 +346,7 @@ update msg model session =
 
                                         , phase = Pending
                                         }
-                                        , makePutRequest session [ card ] index 0 STACKBOTTOM |> playRequestEncoder |> playSend
+                                        , makePutOnStackBottomRequest session [ card ] index |> playRequestEncoder |> playSend
                                     )
 
                                 Nothing ->
@@ -389,7 +385,7 @@ update msg model session =
                                 | dragDrop = dragDropModel
                                 , phase = Pending
                                 }
-                                , makePutRequest session cards 0 to TABLE |> playRequestEncoder |> playSend
+                                , makePutOnTableRequest session cards to |> playRequestEncoder |> playSend
                             )
 
                         Just ( DragHand from, DropTable to, _ ) ->
@@ -407,7 +403,7 @@ update msg model session =
                                         | dragDrop = dragDropModel
                                         , phase = Pending
                                         }
-                                        , makeSlideRequest session (meldSorter cards) from to TABLE |> playRequestEncoder |> playSend
+                                        , makeSlideOnTableRequest session (meldSorter cards) from to |> playRequestEncoder |> playSend
                                         --, playSend ( dtoPlayEncoder ( DTOplay.makeTableMod session cards to ) )
                                     )
 
