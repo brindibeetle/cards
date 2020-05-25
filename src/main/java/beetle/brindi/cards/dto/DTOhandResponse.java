@@ -19,12 +19,6 @@ public class DTOhandResponse {
 
     private Integer handPosition;
 
-    public enum TypeResponse {
-        GET,
-        PUT,
-        DEAL,
-    }
-
     public DTOhandResponse(TypeResponse typeResponse, List<DTOcard> cards, Integer handPosition) {
         this.typeResponse = (typeResponse == null) ? TypeResponse.GET : typeResponse;
         this.cards = (cards == null) ? new ArrayList<>() : cards;

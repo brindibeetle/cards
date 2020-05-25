@@ -1,5 +1,7 @@
 package beetle.brindi.cards.controller;
 
+import beetle.brindi.cards.dto.DTOhandResponse;
+import beetle.brindi.cards.dto.DTOplayHandResponse;
 import beetle.brindi.cards.dto.DTOplayRequest;
 import beetle.brindi.cards.dto.DTOplayResponse;
 import beetle.brindi.cards.exception.CardsException;
@@ -29,9 +31,19 @@ public class PlayController {
     public void play(@RequestParam DTOplayRequest playRequest) {
         try {
             UUID gameUuid = playRequest.getGameUuid();
+            UUID playerUuid = playRequest.getPlayerUuid();
 
-            DTOplayResponse playResponse = playService.play(playRequest);
-            simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse);
+            DTOplayHandResponse playHandResponse = playService.play(playRequest);
+
+            DTOplayResponse playResponse = playHandResponse.getDtoPlayResponse();
+            if (playResponse != null) {
+                simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse);
+            }
+
+            DTOhandResponse handResponse = playHandResponse.getDtoHandResponse();
+            if (handResponse != null) {
+                simpMessagingTemplate.convertAndSend("/handed/" + playerUuid.toString(), handResponse);
+            }
         }
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );

@@ -2,8 +2,10 @@ port module Play exposing (..)
 
 import Array
 import Domain.DTOcard as DTOcard exposing (Back(..), DTOcard, defaultDTOcard, meldSorter)
+import Domain.HandResponse exposing (handResponseDecodeValue)
 import Domain.PlayRequest exposing (..)
-import Domain.PlayResponse exposing (TypeResponse(..), playResponseDecodeValue)
+import Domain.PlayResponse exposing (playResponseDecodeValue)
+import Domain.TypeResponse exposing (TypeResponse(..))
 import Html exposing (Attribute, Html, div)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick, onDoubleClick)
@@ -209,6 +211,7 @@ viewHandCard model index dtoCardSelected =
 
 port playSend : Encode.Value -> Cmd msg
 port playReceiver : (Encode.Value -> msg) -> Sub msg
+port handReceiver : (Encode.Value -> msg) -> Sub msg
 
 port dragstart : Decode.Value -> Cmd msg
 
@@ -219,7 +222,8 @@ port dragstart : Decode.Value -> Cmd msg
 
 
 type Msg =
-    Receiver Encode.Value
+    PlayReceiver Encode.Value
+    | HandReceiver Encode.Value
     | DragDropMsg (DragDrop.Msg DragId DropId)
     | Select Int
 
@@ -227,16 +231,25 @@ type Msg =
 update : Msg -> Model -> Session -> { model : Model, session : Session, cmd : Cmd Msg }
 update msg model session =
     case msg of
-        Receiver encoded ->
+        PlayReceiver encoded ->
             let
-                 { bottomCard, topCardBack, typeResponse, cards, handPosition, tablePosition } = playResponseDecodeValue encoded
+                 { bottomCard, topCardBack, typeResponse, cards, tablePosition } = playResponseDecodeValue encoded
             in
                 case typeResponse of
+                    DealResponse ->
+                        { model =
+                            { model
+                            | topCardBack = topCardBack
+                            , bottomCard = bottomCard
+                            }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
+
                     PutOnTableResponse ->
                         { model =
                             { model
-                            | hand = handSelected model.hand False |> List.map (\card -> ( card, False ) )
-                            , table =
+                            | table =
                                 case cards of
                                     [] ->
                                         model.table
@@ -244,6 +257,68 @@ update msg model session =
                                         tableAdd model.table cards ( Debug.log "update TABLE numberofcards" tablePosition )
                             , topCardBack = topCardBack
                             , bottomCard = bottomCard
+                            }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
+
+                    SlideOnTableReponse ->
+                        { model =
+                            { model
+                            | table =
+                                case cards of
+                                    [] ->
+                                        model.table
+                                    _ ->
+                                        tableMod model.table cards ( Debug.log "update TABLE tablePosition" tablePosition )
+                            , topCardBack = topCardBack
+                            , bottomCard = bottomCard
+                            }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
+
+                    PutOnStackBottomResponse ->
+                        { model =
+                            { model
+                            | topCardBack = topCardBack
+                            , bottomCard = bottomCard
+                            }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
+
+                    GetResponse ->
+                        { model =
+                            { model
+                            | topCardBack = topCardBack
+                            , bottomCard = bottomCard
+                            }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
+
+        HandReceiver encoded ->
+            let
+                 { typeResponse, cards, handPosition } = handResponseDecodeValue encoded
+            in
+                case typeResponse of
+                    DealResponse ->
+                        let
+                            a = Debug.log "DealResponse cards=" cards
+                        in
+                        { model =
+                            { model
+                            | hand = cards |> List.map (\card -> (card, False))
+                            , phase = DrawCard
+                            }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
+                    PutOnTableResponse ->
+                        { model =
+                            { model
+                            | hand = handSelected model.hand False |> List.map (\card -> ( card, False ) )
                             , phase = PutCard
                             }
                         , session = session
@@ -254,30 +329,7 @@ update msg model session =
                         { model =
                             { model
                             | hand = removeFromHand handPosition model.hand
-                            , table =
-                                case cards of
-                                    [] ->
-                                        model.table
-                                    _ ->
-                                        tableMod model.table cards ( Debug.log "update TABLE tablePosition" tablePosition )
-                            , topCardBack = topCardBack
-                            , bottomCard = bottomCard
                             , phase = PutCard
-                            }
-                        , session = session
-                        , cmd = Cmd.none
-                        }
-
-                    DealResponse ->
-                        let
-                            a = Debug.log "DealResponse cards=" cards
-                        in
-                        { model =
-                            { model
-                            | hand = cards |> List.map (\card -> (card, False))
-                            , topCardBack = topCardBack
-                            , bottomCard = bottomCard
-                            , phase = DrawCard
                             }
                         , session = session
                         , cmd = Cmd.none
@@ -286,10 +338,8 @@ update msg model session =
                     PutOnStackBottomResponse ->
                         { model =
                             { model
-                            | hand = handRemove model.hand handPosition
-                            , topCardBack = topCardBack
-                            , bottomCard = bottomCard
-                            , phase = DrawCard
+                            | hand = removeFromHand handPosition model.hand
+                            , phase = PutCard
                             }
                         , session = session
                         , cmd = Cmd.none
@@ -299,8 +349,6 @@ update msg model session =
                         { model =
                             { model
                             | hand = handAdd model.hand cards handPosition
-                            , topCardBack = topCardBack
-                            , bottomCard = bottomCard
                             , phase = PutCard
                             }
                         , session = session
@@ -450,7 +498,10 @@ update msg model session =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    playReceiver Receiver
+    Sub.batch
+    [ playReceiver PlayReceiver
+    , handReceiver HandReceiver
+    ]
 
 
 -- #####
