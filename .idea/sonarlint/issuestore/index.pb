@@ -60,8 +60,6 @@ b
 2src/main/java/beetle/brindi/cards/dto/DTOplay.java,0\7\07883fa89d4afd91a00d5141ad2d7d84c4065280
 Q
 !src/main/resources/static/main.js,9\c\9c7ea218e88b96129ece547872569f1f9aa41e0e
-`
-0src/main/java/beetle/brindi/cards/dto/Place.java,8\a\8aebe731a6964385c17021567170af00df429602
 r
 Bsrc/main/java/beetle/brindi/cards/controller/SignupController.java,a\6\a618cbd3d2f6b5f6c74b7b626d1a46b353c4127d
 i
@@ -98,3 +96,11 @@ V
 &frontend/src/Domain/SignupResponse.elm,b\b\bbddbebc844651a611b3bcbd9bb0217a8fa29320
 j
 :src/main/java/beetle/brindi/cards/dto/DTOhandResponse.java,6\7\670b9c9c794cf8b1ff7e1b609935d38991ca83e4
+n
+>src/main/java/beetle/brindi/cards/dto/DTOplayHandResponse.java,a\4\a47f5e5b05821e5cb31057c90213ca724fcfeae9
+g
+7src/main/java/beetle/brindi/cards/dto/TypeResponse.java,0\5\05f7a7030e7e28052c6d9d3d8b67b526010b7b94
+T
+$frontend/src/Domain/HandResponse.elm,3\b\3b6d5c3c69492f519cc18074c5a81aa9730c42ad
+T
+$frontend/src/Domain/TypeResponse.elm,a\a\aae2ea78be8b46764a576066629485bce04769e8

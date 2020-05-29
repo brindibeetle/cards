@@ -4,6 +4,7 @@ import beetle.brindi.cards.dto.DTOcard;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,30 +35,31 @@ public class Game {
         deck.addPlayer(playerUuidd);
     }
 
-    public List<Card> dealCards(UUID playerUuid, Integer number){
+    public Pair<List<Card>,List<Card>> dealCards(UUID playerUuid, Integer number){
         List<Card> cards = deck.takeFromStock(number);
         deck.putToHand(playerUuid, cards);
-        return cards;
+        return Pair.with(new ArrayList<>(), cards);
     }
 
-    public List<Card> drawCard(UUID playerUuid) {
+    public Pair<List<Card>,List<Card>> drawCard(UUID playerUuid) {
         List<Card> cards = deck.takeFromStock(1);
         deck.putToHand(playerUuid, cards);
-        return cards;
+        return Pair.with(cards, cards);
     }
 
-    public List<Card> getCard(UUID playerUuid) {
+    public Pair<List<Card>,List<Card>> getCard(UUID playerUuid) {
         List<Card> cards = deck.takeFromStockBottom(1 );
         deck.putToHand(playerUuid, cards);
-        return cards;
+        return Pair.with(cards, cards);
     }
 
-    public void putCards(UUID playerUuid, List<Card> cards) {
+    public Pair<List<Card>,List<Card>> putCards(UUID playerUuid, List<Card> cards) {
         deck.takeFromHand(playerUuid, cards );
         deck.putToStock(cards);
+        return Pair.with(cards, cards);
     }
 
-    public List<Card> putCardsOnTable(UUID playerUuid, Integer place, List<Card> cards) {
+    public Pair<List<Card>,List<Card>> putCardsOnTable(UUID playerUuid, Integer place, List<Card> cards) {
         List<Card> tableCards = deck.getFromTable(place);
 
         List<Card> newCards = new ArrayList();
@@ -81,7 +83,7 @@ public class Game {
         deck.putToHand(playerUuid, oldCards );
 
         deck.putToTable(place, cards);
-        return cards;
+        return Pair.with(cards, newCards);
     }
 
     public Card.Back getTopOfStock() {

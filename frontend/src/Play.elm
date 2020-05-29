@@ -23,12 +23,12 @@ type alias Model =
         , bottomCard : DTOcard
         , dragDrop : DragDrop.Model DragId DropId
         , phase : Phase
+        , pending : Bool
     }
 
 
 type Phase =
     Waiting
-    | Pending       -- awaiting some interaction with server
     | DrawCard
     | PutCard
 
@@ -56,6 +56,7 @@ init session =
         , bottomCard = defaultDTOcard
         , dragDrop = DragDrop.init
         , phase = DrawCard
+        , pending = False
         }
         , makeDealRequest session |> playRequestEncoder |> playSend
     )
@@ -310,7 +311,7 @@ update msg model session =
                         { model =
                             { model
                             | hand = cards |> List.map (\card -> (card, False))
-                            , phase = DrawCard
+                            , pending = False
                             }
                         , session = session
                         , cmd = Cmd.none
@@ -319,7 +320,7 @@ update msg model session =
                         { model =
                             { model
                             | hand = handSelected model.hand False |> List.map (\card -> ( card, False ) )
-                            , phase = PutCard
+                            , pending = False
                             }
                         , session = session
                         , cmd = Cmd.none
@@ -329,7 +330,7 @@ update msg model session =
                         { model =
                             { model
                             | hand = removeFromHand handPosition model.hand
-                            , phase = PutCard
+                            , pending = False
                             }
                         , session = session
                         , cmd = Cmd.none
@@ -339,7 +340,7 @@ update msg model session =
                         { model =
                             { model
                             | hand = removeFromHand handPosition model.hand
-                            , phase = PutCard
+                            , pending = False
                             }
                         , session = session
                         , cmd = Cmd.none
@@ -349,7 +350,7 @@ update msg model session =
                         { model =
                             { model
                             | hand = handAdd model.hand cards handPosition
-                            , phase = PutCard
+                            , pending = False
                             }
                         , session = session
                         , cmd = Cmd.none
@@ -373,7 +374,8 @@ update msg model session =
                             (
                                 { model
                                 | dragDrop = dragDropModel
-                                , phase = Pending
+                                , pending = True
+                                , phase = PutCard
                                 }
                                 , makeGetFromStackBottomRequest session index |> playRequestEncoder |> playSend
                             )
@@ -381,7 +383,8 @@ update msg model session =
                             (
                                 { model
                                 | dragDrop = dragDropModel
-                                , phase = Pending
+                                , pending = True
+                                , phase = PutCard
                                 }
                                 , makeGetFromStackTopRequest session index |> playRequestEncoder |> playSend
                             )
@@ -392,7 +395,8 @@ update msg model session =
                                         { model
                                         | dragDrop = dragDropModel
 
-                                        , phase = Pending
+                                        , pending = True
+                                        , phase = DrawCard
                                         }
                                         , makePutOnStackBottomRequest session [ card ] index |> playRequestEncoder |> playSend
                                     )
@@ -431,7 +435,7 @@ update msg model session =
                             (
                                 { model
                                 | dragDrop = dragDropModel
-                                , phase = Pending
+                                , pending = True
                                 }
                                 , makePutOnTableRequest session cards to |> playRequestEncoder |> playSend
                             )
@@ -449,7 +453,7 @@ update msg model session =
                                     (
                                         { model
                                         | dragDrop = dragDropModel
-                                        , phase = Pending
+                                        , pending = True
                                         }
                                         , makeSlideOnTableRequest session (meldSorter cards) from to |> playRequestEncoder |> playSend
                                         --, playSend ( dtoPlayEncoder ( DTOplay.makeTableMod session cards to ) )
@@ -561,90 +565,88 @@ handMove hand from to =
 
 draggableFromHand: Model -> Int -> List (Attribute Msg)
 draggableFromHand model index =
-    case model.phase of
-        Pending ->
-            []
+    if model.pending then
+        []
 
-        _ ->
-            DragDrop.draggable DragDropMsg ( DragHand index )
+    else
+        DragDrop.draggable DragDropMsg ( DragHand index )
 
 
 draggableFromHandSelected: Model -> List (Attribute Msg)
 draggableFromHandSelected model =
-    case model.phase of
-        Pending ->
-            []
+    if model.pending then
+        []
 
-        _ ->
-            DragDrop.draggable DragDropMsg ( DragHandSelected )
+    else
+        DragDrop.draggable DragDropMsg ( DragHandSelected )
 
 
 droppableToHand: Model -> Int -> List (Attribute Msg)
 droppableToHand model index =
-    case ( model.phase, DragDrop.getDragId model.dragDrop ) of
-        ( Pending, _ ) ->
+    case ( model.pending, model.phase, DragDrop.getDragId model.dragDrop ) of
+        ( True, _, _) ->
             []
 
-        ( DrawCard, _ ) ->
+        ( _, DrawCard, _ ) ->
             DragDrop.droppable DragDropMsg ( DropHand index )
 
-        ( _, Just ( DragHand indexFrom) ) ->
+        ( _, _, Just ( DragHand indexFrom) ) ->
             DragDrop.droppable DragDropMsg ( DropHand index )
 
-        ( _, _ ) ->
+        ( _, _, _ ) ->
             []
 
 
 draggableFromBottom: Model -> List (Attribute Msg)
 draggableFromBottom model =
-    case model.phase of
-        DrawCard ->
+    case ( model.pending, model.phase ) of
+        ( False, DrawCard ) ->
             DragDrop.draggable DragDropMsg DragBottomCard
 
-        _ ->
+        ( _, _ ) ->
             []
 
 
 droppableToBottom: Model -> List (Attribute Msg)
 droppableToBottom model =
-    case model.phase of
-        PutCard ->
+    case ( model.pending, model.phase ) of
+        ( False, PutCard ) ->
             DragDrop.droppable DragDropMsg DropBottomCard
 
-        _ ->
+        ( _, _ ) ->
             []
 
 
 draggableFromTop: Model -> List (Attribute Msg)
 draggableFromTop model =
-    case model.phase of
-        DrawCard ->
+    case ( model.pending, model.phase ) of
+        ( False, DrawCard ) ->
             DragDrop.draggable DragDropMsg DragTopCard
 
-        _ ->
+        ( _, _ ) ->
             []
 
 
 clickHand: Model -> Int -> List (Attribute Msg)
 clickHand model index =
-    case model.phase of
-        PutCard ->
+    case ( model.pending, model.phase ) of
+        ( False, PutCard ) ->
             [ onClick ( Select index ) ]
 
-        _ ->
+        ( _, _ ) ->
             []
 
 
 droppableToTableSpace: Model -> Int -> List (Attribute Msg)
 droppableToTableSpace model index =
-    case ( model.phase, DragDrop.getDragId model.dragDrop ) of
-        ( Pending, _ ) ->
+    case ( model.pending, model.phase, DragDrop.getDragId model.dragDrop ) of
+        ( True, _, _ ) ->
             []
 
-        ( PutCard, _ ) ->
+        ( _, PutCard, _ ) ->
             DragDrop.droppable DragDropMsg ( DropTable index )
 
-        ( _, _ ) ->
+        ( _, _, _ ) ->
             []
 
 

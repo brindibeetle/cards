@@ -12,6 +12,7 @@ import beetle.brindi.cards.dto.TypeResponse;
 import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.repository.CardsRepository;
 import lombok.RequiredArgsConstructor;
+import org.javatuples.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -38,11 +39,13 @@ public class PlayService {
 
         DTOplayResponse playResponse = null;
         DTOhandResponse handResponse = null;
+        Pair<List<DTOcard>, List<DTOcard>> cardsCards = null;
         switch (typeRequest) {
             case PUT_ON_TABLE:
+                cardsCards = putCardsOnTable(gameUuid, playerUuid, tablePosition, cards);
                 playResponse =
                         DTOplayResponse.builder()
-                                .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
+                                .cards(cardsCards.getValue0())
                                 .bottomCard(getBottomOfStock(gameUuid))
                                 .topCardBack(getTopOfStock(gameUuid).toString())
                                 .typeResponse(TypeResponse.PUT_ON_TABLE)
@@ -51,7 +54,7 @@ public class PlayService {
                 ;
                 handResponse =
                         DTOhandResponse.builder()
-                                .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
+                                .cards(cardsCards.getValue1())
                                 .typeResponse(TypeResponse.PUT_ON_TABLE)
                                 .handPosition(handPosition)
                                 .build()
@@ -59,9 +62,10 @@ public class PlayService {
                 return new DTOplayHandResponse(playResponse, handResponse);
 
             case PUT_ON_STACK_BOTTOM:
+                cardsCards = putCards(gameUuid, playerUuid, cards);
                 playResponse =
                         DTOplayResponse.builder()
-                                .cards(putCards(gameUuid, playerUuid, cards ))
+                                .cards(cardsCards.getValue0())
                                 .bottomCard(getBottomOfStock(gameUuid))
                                 .topCardBack(getTopOfStock(gameUuid).toString())
                                 .typeResponse(TypeResponse.PUT_ON_STACK_BOTTOM)
@@ -70,7 +74,7 @@ public class PlayService {
                 ;
                 handResponse =
                         DTOhandResponse.builder()
-                                .cards(putCards(gameUuid, playerUuid, cards ))
+                                .cards(cardsCards.getValue1())
                                 .typeResponse(TypeResponse.PUT_ON_STACK_BOTTOM)
                                 .handPosition(handPosition)
                                 .build()
@@ -78,9 +82,10 @@ public class PlayService {
                 return new DTOplayHandResponse(playResponse, handResponse);
 
             case SLIDE_ON_TABLE:
+                cardsCards = putCardsOnTable(gameUuid, playerUuid, tablePosition, cards);
                 playResponse =
                         DTOplayResponse.builder()
-                                .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
+                                .cards(cardsCards.getValue0())
                                 .bottomCard(getBottomOfStock(gameUuid))
                                 .topCardBack(getTopOfStock(gameUuid).toString())
                                 .typeResponse(TypeResponse.SLIDE_ON_TABLE)
@@ -89,7 +94,7 @@ public class PlayService {
                 ;
                 handResponse =
                         DTOhandResponse.builder()
-                                .cards(putCardsOnTable (gameUuid, playerUuid, tablePosition, cards ))
+                                .cards(cardsCards.getValue1())
                                 .typeResponse(TypeResponse.SLIDE_ON_TABLE)
                                 .handPosition(handPosition)
                                 .build()
@@ -97,9 +102,10 @@ public class PlayService {
                 return new DTOplayHandResponse(playResponse, handResponse);
 
             case DEAL:
+                cardsCards = deal(gameUuid, playerUuid);
                 playResponse =
                         DTOplayResponse.builder()
-                                .cards(deal (gameUuid, playerUuid ))
+                                .cards(cardsCards.getValue0())
                                 .bottomCard(getBottomOfStock(gameUuid))
                                 .topCardBack(getTopOfStock(gameUuid).toString())
                                 .typeResponse(TypeResponse.DEAL)
@@ -109,7 +115,7 @@ public class PlayService {
                 ;
                 handResponse =
                         DTOhandResponse.builder()
-                                .cards(deal (gameUuid, playerUuid ))
+                                .cards(cardsCards.getValue1())
                                 .typeResponse(TypeResponse.DEAL)
 
                                 .build()
@@ -117,9 +123,10 @@ public class PlayService {
                 return new DTOplayHandResponse(playResponse, handResponse);
 
             case GET_FROM_STACK_BOTTOM:
+               cardsCards = getCard(gameUuid, playerUuid);
                 playResponse =
                         DTOplayResponse.builder()
-                                .cards(getCard (gameUuid, playerUuid))
+                                .cards(cardsCards.getValue0())
                                 .bottomCard(getBottomOfStock(gameUuid))
                                 .topCardBack(getTopOfStock(gameUuid).toString())
                                 .typeResponse(TypeResponse.GET)
@@ -128,7 +135,7 @@ public class PlayService {
                 ;
                 handResponse =
                         DTOhandResponse.builder()
-                                .cards(getCard (gameUuid, playerUuid))
+                                .cards(cardsCards.getValue1())
                                 .typeResponse(TypeResponse.GET)
                                 .handPosition(handPosition)
                                 .build()
@@ -136,9 +143,10 @@ public class PlayService {
                 return new DTOplayHandResponse(playResponse, handResponse);
 
             case GET_FROM_STACK_TOP:
+                cardsCards = drawCard(gameUuid, playerUuid);
                 playResponse =
                         DTOplayResponse.builder()
-                                .cards(drawCard(gameUuid, playerUuid))
+                                .cards(cardsCards.getValue0())
                                 .bottomCard(getBottomOfStock(gameUuid))
                                 .topCardBack(getTopOfStock(gameUuid).toString())
                                 .typeResponse(TypeResponse.GET)
@@ -147,7 +155,7 @@ public class PlayService {
                 ;
                 handResponse =
                         DTOhandResponse.builder()
-                                .cards(drawCard(gameUuid, playerUuid))
+                                .cards(cardsCards.getValue1())
                                 .typeResponse(TypeResponse.GET)
                                 .handPosition(handPosition)
                                 .build()
@@ -159,56 +167,39 @@ public class PlayService {
         }
     }
 
-    public List<DTOcard> deal (UUID gameUuid, UUID playerUuid ){
+    public Pair<List<DTOcard>, List<DTOcard>> deal (UUID gameUuid, UUID playerUuid ){
         Game game = serviceHelper.getGame(gameUuid);
         Player player = serviceHelper.getPlayer(game, playerUuid);
 
-        List<Card> cards = game.dealCards(playerUuid, 13);
-
-        return cards.stream()
-            .map(DTOcard::new)
-                .collect(Collectors.toList());
+        return convert2DTO( game.dealCards(playerUuid, 13) );
     }
 
-    private List<DTOcard> drawCard (UUID gameUuid, UUID playerUuid){
+    private Pair<List<DTOcard>, List<DTOcard>> drawCard (UUID gameUuid, UUID playerUuid){
         Game game = serviceHelper.getGame(gameUuid);
         Player player = serviceHelper.getPlayer(game, playerUuid);
 
-        List<Card> cards = game.drawCard(playerUuid);
-
-        return cards.stream()
-                .map(DTOcard::new)
-                .collect(Collectors.toList());
+        return convert2DTO( game.drawCard(playerUuid) );
     }
 
-    private List<DTOcard> getCard (UUID gameUuid, UUID playerUuid){
+    private Pair<List<DTOcard>, List<DTOcard>> getCard (UUID gameUuid, UUID playerUuid){
         Game game = serviceHelper.getGame(gameUuid);
         Player player = serviceHelper.getPlayer(game, playerUuid);
 
-        List<Card> cards = game.getCard(playerUuid);
-
-        return cards.stream()
-                .map(DTOcard::new)
-                .collect(Collectors.toList());
+        return convert2DTO( game.getCard(playerUuid) );
     }
 
-    private List<DTOcard> putCards (UUID gameUuid, UUID playerUuid, List<Card> cards){
+    private Pair<List<DTOcard>, List<DTOcard>> putCards (UUID gameUuid, UUID playerUuid, List<Card> cards){
         Game game = serviceHelper.getGame(gameUuid);
         Player player = serviceHelper.getPlayer(game, playerUuid);
 
-        game.putCards(playerUuid, cards);
-
-        return new ArrayList<>();
+        return convert2DTO(game.putCards(playerUuid, cards));
     }
 
-    private List<DTOcard> putCardsOnTable (UUID gameUuid, UUID playerUuid, Integer place, List<Card> cards){
+    private Pair<List<DTOcard>, List<DTOcard>> putCardsOnTable (UUID gameUuid, UUID playerUuid, Integer place, List<Card> cards){
         Game game = serviceHelper.getGame(gameUuid);
         Player player = serviceHelper.getPlayer(game, playerUuid);
 
-        return game.putCardsOnTable(playerUuid, place, cards)
-                .stream()
-                .map(DTOcard::new)
-                .collect(Collectors.toList());
+        return convert2DTO(game.putCardsOnTable(playerUuid, place, cards));
     }
 
     private Card.Back getTopOfStock(UUID gameUuid) {
@@ -220,5 +211,11 @@ public class PlayService {
         return new DTOcard( game.getBottomOfStock() );
     }
 
+    private Pair<List<DTOcard>, List<DTOcard>>convert2DTO(Pair<List<Card>, List<Card>> cards) {
+        return Pair.with(
+                cards.getValue0().stream().map(DTOcard::new).collect(Collectors.toList())
+                , cards.getValue1().stream().map(DTOcard::new).collect(Collectors.toList())
+        );
+    }
 
 }
