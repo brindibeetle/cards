@@ -47,19 +47,16 @@ type DropId =
 
 
 -- refresh page :
-init : Session -> ( Model, Cmd Msg )
+init : Session -> Model
 init session =
-    (
-        { hand = []
-        , table = []
-        , topCardBack = DARK
-        , bottomCard = defaultDTOcard
-        , dragDrop = DragDrop.init
-        , phase = DrawCard
-        , pending = False
-        }
-        , makeDealRequest session |> playRequestEncoder |> playSend
-    )
+    { hand = []
+    , table = []
+    , topCardBack = DARK
+    , bottomCard = defaultDTOcard
+    , dragDrop = DragDrop.init
+    , phase = DrawCard
+    , pending = False
+    }
 
 
 -- #####
@@ -234,7 +231,7 @@ update msg model session =
     case msg of
         PlayReceiver encoded ->
             let
-                 { bottomCard, topCardBack, typeResponse, cards, tablePosition } = playResponseDecodeValue encoded
+                 { bottomCard, topCardBack, typeResponse, cards, tablePosition } = Debug.log "Play " ( playResponseDecodeValue encoded )
             in
                 case typeResponse of
                     DealResponse ->
@@ -299,6 +296,12 @@ update msg model session =
                         , cmd = Cmd.none
                         }
 
+                    StartResponse ->
+                        { model = model
+                        , session = session
+                        , cmd = makeDealRequest session |> playRequestEncoder |> playSend
+                        }
+
         HandReceiver encoded ->
             let
                  { typeResponse, cards, handPosition } = handResponseDecodeValue encoded
@@ -352,6 +355,12 @@ update msg model session =
                             | hand = handAdd model.hand cards handPosition
                             , pending = False
                             }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
+
+                    StartResponse ->
+                        { model = model
                         , session = session
                         , cmd = Cmd.none
                         }
@@ -500,8 +509,8 @@ update msg model session =
 -- #####
 
 
-subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions : Sub Msg
+subscriptions =
     Sub.batch
     [ playReceiver PlayReceiver
     , handReceiver HandReceiver

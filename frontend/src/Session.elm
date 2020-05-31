@@ -11,6 +11,7 @@ type alias Session =
     , playerName : String
     , playerUuid : String
     , gameUuid : String
+    , gameName : String
     }
 
 
@@ -28,6 +29,7 @@ initialSession initFlags =
     , playerName = ""
     , playerUuid = ""
     , gameUuid = ""
+    , gameName = ""
     }
 
 succeed : Session -> String -> Session
@@ -61,7 +63,3 @@ warn session message =
 -- ####   HELPER
 -- ####
 
-
-getDTOgame: Session -> DTOgame
-getDTOgame { playerUuid, gameUuid} =
-    { playerUuid = playerUuid, gameUuid = gameUuid}

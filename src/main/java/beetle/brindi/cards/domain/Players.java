@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -12,7 +13,7 @@ import java.util.UUID;
 //@Builder
 public class Players {
 
-    private HashMap<UUID, Player> players;
+    private Map<UUID, Player> players;
     private UUID current;
 
     public Players() {

@@ -18,12 +18,14 @@ public class DTOsignupRequest {
 
     private UUID playerUuid;
 
+    private String gameName;
+
     private UUID gameUuid;
 
     public enum TypeRequest {
+        START,
         CREATE,
         JOIN,
         GAMES;
-
     }
 }

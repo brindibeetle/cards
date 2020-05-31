@@ -365,3 +365,50 @@ div.end-animation-card4 {
 label.signup-label {
     color: white;
 }
+
+div.card-deck {
+    display: inline-flex;
+}
+div.game {
+    width: 16em;
+    height: 18em;
+    margin: 1em 1em 1em 1em;
+}
+input.game {
+    border: none;
+}
+input.game-title {
+    border: none;
+    padding: unset;
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    background-color: azure;
+}
+div.game-header {
+    padding: unset;
+    font-size: small;
+}
+
+div.game-body {
+    padding: .8em;
+}
+div.game-bottom {
+    position: absolute;
+    top: 15em;
+    left: 1em;
+    padding: unset;
+}
+
+p.game-players {
+    display: grid;
+    grid-template-columns: repeat(1, [col] 1fr) ;
+    /* grid-template-rows:  repeat(1, [row] 1fr) ; */
+}
+button.game {
+    width: 14em;
+}
+input.signup-playername {
+    width: 18em;
+    padding: unset;
+}

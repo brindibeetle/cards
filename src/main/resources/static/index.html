@@ -63,6 +63,10 @@
         });
 
       <!-- ports Signup.elm -->
+      stompClient.subscribe('/signingin/', function(message) {
+          console.log("signinginReceiver: " + message.body);
+          app.ports.signinginReceiver.send(JSON.parse(message.body));
+      });
       app.ports.signupSend.subscribe(function(message) {
           console.log("index.html: " + message);
 
@@ -77,18 +81,6 @@
       });
 
     });
-<!--    stompClient.connect({}, function(frame) {-->
-<!--        console.log('Connected: ' + frame);-->
-<!--        stompClient.subscribe('/played', function(message) {-->
-<!--            console.log("playReceiver: " + message.body);-->
-<!--        	app.ports.playReceiver.send(JSON.parse(message.body));-->
-<!--        });-->
-<!--    });-->
-
-<!--    app.ports.playSend.subscribe(function(message) {-->
-<!--        console.log("index.html: " + message);-->
-<!--        stompClient.send("/cards/v1/play", {},JSON.stringify({'name': message}));-->
-<!--    });-->
 
 </script>
 

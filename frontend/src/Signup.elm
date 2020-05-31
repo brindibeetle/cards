@@ -5,7 +5,11 @@ import Bootstrap.Table as Table
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input exposing (..)
 import Bootstrap.Button as Button
+import Bootstrap.Card as Card
+import Bootstrap.Card.Block as Block
+import Bootstrap.Text as Text
 
+import Domain.DTOplayer exposing (DTOplayer)
 import Domain.SignupRequest exposing (..)
 import Domain.SignupResponse exposing (TypeResponse(..), signupResponseDecodeValue)
 import Html exposing (..)
@@ -13,7 +17,7 @@ import Html.Attributes exposing (..)
 import Json.Encode as Encode exposing (..)
 
 import Session exposing (..)
-import Domain.DTOgame exposing (DTOgame, decodeDTOGame)
+import Domain.DTOgame exposing (DTOgame, decodeDTOGame, emptyDTOgame)
 
 
 -- ####
@@ -23,18 +27,20 @@ import Domain.DTOgame exposing (DTOgame, decodeDTOGame)
 
 type alias Model =
     { phase : Phase
-    , games : List String
+    , pending : Bool
+    , games : List DTOgame
     , joinGame : String
     }
 
 
-type Phase = PhaseInit | PhaseCreateAsked | PhaseCreated | PhaseStart
+type Phase = PhaseInit | PhaseCreated String | PhaseJoined String | PhaseStart
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     (
         { phase = PhaseInit
+        , pending = False
         , games = []
         , joinGame = ""
         }
@@ -52,73 +58,163 @@ view : Model -> Session -> Html Msg
 view model session =
     let
         statusText = "test"
-        { phase, joinGame } = model
-        { playerName, playerUuid, gameUuid } = session
+        { phase, pending, joinGame } = model
+        { playerUuid, gameUuid, playerName } = session
     in
     div [ class "container" ]
         [
             div []
             [
-                Html.text statusText
-            ]
-            , Form.form []
-            [ Form.group []
-                [ Form.label [ class "signup-label" ] [ Html.text "Your name or alias"]
-                , Input.text [ Input.onInput UpdatePlayername, Input.value playerName, Input.disabled ( phase /= PhaseInit ) ]
-                ]
-            , Form.group [ ]
-                [ Form.label [ class "signup-label" ] [ Html.text "Games that are playing"]
-                , Select.select
-                    [ Select.onChange UpdateJoinGame ]
-                    ( List.map viewGame model.games )
-                ]
-            , Form.group [ ]
-                [ Form.label [ class "signup-label" ] [ Html.text "Player identifier"]
-                , Input.text [ Input.value playerUuid, Input.disabled True ]
-                ]
-            , Form.group []
-                [ Form.label [ class "signup-label" ] [ Html.text "Game identifier"]
-                , Input.text [ Input.value gameUuid, Input.disabled True ]
-                ]
-            , Form.group []
-                    [ Table.simpleTable
-                        ( Table.thead [] []
-                        , Table.tbody []
-                            [ Table.tr []
-                                [ Table.td []
-                                    [ Button.button
-                                        [ Button.outlineSecondary, Button.attrs [ ], Button.onClick DoCancel ]
-                                        [ Html.text "Cancel" ]
-                                    ]
-                                , Table.td [ ]
-                                    [ Button.button
-                                        [ Button.outlinePrimary, Button.attrs [ Html.Attributes.disabled ( phase /= PhaseInit || playerName == "") ]
-                                            , Button.onClick ( DoCreateGame playerName ) ]
-                                        [ Html.text "New game" ]
-                                    ]
-                                , Table.td [ ]
-                                    [ Button.button
-                                        [ Button.outlinePrimary, Button.attrs [ Html.Attributes.disabled ( phase /= PhaseInit || playerName == "" || joinGame == "") ]
-                                            , Button.onClick ( DoJoinGame joinGame playerName ) ]
-                                        [ Html.text "Join game" ]
-                                    ]
-                                , Table.td [  ]
-                                    [ Button.button
-                                        [ Button.outlinePrimary, Button.attrs [ Html.Attributes.disabled ( phase /= PhaseCreated ) ]
-                                            , Button.onClick DoStartGame  ]
-                                        [ Html.text "Start game" ]
-                                    ]
-                                ]
-                            ]
-                        )
+                Form.form []
+                [ Form.group []
+                    [ Form.label [ class "signup-label" ] [ Html.text "Your name or alias"]
+                    , Input.text [ Input.attrs [ class "signup-playername" ], Input.small, Input.onInput UpdatePlayerName, Input.value playerName, Input.disabled ( pending || phase /= PhaseInit ) ]
                     ]
                 ]
+            ]
+            , div [ class "card-deck" ]
+                ( case newGame model session of
+                    Just newGameHtml ->
+                        ( newGameHtml :: List.map (viewGame model session) model.games )
+
+                    Nothing ->
+                        List.map (viewGame model session) model.games
+                )
+
         ]
 
+viewGame : Model -> Session -> DTOgame -> Html Msg
+viewGame { phase, pending } { playerName } game =
+    let
+        { started, gameName, gameUuid, players, creator } = game
+        topText = if started then "was started by " ++ creator else "wanna join? created by " ++ creator
+    in
+    ( case phase of
+        PhaseInit ->
+            viewGameCard
+                { topText = topText
+                , buttonText = "Join game"
+                , buttonMsg = DoJoinGame gameUuid
+                , buttonDisabled = ( pending || started || playerName == "" )
+                , nameDisabled = True
+                }
+                { gameName = gameName
+                , players = players
+                }
 
-viewGame : String -> Select.Item Msg
-viewGame game =
-    Select.item [ Html.Attributes.value game ] [ Html.text game ]
+        PhaseCreated uuid ->
+            if uuid == gameUuid then
+                viewGameCard
+                    { topText = "Waiting for joiners..."
+                    , buttonText = "Start game"
+                    , buttonMsg = DoStartGame
+                    , buttonDisabled = pending
+                    , nameDisabled = True
+                    }
+                    { gameName = gameName
+                    , players = players
+                    }
+            else
+                viewGameCard
+                    { topText = topText
+                    , buttonText = "Join game"
+                    , buttonMsg = DoJoinGame gameUuid
+                    , buttonDisabled = True
+                    , nameDisabled = True
+                    }
+                    { gameName = gameName
+                    , players = players
+                    }
+
+        PhaseJoined uuid ->
+            if uuid == gameUuid then
+                viewGameCard
+                    { topText = "Waiting for " ++ creator
+                    , buttonText = "Waiting"
+                    , buttonMsg = DoJoinGame gameUuid
+                    , buttonDisabled = True
+                    , nameDisabled = True
+                    }
+                    { gameName = gameName
+                    , players = players
+                    }
+            else
+                viewGameCard
+                    { topText = topText
+                    , buttonText = "Join game"
+                    , buttonMsg = DoJoinGame gameUuid
+                    , buttonDisabled = True
+                    , nameDisabled = True
+                    }
+                    { gameName = gameName
+                    , players = players
+                    }
+
+
+        PhaseStart ->
+            Html.text "Something is wrong here"
+    )
+
+
+newGame : Model -> Session -> Maybe ( Html Msg )
+newGame { phase, pending } { playerName, gameName } =
+    case phase of
+        PhaseInit ->
+            viewGameCard
+                { topText = "Start your own game?"
+                , buttonText = "Create new game"
+                , buttonMsg = DoCreateGame gameName playerName
+                , buttonDisabled = ( pending || gameName == "" || playerName == "")
+                , nameDisabled = ( pending || phase /= PhaseInit )
+                }
+                { gameName = gameName
+                , players = []
+                }
+            |> Maybe.Just
+
+        _ ->
+            Nothing
+
+
+viewGameCard : { topText : String, buttonText : String, buttonMsg : Msg, buttonDisabled : Bool, nameDisabled : Bool}
+    -> { gameName : String, players : List DTOplayer }
+    -> Html Msg
+viewGameCard { topText, buttonText, buttonMsg, buttonDisabled, nameDisabled } { gameName, players } =
+    Card.config [ Card.attrs [ class "game" ] ]
+    |> Card.header [ class "game-header" ]
+        [ Html.text topText
+        ]
+
+    |> Card.block [ Block.attrs [ class "game-body" ] ]
+        --[ Block.titleH4 [] [ Html.text "Players" ]
+        [ Block.titleH6 [] [ Input.text
+            [ Input.attrs [ class "game-title" ]
+            , Input.value gameName
+            , Input.onInput UpdateGameName
+            , Input.disabled nameDisabled
+            ]
+        ]
+        , Block.text [ class "game-players" ]
+            ( List.map viewPlayer players )
+        ]
+
+    |> Card.block [ Block.attrs [ class "game-bottom" ] ]
+        [ Block.custom <|
+            Button.button
+                [ Button.primary
+                , Button.onClick buttonMsg
+                , Button.attrs [ Html.Attributes.disabled buttonDisabled, class "game" ]
+                ]
+                [ Html.text buttonText ]
+        ]
+
+    |> Card.view
+
+
+viewPlayer : DTOplayer -> Html Msg
+viewPlayer { playerName } =
+    div [] [ Html.text playerName ]
+
 
 -- ####
 -- ####   PORTS
@@ -127,6 +223,7 @@ viewGame game =
 
 port signupSend : Encode.Value -> Cmd msg
 port signupReceiver : (Encode.Value -> msg) -> Sub msg
+port signinginReceiver : (Encode.Value -> msg) -> Sub msg
 
 
 -- ####
@@ -135,19 +232,30 @@ port signupReceiver : (Encode.Value -> msg) -> Sub msg
 
 
 type Msg =
-    UpdatePlayername String
+    UpdatePlayerName String
+    | UpdateGameName String
     | UpdateJoinGame String
     | DoCancel
-    | DoCreateGame String
+    | DoCreateGame String String
     | DoStartGame
-    | DoJoinGame String String
-    | Recv Encode.Value
+    | DoJoinGame String
+    | SignUp Encode.Value
+    | SigningIn Encode.Value
 
 
 update : Msg -> Model -> Session -> { model : Model, session : Session, cmd : Cmd Msg } 
 update msg model session =
     case msg of
-        UpdatePlayername newName ->
+        UpdateGameName newName ->
+            { model = model
+            , session =
+                { session
+                | gameName = newName
+                }
+            , cmd = Cmd.none
+            }
+
+        UpdatePlayerName newName ->
             { model = model
             , session =
                 { session
@@ -161,42 +269,54 @@ update msg model session =
                 { model
                 | joinGame = gameUuid
                 }
-            , session = session
+            , session =
+                { session
+                | gameUuid = gameUuid
+                }
             , cmd = Cmd.none
             }
 
         DoCancel ->
             { model = model, session = session, cmd = Cmd.none }
 
-        DoCreateGame playerName ->
+        DoCreateGame gameName playerName ->
             { model =
-                { model | phase = PhaseCreateAsked }
+                { model
+                | pending = True
+                }
             , session = session
-            , cmd = makeCreateRequest playerName |> signupRequestEncoder |> signupSend  }
+            , cmd = makeCreateRequest gameName playerName |> signupRequestEncoder |> signupSend  }
 
-        DoJoinGame gameUuid playerName ->
+        DoJoinGame gameUuid ->
             { model =
-                { model | phase = PhaseCreateAsked }
+                { model
+                | pending = True
+                , phase = PhaseJoined gameUuid
+                }
             , session = session
-            , cmd = makeJoinRequest gameUuid playerName |> signupRequestEncoder |> signupSend  }
+            , cmd = makeJoinRequest gameUuid session.playerName |> signupRequestEncoder |> signupSend  }
 
         DoStartGame ->
             { model =
-                { model | phase = PhaseStart }
+                { model
+                | pending = True
+                , phase = PhaseStart
+                }
             , session = session
-            , cmd = Cmd.none
+            , cmd = makeStartRequest session |> signupRequestEncoder |> signupSend
             }
 
-        Recv encoded ->
+        SignUp encoded ->
             let
-                { playerUuid, gameUuid, typeResponse, games } = signupResponseDecodeValue encoded
+                { playerUuid, gameUuid, typeResponse, games } = Debug.log "signupResponseDecodeValue" (signupResponseDecodeValue encoded)
             in
                 case typeResponse of
                     CreateResponse ->
                         {
                             model =
                                 { model
-                                | phase = PhaseCreated
+                                | pending = False
+                                , phase = PhaseCreated gameUuid
                                 }
                             , session =
                                 { session
@@ -210,7 +330,7 @@ update msg model session =
                         {
                             model =
                                 { model
-                                | phase = PhaseCreated
+                                | pending = False
                                 }
                             , session =
                                 { session
@@ -219,14 +339,13 @@ update msg model session =
                                 }
                             , cmd = Cmd.none
                         }
-
 
                     GamesResponse ->
                         {
                             model =
                                 { model
-                                | phase = PhaseInit
-                                , games = "" :: games
+                                | pending = False
+                                , games = games
                                 }
                             , session =
                                 { session
@@ -236,32 +355,44 @@ update msg model session =
                             , cmd = Cmd.none
                         }
 
+                    _ ->
+                        { model = model
+                        , session = session
+                        , cmd = Cmd.none
+                        }
 
-                    StartResponse ->
+        SigningIn encoded ->
+            let
+                { playerUuid, gameUuid, typeResponse, games } = Debug.log "signupResponseDecodeValue" (signupResponseDecodeValue encoded)
+            in
+                case typeResponse of
+                    GamesResponse ->
                         {
                             model =
                                 { model
-                                | phase = PhaseStart
+                                | games = games
                                 }
-                            , session =
-                                { session
-                                | playerUuid = playerUuid
-                                , gameUuid = gameUuid
-                                }
+                            , session =session
                             , cmd = Cmd.none
                         }
 
-
+                    _ ->
+                        { model = model
+                        , session = session
+                        , cmd = Cmd.none
+                        }
 
 -- ####
 -- ####   SUBSCRIPTION
 -- #### 
 
 
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    signupReceiver Recv
-
+subscriptions : Sub Msg
+subscriptions =
+    Sub.batch
+        [ signupReceiver SignUp
+        , signinginReceiver SigningIn
+        ]
 
 -- ####
 -- ####   HELPER

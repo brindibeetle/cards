@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser exposing (Document, UrlRequest)
 import Browser.Navigation as Nav
 import CardsCDN
+import Domain.SignupResponse as Signup
 import Play
 import Url exposing (Url)
 import Html exposing (..)
@@ -29,10 +30,13 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     case model of
         Signup signupModel session ->
-            Signup.subscriptions signupModel |> Sub.map SignupMsg
+            Sub.batch
+                [ Signup.subscriptions |> Sub.map SignupMsg
+                , Play.subscriptions |> Sub.map PlayMsg
+                ]
 
         Play playModel session ->
-            Play.subscriptions playModel |> Sub.map PlayMsg
+            Play.subscriptions |> Sub.map PlayMsg
 
 
 type Model =
@@ -111,19 +115,31 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        a = Debug.log "Main.update msg = " msg
+        b = Debug.log "Main.update model = " model
+    in
     case (msg, model) of
 
-        ( SignupMsg Signup.DoStartGame, Signup signupModel session ) ->
-           let
-                ( updatedModel, updatedCmd ) = Play.init session
-           in
-                toModel (Play updatedModel session) (updatedCmd |> Cmd.map PlayMsg) session
+        --( SignupMsg Signup.DoStartGame, Signup signupModel session ) ->
+        --   let
+        --        ( updatedModel, updatedCmd ) = Play.init session
+        --   in
+        --        toModel (Play updatedModel session) (updatedCmd |> Cmd.map PlayMsg) session
+        --
 
         ( SignupMsg subMsg, Signup signupModel session ) ->
            let
                 updated = Signup.update subMsg signupModel session
            in
                 toModel (Signup updated.model updated.session) (updated.cmd |> Cmd.map SignupMsg) updated.session
+
+        ( PlayMsg subMsg, Signup signupModel session ) ->
+            let
+                playModel = Play.init session
+                updated = Play.update subMsg playModel session
+            in
+                toModel (Play updated.model updated.session) (updated.cmd |> Cmd.map PlayMsg) updated.session
 
         ( PlayMsg subMsg, Play playModel session ) ->
            let

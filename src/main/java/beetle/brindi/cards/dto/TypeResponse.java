@@ -12,5 +12,6 @@ public enum TypeResponse {
     SLIDE_ON_TABLE,
     PUT_ON_STACK_BOTTOM,
     GET,
-    DEAL;
+    DEAL,
+    START;
 }

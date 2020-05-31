@@ -42,8 +42,6 @@ E
 frontend/src/Main.elm,3\d\3dcec4f50071d5230c24f95672fcdb4a7f205413
 e
 5src/main/java/beetle/brindi/cards/CardsSingleton.java,c\4\c4c481aed4b9ac83c7ca816a7ca8c13fd71cd327
-f
-6src/main/java/beetle/brindi/cards/WebSocketConfig.java,d\b\db54a76e3679785b046a2c72cf2bc3ed8c11fdfe
 H
 frontend/src/Session.elm,7\e\7e7cf0690bd8dfd296dd99413ddd936e2d6ac74b
 O
@@ -56,8 +54,6 @@ e
 5src/main/java/beetle/brindi/cards/dto/DTOputCard.java,e\c\ec137b14c39d3e5f152bbb76a83f20bc521f7cba
 A
 frontend/elm.json,b\e\beadf617a28743c64d95867692519de96a88f2fc
-b
-2src/main/java/beetle/brindi/cards/dto/DTOplay.java,0\7\07883fa89d4afd91a00d5141ad2d7d84c4065280
 Q
 !src/main/resources/static/main.js,9\c\9c7ea218e88b96129ece547872569f1f9aa41e0e
 r
@@ -84,8 +80,6 @@ r
 Bsrc/main/java/beetle/brindi/cards/dto/DTOsignupRequestWrapper.java,b\a\ba5b56d731c13d01430e256e21e08b38d33982a2
 l
 <src/main/java/beetle/brindi/cards/dto/DTOsignupResponse.java,a\6\a6bbadb14b3958f3c9644f047e88e21de7ccb964
-a
-1src/main/resources/static/src/resources/cards.css,5\e\5e749e891708df2595e14a1a5d6f16baf9a61a26
 l
 <src/main/java/beetle/brindi/cards/service/ServiceHelper.java,6\a\6a4e10f6c56f722244dd00d5a3f0c1ecaf9213c5
 k
@@ -104,3 +98,11 @@ T
 $frontend/src/Domain/HandResponse.elm,3\b\3b6d5c3c69492f519cc18074c5a81aa9730c42ad
 T
 $frontend/src/Domain/TypeResponse.elm,a\a\aae2ea78be8b46764a576066629485bce04769e8
+t
+Dsrc/main/java/beetle/brindi/cards/configuration/WebSocketConfig.java,c\3\c3e37599b9e80046ac2e1c9bfa6acd80e96ece50
+Q
+!frontend/src/Domain/DTOplayer.elm,d\d\ddf52ec1fb19b0146c5f287219e87bfd0320809d
+d
+4src/main/java/beetle/brindi/cards/dto/DTOplayer.java,5\1\514b88e5f7f0dd07828e86c0eefbae2d9f67ba49
+w
+Gsrc/main/java/beetle/brindi/cards/configuration/StompEventListener.java,f\4\f443e0012b51edc295f5ad313045a8411c2b0ab9

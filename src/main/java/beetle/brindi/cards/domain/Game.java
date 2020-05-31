@@ -15,6 +15,10 @@ import java.util.UUID;
 @Builder
 public class Game {
 
+    private String name;
+
+    private Boolean started;
+
     private Deck deck;
 
     private Players players;

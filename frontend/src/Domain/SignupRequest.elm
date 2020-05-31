@@ -9,6 +9,7 @@ import Session exposing (Session)
 type alias SignupRequest =
     {
         typeRequest : TypeRequest
+        , gameName : String
         , playerName : String
         , gameUuid : String
         --, playerUuid : String  generated in js in index.html
@@ -28,9 +29,10 @@ type TypeRequest =
 
 
 signupRequestEncoder : SignupRequest -> Encode.Value
-signupRequestEncoder { typeRequest, playerName, gameUuid } =
+signupRequestEncoder { typeRequest, gameName, playerName, gameUuid } =
     Encode.object
         [ ( "typeRequest", typeRequestEncoder typeRequest )
+        , ( "gameName", Encode.string gameName )
         , ( "playerName", Encode.string playerName )
         , ( "gameUuid", Encode.string gameUuid )
         ]
@@ -50,11 +52,12 @@ typeRequestEncoder typeRequest =
 -- ####
 
 
-makeCreateRequest : String -> SignupRequest
-makeCreateRequest playerName =
+makeCreateRequest : String -> String -> SignupRequest
+makeCreateRequest gameName playerName =
     {
             typeRequest = CreateRequest
             , gameUuid = ""
+            , gameName = gameName
             , playerName = playerName
         }
 
@@ -65,6 +68,7 @@ makeJoinRequest gameUuid playerName  =
             typeRequest = JoinRequest
             , gameUuid = gameUuid
             --, playerUuid = session.playerUuid
+            , gameName = ""
             , playerName = playerName
         }
 
@@ -74,6 +78,7 @@ makeGamesRequest =
     {
             typeRequest = GamesRequest
             , gameUuid = ""
+            , gameName = ""
             , playerName = ""
         }
 
@@ -83,5 +88,6 @@ makeStartRequest session =
     {
         typeRequest = StartRequest
         , gameUuid = session.gameUuid
+        , gameName = ""
         , playerName = session.playerName
     }

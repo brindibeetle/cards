@@ -3,7 +3,9 @@ package beetle.brindi.cards.service;
 import beetle.brindi.cards.CardsSingleton;
 import beetle.brindi.cards.domain.Game;
 import beetle.brindi.cards.domain.Player;
+import beetle.brindi.cards.domain.Players;
 import beetle.brindi.cards.dto.DTOgame;
+import beetle.brindi.cards.dto.DTOplayer;
 import beetle.brindi.cards.exception.CardsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,11 @@ public class ServiceHelper {
         Map<UUID, Game> games = singleton.getGames().getGames();
 
         List<DTOgame> dtoGames = new ArrayList<>();
-        games.entrySet().stream().forEach(e -> dtoGames.add(new DTOgame( e.getKey(), e.getValue()) ));
+        for(Map.Entry<UUID, Game> keyValue: games.entrySet()) {
+            Game game = keyValue.getValue();
+            DTOgame dtoGame = new DTOgame(keyValue.getKey(), game);
+            dtoGames.add(dtoGame);
+        }
 
         return dtoGames;
     }

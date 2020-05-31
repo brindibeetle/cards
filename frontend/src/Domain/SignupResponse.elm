@@ -4,6 +4,7 @@ module Domain.SignupResponse exposing (..)
 -- personal response to the player
 -- -> later we will split this
 
+import Domain.DTOgame exposing (DTOgame, dtoGameDecoder)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
@@ -14,7 +15,7 @@ type alias SignupResponse =
         gameUuid : String
         , playerUuid : String
         , typeResponse : TypeResponse
-        , games : List String
+        , games : List DTOgame
     }
 
 
@@ -44,7 +45,7 @@ signupResponseDecoder =
         |> Pipeline.required "gameUuid" Decode.string
         |> Pipeline.required "playerUuid" Decode.string
         |> Pipeline.required "typeResponse" typeResponseDecoder
-        |> Pipeline.optional "games" ( Decode.list Decode.string ) []
+        |> Pipeline.optional "games" ( Decode.list dtoGameDecoder ) []
 
 
 typeResponseDecoder : Decoder TypeResponse
@@ -69,4 +70,7 @@ signupResponseDecodeValue encoded =
            signupResponse
 
         Err message ->
-           emptySignupResponse
+            let
+                a = Debug.log "signupResponseDecodeValue Err " message
+           in
+               emptySignupResponse

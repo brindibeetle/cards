@@ -16,6 +16,7 @@ type TypeResponse =
     | PutOnStackBottomResponse
     | GetResponse
     | DealResponse
+    | StartResponse
 
 
 -- ####
@@ -36,4 +37,5 @@ typeResponseFromString string =
         "PUT_ON_STACK_BOTTOM" -> Decode.succeed PutOnStackBottomResponse
         "GET" -> Decode.succeed GetResponse
         "DEAL" -> Decode.succeed DealResponse
+        "START" -> Decode.succeed StartResponse
         _ -> Decode.fail ( "Invalid TypeResponse: " ++ string )

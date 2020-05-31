@@ -1,5 +1,6 @@
 package beetle.brindi.cards.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,9 +19,9 @@ public class DTOsignupResponse {
 
     private String playerUuid;
 
-    private List<String> games;
-
     private TypeResponse typeResponse;
+
+    private List<DTOgame> games;
 
     public enum TypeResponse {
         CREATE,
@@ -29,10 +30,10 @@ public class DTOsignupResponse {
         START;
     }
 
-    public DTOsignupResponse(String gameUuid, String playerUuid, List<String> games, TypeResponse typeResponse) {
-        this.gameUuid = (gameUuid == null) ? "" : gameUuid;
-        this.playerUuid = (playerUuid == null) ? "" : playerUuid;
-        this.typeResponse = (typeResponse == null) ? TypeResponse.CREATE : typeResponse;
-        this.games = (games == null) ? new ArrayList<>() : games;
+    public DTOsignupResponse(String gameUuid, String playerUuid, TypeResponse typeResponse, List<DTOgame> games) {
+        this.gameUuid = ( gameUuid == null ? "<leeg>" : gameUuid );
+        this.playerUuid = ( playerUuid == null ? "<leeg>" : playerUuid );
+        this.games = ( games == null ? new ArrayList<>() : games );
+        this.typeResponse = ( typeResponse == null ? TypeResponse.GAMES : typeResponse );
     }
 }

@@ -8,6 +8,7 @@ import beetle.brindi.cards.dto.DTOhandResponse;
 import beetle.brindi.cards.dto.DTOplayHandResponse;
 import beetle.brindi.cards.dto.DTOplayRequest;
 import beetle.brindi.cards.dto.DTOplayResponse;
+import beetle.brindi.cards.dto.DTOsignupRequest;
 import beetle.brindi.cards.dto.TypeResponse;
 import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.repository.CardsRepository;
@@ -167,6 +168,23 @@ public class PlayService {
         }
     }
 
+    public DTOplayResponse startGame(DTOsignupRequest signupRequest) {
+        UUID gameUuid = signupRequest.getGameUuid();
+        UUID playerUuid = signupRequest.getPlayerUuid();
+        DTOsignupRequest.TypeRequest typeRequest = signupRequest.getTypeRequest();
+
+        switch (typeRequest) {
+            case START:
+                startGame(gameUuid);
+                return DTOplayResponse.builder()
+                    .typeResponse(TypeResponse.START)
+                    .build();
+
+            default:
+                return null;
+        }
+    }
+
     public Pair<List<DTOcard>, List<DTOcard>> deal (UUID gameUuid, UUID playerUuid ){
         Game game = serviceHelper.getGame(gameUuid);
         Player player = serviceHelper.getPlayer(game, playerUuid);
@@ -216,6 +234,11 @@ public class PlayService {
                 cards.getValue0().stream().map(DTOcard::new).collect(Collectors.toList())
                 , cards.getValue1().stream().map(DTOcard::new).collect(Collectors.toList())
         );
+    }
+
+    private void startGame(UUID gameUuid) {
+        Game game = serviceHelper.getGame(gameUuid);
+        game.setStarted(Boolean.TRUE);
     }
 
 }
