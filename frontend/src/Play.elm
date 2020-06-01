@@ -123,7 +123,7 @@ viewTableSpace model index cards =
             Just ( DragHand i ) ->
                 case Array.fromList model.hand |> Array.get i |> Maybe.map Tuple.first of
                     Just card ->
-                        if card :: cards |> DTOcard.isMeld then
+                        if ( card :: cards |> DTOcard.isMeld ) && ( List.length model.hand > 1 ) then
                             droppableToTableSpace model index
 
                         else
@@ -154,7 +154,7 @@ viewTableSpaceCard model index card =
 
 viewHand : Model -> Html Msg
 viewHand model =
-    if handSelected model.hand True |> DTOcard.isMeld then
+    if ( handSelected model.hand True |> DTOcard.isMeld ) && ( handSelected model.hand False |> List.length |> (<) 0 ) then
         div ( class "hand-container"
                 :: ( draggableFromHandSelected model )
             )
