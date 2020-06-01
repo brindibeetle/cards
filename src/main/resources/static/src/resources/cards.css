@@ -245,6 +245,8 @@ div.table-container {
     display: grid;
     grid-template-columns: repeat(5, [col] 1fr) ;
     grid-template-rows:  repeat(2, [row] 1fr) ;
+    grid-column-gap: 1vw;
+    grid-row-gap: 1vw;
 
     text-align: center;
     width: 100vw;
@@ -267,117 +269,33 @@ div.table-space-card {
     position: relative;
 }
 
-/* Buttons */
-div.buttons-container {
-    position: absolute;
-    display: grid;
-    grid-template-columns: repeat(5, [col] 1fr) ;
-    grid-template-rows:  repeat(1, [row] 1fr) ;
-
-    text-align: center;
-
-    top: 0.5vw;
-    left: 68vw;
-}
-button.button {
-    font-family: "Courier new";
-    font-size: 1vw;
-    background-color: transparent;
-    border-style: solid;
-    border-width: .05vw;
-    color: #f7f3dc;
-    width : 10vw;
-    margin: 0.2vw 0.2vw 0.2vw 0.2vw;
-    white-space: nowrap;
-    padding: .3vw .1vh .3vw .1vh;
-    text-align: center;
-}
-button.button:hover {
-    background-color: #f7f3dc;
-    color: #020202;
-}
-button.button-hidden {
-    background-color: transparent;
-    color: transparent;
-    border-style: hidden;
-}
-button.button:focus {
-    outline: none;
-}
-button.button-disabled {
-    opacity: 0.5;
-}
-button.button-disabled:hover {
-    background-color: transparent;
-    color: #f7f3dc;
-}
-
-div.flying-container {
-    position: absolute;
-}
-
-div.end-animation-container {
-    position: absolute;
-    width: 90vw;
-    top: 3vw;
-    left: 0;
-}
-div.end-animation-grid {
-    display: grid;
-    grid-template-columns: repeat(13, [col] 1fr) ;
-    grid-template-rows:  repeat(4, [row] 1fr) ;
-    text-align: center;
-}
-div.end-animation-card0 {
-    animation-name: end-animation;
-    animation-duration: 4s;
-    animation-delay: 0s;
-}
-div.end-animation-card1 {
-    animation-name: end-animation;
-    animation-duration: 4s;
-    animation-delay: 1s;
-}
-div.end-animation-card2 {
-    animation-name: end-animation;
-    animation-duration: 4s;
-    animation-delay: 2s;
-}
-div.end-animation-card3 {
-    animation-name: end-animation;
-    animation-duration: 4s;
-    animation-delay: 3s;
-}
-div.end-animation-card4 {
-    animation-name: end-animation;
-    animation-duration: 4s;
-    animation-delay: 4s;
-}
-@keyframes end-animation {
-  0%   {background-color:red; left:0px; top:0px;}
-  25%  {background-color:yellow; left:200px; top:0px;}
-  50%  {background-color:blue; left:200px; top:200px;}
-  75%  {display:none;}
-  100% {display:none;}
-}
 
 /* Signup */
 label.signup-label {
     color: white;
 }
+input.signup-playername {
+    width: 18em;
+    padding: unset;
+}
 
-div.card-deck {
+
+div.signup-card-deck {
     display: inline-flex;
 }
-div.game {
+div.signup-game-card {
     width: 16em;
     height: 18em;
     margin: 1em 1em 1em 1em;
 }
-input.game {
-    border: none;
+div.signup-game-card-header {
+    padding: unset;
+    font-size: small;
 }
-input.game-title {
+div.signup-game-card-body {
+    padding: .8em;
+}
+input.signup-game-card-title {
     border: none;
     padding: unset;
     font-size: 1.5rem;
@@ -385,30 +303,19 @@ input.game-title {
     line-height: 1.2;
     background-color: azure;
 }
-div.game-header {
-    padding: unset;
-    font-size: small;
+p.signup-game-card-players {
+    display: grid;
+    grid-template-columns: repeat(1, [col] 1fr) ;
+    /* grid-template-rows:  repeat(1, [row] 1fr) ; */
 }
-
-div.game-body {
-    padding: .8em;
-}
-div.game-bottom {
+div.signup-game-card-bottom {
     position: absolute;
     top: 15em;
     left: 1em;
     padding: unset;
 }
-
-p.game-players {
-    display: grid;
-    grid-template-columns: repeat(1, [col] 1fr) ;
-    /* grid-template-rows:  repeat(1, [row] 1fr) ; */
-}
-button.game {
+button.signup-game-card {
     width: 14em;
 }
-input.signup-playername {
-    width: 18em;
-    padding: unset;
-}
+
+/* remarks */

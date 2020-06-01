@@ -1,13 +1,10 @@
 port module Signup exposing (..)
 
-import Bootstrap.Form.Select as Select
-import Bootstrap.Table as Table
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input exposing (..)
 import Bootstrap.Button as Button
 import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
-import Bootstrap.Text as Text
 
 import Domain.DTOplayer exposing (DTOplayer)
 import Domain.SignupRequest exposing (..)
@@ -72,7 +69,7 @@ view model session =
                     ]
                 ]
             ]
-            , div [ class "card-deck" ]
+            , div [ class "signup-card-deck" ]
                 ( case newGame model session of
                     Just newGameHtml ->
                         ( newGameHtml :: List.map (viewGame model session) model.games )
@@ -180,30 +177,30 @@ viewGameCard : { topText : String, buttonText : String, buttonMsg : Msg, buttonD
     -> { gameName : String, players : List DTOplayer }
     -> Html Msg
 viewGameCard { topText, buttonText, buttonMsg, buttonDisabled, nameDisabled } { gameName, players } =
-    Card.config [ Card.attrs [ class "game" ] ]
-    |> Card.header [ class "game-header" ]
+    Card.config [ Card.attrs [ class "signup-game-card" ] ]
+    |> Card.header [ class "signup-game-card-header" ]
         [ Html.text topText
         ]
 
-    |> Card.block [ Block.attrs [ class "game-body" ] ]
+    |> Card.block [ Block.attrs [ class "signup-game-card-body" ] ]
         --[ Block.titleH4 [] [ Html.text "Players" ]
         [ Block.titleH6 [] [ Input.text
-            [ Input.attrs [ class "game-title" ]
+            [ Input.attrs [ class "signup-game-card-title" ]
             , Input.value gameName
             , Input.onInput UpdateGameName
             , Input.disabled nameDisabled
             ]
         ]
-        , Block.text [ class "game-players" ]
+        , Block.text [ class "signup-game-card-players" ]
             ( List.map viewPlayer players )
         ]
 
-    |> Card.block [ Block.attrs [ class "game-bottom" ] ]
+    |> Card.block [ Block.attrs [ class "signup-game-card-bottom" ] ]
         [ Block.custom <|
             Button.button
                 [ Button.primary
                 , Button.onClick buttonMsg
-                , Button.attrs [ Html.Attributes.disabled buttonDisabled, class "game" ]
+                , Button.attrs [ Html.Attributes.disabled buttonDisabled, class "signup-game-card" ]
                 ]
                 [ Html.text buttonText ]
         ]

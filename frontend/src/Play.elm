@@ -66,30 +66,34 @@ init session =
 
 view : Model -> Html Msg
 view model =
+        div []
+            [ viewStock model
+            , viewTable model
+            , viewHand model
+            ]
+
+
+viewStock : Model -> Html Msg
+viewStock model =
     let
         { bottomCard, topCardBack, hand, table, phase } = model
     in
-        div []
-            [ div [ class "stock-container" ]
+        div [ class "stock-container" ]
+            [ div
+                ( List.append
+                    ( draggableFromBottom model )
+                    ( droppableToBottom model )
+                )
                 [ div
-                    ( List.append
-                        ( draggableFromBottom model )
-                        ( droppableToBottom model )
-                    )
+                    [ class "stock-card" ]
+                    [ DTOcard.view bottomCard ]
+                ]
+            , div
+                ( draggableFromTop model )
                     [ div
                         [ class "stock-card" ]
-                        [ DTOcard.view bottomCard ]
+                        [ DTOcard.viewBack topCardBack ]
                     ]
-                , div
-                    ( draggableFromTop model )
-                        [ div
-                            [ class "stock-card" ]
-                            [ DTOcard.viewBack topCardBack ]
-                        ]
-                ]
-            , viewTable model
-
-            , viewHand model
             ]
 
 

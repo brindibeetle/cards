@@ -506,6 +506,18 @@ numerizeRank rank =
         N3 ->  3
         N2 ->  2
 
+numerizeRankHighest : Rank -> Int
+numerizeRankHighest rank =
+    case rank of
+        ACE -> 14
+        _ -> numerizeRank rank
+
+numerizeRankLowest : Rank -> Int
+numerizeRankLowest rank =
+    case rank of
+        ACE -> 1
+        _ -> numerizeRank rank
+
 
 numerizeSuit : Suit -> Int
 numerizeSuit suit =
@@ -562,11 +574,29 @@ distributeJokersInSortedMeldRun cards rCards sCards =
         ( _, [] ) ->
             List.append cards ( rCards |> List.map regularToCard )
 
+        ( rCard::[], sCard::sCardsRest ) ->
+            let
+                highestCardsRank = rCard.rank |> numerizeRankHighest
+                lowestCardsRank = highestCardsRank
+                cardsToDistribute = ( List.length rCards ) + ( List.length sCards )
+                numberOfPlacesLeft = 1
+            in
+                if cardsToDistribute > numberOfPlacesLeft && lowestCardsRank > List.length cards + 1 then
+                    distributeJokersInSortedMeldRun
+                        ( List.append cards [ specialToCard sCard ] )
+                        rCards
+                        sCardsRest
+                else
+                    distributeJokersInSortedMeldRun
+                        ( List.append cards [ regularToCard rCard ] )
+                        []
+                        sCards
+
         ( rCard::rCardsRest, sCard::sCardsRest ) ->
             let
                 highestCardsRank = List.drop ( List.length rCards - 1) rCards
-                    |> List.head |> Maybe.map .rank |>  Maybe.map numerizeRank |> Maybe.withDefault 14
-                lowestCardsRank = rCard.rank |>  numerizeRank
+                    |> List.head |> Maybe.map .rank |>  Maybe.map numerizeRankHighest |> Maybe.withDefault 14
+                lowestCardsRank = rCard.rank |>  numerizeRankLowest
                 cardsToDistribute = ( List.length rCards ) + ( List.length sCards )
                 numberOfPlacesLeft = highestCardsRank - numerizeRank rCard.rank + 1 |> max 0
             in
