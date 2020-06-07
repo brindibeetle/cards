@@ -76,7 +76,7 @@ view model =
             , body =
                 [ CDN.stylesheet
                 , CardsCDN.stylesheet
-                , Play.view model1 |> Html.map PlayMsg
+                , Play.view model1 session |> Html.map PlayMsg
                 ]
             }
 

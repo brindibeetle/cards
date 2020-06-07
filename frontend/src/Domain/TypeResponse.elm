@@ -4,10 +4,7 @@ module Domain.TypeResponse exposing (..)
 -- personal response to the player
 -- -> later we will split this
 
-import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, meldSorter)
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline as Pipeline
-import Json.Encode as Encode
 
 
 type TypeResponse =

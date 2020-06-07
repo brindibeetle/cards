@@ -2,10 +2,8 @@ package beetle.brindi.cards.service;
 
 import beetle.brindi.cards.CardsSingleton;
 import beetle.brindi.cards.domain.Game;
-import beetle.brindi.cards.domain.Player;
-import beetle.brindi.cards.domain.Players;
+import beetle.brindi.cards.domain.Games;
 import beetle.brindi.cards.dto.DTOgame;
-import beetle.brindi.cards.dto.DTOplayer;
 import beetle.brindi.cards.exception.CardsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,10 +11,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
-public class ServiceHelper {
+public class GamesService {
 
     Game getGame (UUID gameUuid) {
         CardsSingleton singleton = CardsSingleton.getInstance();
@@ -51,13 +51,28 @@ public class ServiceHelper {
         return gameUuids;
     }
 
-    Player getPlayer (Game game, UUID playerUuid) {
+    public Optional<UUID> findGameBySessionId(String sessionId){
         CardsSingleton singleton = CardsSingleton.getInstance();
-        Player player = game.getPlayers().get( playerUuid );
-        if ( player == null ) {
-            throw new CardsException(HttpStatus.NOT_FOUND, "player not found: " + playerUuid);
-        }
-        return player;
+        Games games = singleton.getGames();
+
+        AtomicReference<UUID> found = new AtomicReference<UUID>(null);
+        games.getGames().forEach(
+                (uuid, game) -> game.getPlayers().getPlayers().forEach(
+                        (uuid1, player) -> { if ( sessionId.equals(player.getSessionId())) found.set(uuid); }
+                )
+        );
+        return Optional.ofNullable(found.get());
+    }
+
+    public int numberOfPlayers(UUID gameUuid) {
+        CardsSingleton singleton = CardsSingleton.getInstance();
+        Game game = singleton.getGames().getGames().get(gameUuid);
+        return game.getPlayers().getPlayers().size();
+    }
+
+    public void removeGame(UUID gameUuid) {
+        CardsSingleton singleton = CardsSingleton.getInstance();
+        singleton.getGames().getGames().remove(gameUuid);
     }
 
 }

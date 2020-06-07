@@ -1,6 +1,5 @@
 package beetle.brindi.cards.domain;
 
-import beetle.brindi.cards.dto.DTOcard;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,9 +33,9 @@ public class Game {
         this.deck = deck;
     }
 
-    public void addPlayer(String playerName, UUID playerUuidd){
-        players.addPlayer(playerName, playerUuidd);
-        deck.addPlayer(playerUuidd);
+    public void addPlayer(String playerName, String sessionId, UUID playerUuid){
+        players.addPlayer(playerName, sessionId, playerUuid);
+        deck.addPlayer(playerUuid);
     }
 
     public Pair<List<Card>,List<Card>> dealCards(UUID playerUuid, Integer number){

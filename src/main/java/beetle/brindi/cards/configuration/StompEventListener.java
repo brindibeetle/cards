@@ -1,5 +1,7 @@
 package beetle.brindi.cards.configuration;
 
+import beetle.brindi.cards.service.SessionService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -12,8 +14,11 @@ import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Component
+@RequiredArgsConstructor
 public class StompEventListener implements ApplicationListener<SessionConnectEvent> {
     private static Logger logger = LoggerFactory.getLogger(StompEventListener.class);
+
+    private final SessionService sessionService;
 
     @Override
     public void onApplicationEvent(SessionConnectEvent event) {
@@ -32,11 +37,13 @@ public class StompEventListener implements ApplicationListener<SessionConnectEve
     public void onSocketConnected(SessionConnectedEvent event) {
         StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
 //        logger.info("[Connected] " + sha.getUser().getName());
-        logger.info("[Connected] " );
+        logger.info("[Connected] " + event.toString());
     }
     @EventListener
     public void onSocketDisconnected(SessionDisconnectEvent event) {
         StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-        logger.info("[Disonnected] ");
+        logger.info("[Disonnected] " + event.toString());
+
+        sessionService.disconnect(event.getSessionId().toString());
     }
 }

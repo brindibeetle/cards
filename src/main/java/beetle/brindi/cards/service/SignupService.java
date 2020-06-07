@@ -13,15 +13,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class SignupService {
 
-    private final ServiceHelper serviceHelper;
+    private final GamesService serviceHelper;
+
+    private final PlayersService playersService;
 
     private final CardsRepository cardsRepository;
 
@@ -44,7 +44,7 @@ public class SignupService {
         }
     }
 
-    public DTOsignupResponse signup(DTOsignupRequest signupRequest) {
+    public DTOsignupResponse signup(DTOsignupRequest signupRequest, String sessionId) {
 
         UUID gameUuid = signupRequest.getGameUuid();
         String gameName = signupRequest.getGameName();
@@ -60,7 +60,7 @@ public class SignupService {
                         .build();
 
             case CREATE:
-                DTOgame game = createGame(signupRequest);
+                DTOgame game = createGame(signupRequest, sessionId);
                 return DTOsignupResponse.builder()
                         .typeResponse(DTOsignupResponse.TypeResponse.CREATE)
                         .gameUuid(game.getGameUuid().toString())
@@ -68,7 +68,7 @@ public class SignupService {
                         .build();
 
             case JOIN:
-                joinGame(signupRequest);
+                joinGame(signupRequest, sessionId);
                 return DTOsignupResponse.builder()
                         .typeResponse(DTOsignupResponse.TypeResponse.JOIN)
                         .gameUuid(gameUuid.toString())
@@ -83,16 +83,14 @@ public class SignupService {
         }
     }
 
-    private void joinGame(DTOsignupRequest signupRequest) {
-        Game game = serviceHelper.getGame(signupRequest.getGameUuid());
+    private void joinGame(DTOsignupRequest signupRequest, String sessionId) {
+        UUID gameUuid = signupRequest.getGameUuid();
         UUID playerUuid =  signupRequest.getPlayerUuid();
-        game.addPlayer(signupRequest.getPlayerName(), playerUuid);
-
+        String playerName = signupRequest.getPlayerName();
+        playersService.addPlayer(gameUuid, playerUuid, playerName, sessionId);
     }
 
-    public DTOgame createGame(DTOsignupRequest signupRequest) {
-
-        UUID gameUUID = UUID.randomUUID();
+    public DTOgame createGame(DTOsignupRequest signupRequest, String sessionId) {
 
         Deck deck = new DeckBuilder()
                 .addAllRanks()
@@ -114,15 +112,20 @@ public class SignupService {
 
         Game game = new Game(deck);
 
+        UUID gameUuid = UUID.randomUUID();
         UUID playerUuid =  signupRequest.getPlayerUuid();
-        game.addPlayer(signupRequest.getPlayerName(), playerUuid);
-        game.setCreator(playerUuid);
+        String playerName = signupRequest.getPlayerName();
+
+//        game.addPlayer(playerName, sessionId, playerUuid);
+
         game.setName(signupRequest.getGameName());
         game.setStarted(Boolean.FALSE);
 
-        CardsSingleton.getInstance().getGames().getGames().put(gameUUID, game);
+        CardsSingleton.getInstance().getGames().getGames().put(gameUuid, game);
+        playersService.addPlayer(gameUuid, playerUuid, playerName, sessionId);
+        game.setCreator(playerUuid);
 
-        return new DTOgame( gameUUID, game );
+        return new DTOgame( gameUuid, game );
     }
 
 }

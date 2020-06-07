@@ -80,8 +80,6 @@ r
 Bsrc/main/java/beetle/brindi/cards/dto/DTOsignupRequestWrapper.java,b\a\ba5b56d731c13d01430e256e21e08b38d33982a2
 l
 <src/main/java/beetle/brindi/cards/dto/DTOsignupResponse.java,a\6\a6bbadb14b3958f3c9644f047e88e21de7ccb964
-l
-<src/main/java/beetle/brindi/cards/service/ServiceHelper.java,6\a\6a4e10f6c56f722244dd00d5a3f0c1ecaf9213c5
 k
 ;src/main/java/beetle/brindi/cards/dto/DTOstackResponse.java,e\f\efc160d6b6be1cee21dc8cb27e4506c41655b658
 k
@@ -90,8 +88,6 @@ V
 &frontend/src/Domain/SignupResponse.elm,b\b\bbddbebc844651a611b3bcbd9bb0217a8fa29320
 j
 :src/main/java/beetle/brindi/cards/dto/DTOhandResponse.java,6\7\670b9c9c794cf8b1ff7e1b609935d38991ca83e4
-n
->src/main/java/beetle/brindi/cards/dto/DTOplayHandResponse.java,a\4\a47f5e5b05821e5cb31057c90213ca724fcfeae9
 g
 7src/main/java/beetle/brindi/cards/dto/TypeResponse.java,0\5\05f7a7030e7e28052c6d9d3d8b67b526010b7b94
 T
@@ -106,3 +102,15 @@ d
 4src/main/java/beetle/brindi/cards/dto/DTOplayer.java,5\1\514b88e5f7f0dd07828e86c0eefbae2d9f67ba49
 w
 Gsrc/main/java/beetle/brindi/cards/configuration/StompEventListener.java,f\4\f443e0012b51edc295f5ad313045a8411c2b0ab9
+k
+;src/main/java/beetle/brindi/cards/service/GamesService.java,7\3\73cc0d71fc6edb1edf35f6963456f681714a6982
+m
+=src/main/java/beetle/brindi/cards/service/SessionService.java,5\b\5b8bdae03d36fd2452393cc512daa09deafd2b15
+m
+=src/main/java/beetle/brindi/cards/service/PlayersService.java,3\f\3f2076932f972777b33e0e23c7424187b9c36982
+T
+$frontend/src/Domain/GameResponse.elm,1\1\111a8d90c91bd56b775d520845fbcf9ecb74ed32
+o
+?src/main/java/beetle/brindi/cards/response/PlayingResponse.java,d\a\da927bb7569ddf96714ea106165a07c457849189
+l
+<src/main/java/beetle/brindi/cards/response/GameResponse.java,4\b\4b9c8d7f9b9608f8036e0c90a3861e4760656976

@@ -6,14 +6,10 @@ import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
@@ -92,6 +88,7 @@ public class Deck {
     public void putToHand(UUID playerUuid, List<Card> cards ) {
         cardsHand.get(playerUuid).addAll(cards);
     }
+
     public void addPlayer(UUID playerUuid) {
         cardsHand.put(playerUuid, new ArrayList<>());
     }
@@ -99,6 +96,7 @@ public class Deck {
     public void putToTable(Integer place, List<Card> cards) {
         cardsTable.put(place, cards);
     }
+
     public List<Card> getFromTable(Integer place) {
         List<Card>cards = cardsTable.get(place);
         if ( cards == null )

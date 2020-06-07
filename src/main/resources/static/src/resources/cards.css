@@ -180,7 +180,7 @@ div.stock-container {
 }
 div.stock-card {
     position: relative;
-    margin-left: 5vw;
+    margin-left: 2vw;
 }
 
 /* Hand */
@@ -269,6 +269,39 @@ div.table-space-card {
     position: relative;
 }
 
+/* Game */
+div.game-container {
+    position: absolute;
+    top: 3vw;
+    left: 5vw;
+    width: 40vw;
+    height: 10vh;
+}
+div.game-header {
+    font-size: x-large;
+    color: white;
+}
+div.game-players {
+    display: grid;
+    grid-template-columns: repeat(10, [col] min-content) ;
+    grid-template-rows:  repeat(1, [row] 1fr) ;
+    grid-column-gap: 1vw;
+}
+div.game-player {
+    color: white;
+}
+div.game-player-current {
+    color: red;
+    font-weight: bold;
+}
+div.game-phase {
+    color: white;
+    white-space: nowrap;
+}
+div.game-phase-you {
+    color: red;
+    white-space: nowrap;
+}
 
 /* Signup */
 label.signup-label {
@@ -317,5 +350,6 @@ div.signup-game-card-bottom {
 button.signup-game-card {
     width: 14em;
 }
+
 
 /* remarks */

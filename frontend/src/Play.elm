@@ -2,7 +2,10 @@ port module Play exposing (..)
 
 import Array
 import Domain.DTOcard as DTOcard exposing (Back(..), DTOcard, defaultDTOcard, meldSorter)
+import Domain.DTOplayer exposing (DTOplayer, emptyDTOplayer)
+import Domain.GameResponse exposing (gameResponseDecodeValue)
 import Domain.HandResponse exposing (handResponseDecodeValue)
+import Domain.Phase exposing (Phase(..))
 import Domain.PlayRequest exposing (..)
 import Domain.PlayResponse exposing (playResponseDecodeValue)
 import Domain.TypeResponse exposing (TypeResponse(..))
@@ -24,13 +27,10 @@ type alias Model =
         , dragDrop : DragDrop.Model DragId DropId
         , phase : Phase
         , pending : Bool
+        , gameName : String
+        , players : List DTOplayer
+        , currentPlayer : DTOplayer
     }
-
-
-type Phase =
-    Waiting
-    | DrawCard
-    | PutCard
 
 
 type DragId =
@@ -54,8 +54,11 @@ init session =
     , topCardBack = DARK
     , bottomCard = defaultDTOcard
     , dragDrop = DragDrop.init
-    , phase = DrawCard
+    , phase = WAITING
     , pending = False
+    , gameName = ""
+    , players = []
+    , currentPlayer = emptyDTOplayer
     }
 
 
@@ -64,63 +67,78 @@ init session =
 -- #####
 
 
-view : Model -> Html Msg
-view model =
-        div []
-            [ viewStock model
-            , viewTable model
-            , viewHand model
-            ]
+view : Model -> Session -> Html Msg
+view model session =
+    div []
+        [ viewStock model session
+        , viewTable model session
+        , viewHand model session
+        , viewGame model session
+        ]
 
 
-viewStock : Model -> Html Msg
-viewStock model =
+viewStock : Model -> Session -> Html Msg
+viewStock model session =
     let
         { bottomCard, topCardBack, hand, table, phase } = model
     in
-        div [ class "stock-container" ]
-            [ div
-                ( List.append
-                    ( draggableFromBottom model )
-                    ( droppableToBottom model )
-                )
+        if isItMyTurn model session then
+            div [ class "stock-container" ]
                 [ div
-                    [ class "stock-card" ]
-                    [ DTOcard.view bottomCard ]
-                ]
-            , div
-                ( draggableFromTop model )
+                    ( List.append
+                        ( draggableFromBottom model )
+                        ( droppableToBottom model )
+                    )
                     [ div
                         [ class "stock-card" ]
-                        [ DTOcard.viewBack topCardBack ]
+                        [ DTOcard.view bottomCard ]
                     ]
-            ]
+                , div
+                    ( draggableFromTop model )
+                        [ div
+                            [ class "stock-card" ]
+                            [ DTOcard.viewBack topCardBack ]
+                        ]
+                ]
+        else
+            div [ class "stock-container" ]
+                [ div []
+                    [ div
+                        [ class "stock-card" ]
+                        [ DTOcard.view bottomCard ]
+                    ]
+                , div []
+                        [ div
+                            [ class "stock-card" ]
+                            [ DTOcard.viewBack topCardBack ]
+                        ]
+                ]
 
 
 -- #####   VIEW TABLE
 
 
-viewTable : Model -> Html Msg
-viewTable model =
+viewTable : Model -> Session -> Html Msg
+viewTable model session =
     let
-        droppable = case DragDrop.getDragId model.dragDrop of
-            Just DragHandSelected ->
+        droppable = case ( isItMyTurn model session, DragDrop.getDragId model.dragDrop ) of
+            ( True, Just DragHandSelected ) ->
                 droppableToTableSpace model ( List.length model.table )
-            _ ->
+            ( _, _ ) ->
                 []
     in
         div ( class "table-container" :: droppable )
-            ( List.indexedMap (viewTableSpace model) model.table )
+            ( List.indexedMap ( viewTableSpace model session ) model.table )
 
 
-viewTableSpace : Model -> Int -> List DTOcard -> Html Msg
-viewTableSpace model index cards =
+viewTableSpace : Model -> Session -> Int -> List DTOcard -> Html Msg
+viewTableSpace model session index cards =
     let
-        droppable = case DragDrop.getDragId model.dragDrop of
-            Just DragHandSelected ->
+        droppable = case ( isItMyTurn model session, DragDrop.getDragId model.dragDrop ) of
+            ( True, Just DragHandSelected ) ->
                 droppableToTableSpace model index
 
-            Just ( DragHand i ) ->
+            ( True, Just ( DragHand i ) ) ->
                 case Array.fromList model.hand |> Array.get i |> Maybe.map Tuple.first of
                     Just card ->
                         if ( card :: cards |> DTOcard.isMeld ) && ( List.length model.hand > 1 ) then
@@ -132,7 +150,7 @@ viewTableSpace model index cards =
                     Nothing ->
                         []
 
-            _ ->
+            ( _, _ ) ->
                 []
     in
         div ( List.append
@@ -152,8 +170,8 @@ viewTableSpaceCard model index card =
 -- #####   VIEW HAND
 
 
-viewHand : Model -> Html Msg
-viewHand model =
+viewHand : Model -> Session -> Html Msg
+viewHand model session =
     if ( handSelected model.hand True |> DTOcard.isMeld ) && ( handSelected model.hand False |> List.length |> (<) 0 ) then
         div ( class "hand-container"
                 :: ( draggableFromHandSelected model )
@@ -206,6 +224,50 @@ viewHandCard model index dtoCardSelected =
             ]
 
 
+
+
+-- #####   VIEW GAME
+
+
+viewGame : Model -> Session -> Html Msg
+viewGame model session =
+    let
+        a = Debug.log "viewGame players" model.players
+    in
+    div [ class "game-container" ]
+        [ div [ class "game-header" ] [ Html.text ( "Playing " ++ session.gameName ++ " as " ++ session.playerName ) ]
+        , div [ class "game-players" ] ( List.map ( viewGamePlayer model ) model.players )
+        , viewGamePhase model session
+        ]
+
+viewGamePlayer : Model -> DTOplayer -> Html Msg
+viewGamePlayer model player =
+    if model.currentPlayer == player then
+        div [ class "game-player game-player-current" ] [ Html.text player.playerName ]
+    else
+        div [ class "game-player" ] [ Html.text player.playerName ]
+
+viewGamePhase : Model -> Session -> Html Msg
+viewGamePhase model session =
+    case (model.phase,  isItMyTurn model session ) of
+        ( DRAW, False ) ->
+            div [ class "game-phase" ] [ Html.text ( model.currentPlayer.playerName ++ " draws a card from the stock..." ) ]
+
+        ( PUT, False ) ->
+            div [ class "game-phase" ] [ Html.text ( model.currentPlayer.playerName ++ " is playing..." ) ]
+
+        ( DRAW, True ) ->
+            div [ class "game-phase-you" ] [ Html.text ( "It is your turn! Draw a card from the stock." ) ]
+
+        ( PUT, True ) ->
+            div [ class "game-phase-you" ] [ Html.text ( "You are playing, with putting a card to the stock your turn ends." ) ]
+
+        ( WAITING, False ) ->
+            div [ class "game-phase" ] [ Html.text ( model.currentPlayer.playerName ++ " is waiting for the game..." ) ]
+
+        ( WAITING, True ) ->
+            div [ class "game-phase" ] [ Html.text ( "Looks like it is your turn, need to wait a little.." ) ]
+
 -- ####
 -- ####   PORTS
 -- ####
@@ -214,6 +276,7 @@ viewHandCard model index dtoCardSelected =
 port playSend : Encode.Value -> Cmd msg
 port playReceiver : (Encode.Value -> msg) -> Sub msg
 port handReceiver : (Encode.Value -> msg) -> Sub msg
+port gameReceiver : (Encode.Value -> msg) -> Sub msg
 
 port dragstart : Decode.Value -> Cmd msg
 
@@ -226,6 +289,7 @@ port dragstart : Decode.Value -> Cmd msg
 type Msg =
     PlayReceiver Encode.Value
     | HandReceiver Encode.Value
+    | GameReceiver Encode.Value
     | DragDropMsg (DragDrop.Msg DragId DropId)
     | Select Int
 
@@ -233,9 +297,24 @@ type Msg =
 update : Msg -> Model -> Session -> { model : Model, session : Session, cmd : Cmd Msg }
 update msg model session =
     case msg of
+        GameReceiver encoded ->
+            let
+                { phase, players, currentPlayer } = Debug.log "Game " ( gameResponseDecodeValue encoded )
+            in
+                { model =
+                    { model
+                    | players = players
+                    , currentPlayer = currentPlayer
+                    , phase = phase
+                    }
+                , session = session
+                , cmd = Cmd.none
+                }
+
+
         PlayReceiver encoded ->
             let
-                 { bottomCard, topCardBack, typeResponse, cards, tablePosition } = Debug.log "Play " ( playResponseDecodeValue encoded )
+                { bottomCard, topCardBack, typeResponse, cards, tablePosition } = Debug.log "Play " ( playResponseDecodeValue encoded )
             in
                 case typeResponse of
                     DealResponse ->
@@ -388,7 +467,7 @@ update msg model session =
                                 { model
                                 | dragDrop = dragDropModel
                                 , pending = True
-                                , phase = PutCard
+                                --, phase = PUT
                                 }
                                 , makeGetFromStackBottomRequest session index |> playRequestEncoder |> playSend
                             )
@@ -397,7 +476,7 @@ update msg model session =
                                 { model
                                 | dragDrop = dragDropModel
                                 , pending = True
-                                , phase = PutCard
+                                --, phase = PUT
                                 }
                                 , makeGetFromStackTopRequest session index |> playRequestEncoder |> playSend
                             )
@@ -409,7 +488,7 @@ update msg model session =
                                         | dragDrop = dragDropModel
 
                                         , pending = True
-                                        , phase = DrawCard
+                                        --, phase = DRAW
                                         }
                                         , makePutOnStackBottomRequest session [ card ] index |> playRequestEncoder |> playSend
                                     )
@@ -518,6 +597,7 @@ subscriptions =
     Sub.batch
     [ playReceiver PlayReceiver
     , handReceiver HandReceiver
+    , gameReceiver GameReceiver
     ]
 
 
@@ -600,7 +680,7 @@ droppableToHand model index =
         ( True, _, _) ->
             []
 
-        ( _, DrawCard, _ ) ->
+        ( _, DRAW, _ ) ->
             DragDrop.droppable DragDropMsg ( DropHand index )
 
         ( _, _, Just ( DragHand indexFrom) ) ->
@@ -613,7 +693,7 @@ droppableToHand model index =
 draggableFromBottom: Model -> List (Attribute Msg)
 draggableFromBottom model =
     case ( model.pending, model.phase ) of
-        ( False, DrawCard ) ->
+        ( False, DRAW ) ->
             DragDrop.draggable DragDropMsg DragBottomCard
 
         ( _, _ ) ->
@@ -623,7 +703,7 @@ draggableFromBottom model =
 droppableToBottom: Model -> List (Attribute Msg)
 droppableToBottom model =
     case ( model.pending, model.phase ) of
-        ( False, PutCard ) ->
+        ( False, PUT ) ->
             DragDrop.droppable DragDropMsg DropBottomCard
 
         ( _, _ ) ->
@@ -633,7 +713,7 @@ droppableToBottom model =
 draggableFromTop: Model -> List (Attribute Msg)
 draggableFromTop model =
     case ( model.pending, model.phase ) of
-        ( False, DrawCard ) ->
+        ( False, DRAW ) ->
             DragDrop.draggable DragDropMsg DragTopCard
 
         ( _, _ ) ->
@@ -643,7 +723,7 @@ draggableFromTop model =
 clickHand: Model -> Int -> List (Attribute Msg)
 clickHand model index =
     case ( model.pending, model.phase ) of
-        ( False, PutCard ) ->
+        ( False, PUT ) ->
             [ onClick ( Select index ) ]
 
         ( _, _ ) ->
@@ -656,7 +736,7 @@ droppableToTableSpace model index =
         ( True, _, _ ) ->
             []
 
-        ( _, PutCard, _ ) ->
+        ( _, PUT, _ ) ->
             DragDrop.droppable DragDropMsg ( DropTable index )
 
         ( _, _, _ ) ->
@@ -695,3 +775,8 @@ removeFromHand index dtoCardSelected =
         List.take index dtoCardSelected                     -- 0,1
         , List.drop ( index + 1 ) dtoCardSelected           -- 3,4
     ]
+
+
+isItMyTurn : Model -> Session -> Bool
+isItMyTurn model session =
+    model.currentPlayer.playerUuid == session.playerUuid

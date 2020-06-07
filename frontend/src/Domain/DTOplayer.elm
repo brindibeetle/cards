@@ -12,8 +12,8 @@ type alias DTOplayer =
     }
 
 
-emtptyDTOplayer : DTOplayer
-emtptyDTOplayer =
+emptyDTOplayer : DTOplayer
+emptyDTOplayer =
     {
         playerName = ""
         , playerUuid = "ERROR"
@@ -34,7 +34,7 @@ decodeDTOGame payload =
             dtoPlayer
 
         Err message ->
-            emtptyDTOplayer
+            emptyDTOplayer
 
 
 

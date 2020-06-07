@@ -1,6 +1,5 @@
 package beetle.brindi.cards.controller;
 
-import beetle.brindi.cards.dto.DTOgame;
 import beetle.brindi.cards.dto.DTOplayResponse;
 import beetle.brindi.cards.dto.DTOsignupRequest;
 import beetle.brindi.cards.dto.DTOsignupRequestWrapper;
@@ -9,6 +8,7 @@ import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.service.PlayService;
 import beetle.brindi.cards.service.SignupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -30,14 +30,15 @@ public class SignupController {
 
     @CrossOrigin
     @MessageMapping("/signup")
-    public void signup(@RequestParam DTOsignupRequestWrapper signupRequestWrapper) {
+    public void signup(@RequestParam DTOsignupRequestWrapper signupRequestWrapper, MessageHeaders messageHeaders) {
         try {
             UUID playerUuid = signupRequestWrapper.getPlayerUuid();
 
             DTOsignupRequest signupRequest = signupRequestWrapper.getSignupRequest();
             signupRequest.setPlayerUuid(playerUuid);
+            String sessionId = messageHeaders.get("simpSessionId").toString();
 
-            DTOsignupResponse signupResponse = signupService.signup(signupRequest);
+            DTOsignupResponse signupResponse = signupService.signup(signupRequest, sessionId);
             if (signupResponse != null) {
                 simpMessagingTemplate.convertAndSend("/signedup/" + playerUuid.toString(), signupResponse);
             }
@@ -57,5 +58,6 @@ public class SignupController {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
         }
     }
+
 
 }

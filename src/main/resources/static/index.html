@@ -58,6 +58,10 @@
                     console.log("handReceiver: " + message.body);
                     app.ports.handReceiver.send(JSON.parse(message.body));
                 });
+                stompClient.subscribe('/game/'  + gameUuid, function(message) {
+                    console.log("gameReceiver: " + message.body);
+                    app.ports.gameReceiver.send(JSON.parse(message.body));
+                });
             }
             app.ports.signupReceiver.send(JSON.parse(message.body));
         });
