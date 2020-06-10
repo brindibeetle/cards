@@ -1,4 +1,4 @@
-package beetle.brindi.cards.dto;
+package beetle.brindi.cards.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +9,10 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DTOsignupRequestWrapper {
+public class SignupRequestWrapper {
 
     private UUID playerUuid;
 
-    private DTOsignupRequest signupRequest;
+    private SignupRequest signupRequest;
 
 }

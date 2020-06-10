@@ -1,7 +1,7 @@
-package beetle.brindi.cards.dto;
+package beetle.brindi.cards.request;
 
+import beetle.brindi.cards.dto.DTOcard;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DTOplayRequest {
+public class PlayRequest {
 
     private TypeRequest typeRequest;
 

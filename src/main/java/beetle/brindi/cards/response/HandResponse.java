@@ -1,5 +1,6 @@
-package beetle.brindi.cards.dto;
+package beetle.brindi.cards.response;
 
+import beetle.brindi.cards.dto.DTOcard;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.util.List;
 //@AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DTOhandResponse {
+public class HandResponse {
 
     private TypeResponse typeResponse;
 
@@ -19,7 +20,7 @@ public class DTOhandResponse {
 
     private Integer handPosition;
 
-    public DTOhandResponse(TypeResponse typeResponse, List<DTOcard> cards, Integer handPosition) {
+    public HandResponse(TypeResponse typeResponse, List<DTOcard> cards, Integer handPosition) {
         this.typeResponse = (typeResponse == null) ? TypeResponse.GET : typeResponse;
         this.cards = (cards == null) ? new ArrayList<>() : cards;
         this.handPosition = (handPosition == null) ? 0 : handPosition;

@@ -5,14 +5,14 @@ import beetle.brindi.cards.domain.Deck;
 import beetle.brindi.cards.domain.DeckBuilder;
 import beetle.brindi.cards.domain.Game;
 import beetle.brindi.cards.dto.DTOgame;
-import beetle.brindi.cards.dto.DTOsignupRequest;
-import beetle.brindi.cards.dto.DTOsignupResponse;
 import beetle.brindi.cards.exception.CardsException;
-import beetle.brindi.cards.repository.CardsRepository;
+import beetle.brindi.cards.request.SignupRequest;
+import beetle.brindi.cards.response.SignupResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,74 +23,82 @@ public class SignupService {
 
     private final PlayersService playersService;
 
-    private final CardsRepository cardsRepository;
-
-    public DTOsignupResponse signingin(DTOsignupRequest signupRequest) {
-        DTOsignupRequest.TypeRequest typeRequest = signupRequest.getTypeRequest();
+    public Optional<SignupResponse> signingin(SignupRequest signupRequest) {
+        SignupRequest.TypeRequest typeRequest = signupRequest.getTypeRequest();
 
         switch (typeRequest) {
             case START:
-                return DTOsignupResponse.builder()
-                                .typeResponse(DTOsignupResponse.TypeResponse.START)
-                                .gameUuid(signupRequest.getGameUuid().toString())
-                                .playerUuid(signupRequest.getPlayerUuid().toString())
-                                .build();
+                return Optional.of(
+                    SignupResponse.builder()
+                        .typeResponse(SignupResponse.TypeResponse.START)
+                        .gameUuid(signupRequest.getGameUuid().toString())
+                        .playerUuid(signupRequest.getPlayerUuid().toString())
+                        .build()
+                );
 
             default:
-                return DTOsignupResponse.builder()
-                                .typeResponse(DTOsignupResponse.TypeResponse.GAMES)
-                                .games(serviceHelper.getGames())
-                                .build();
+                return Optional.of(
+                    SignupResponse.builder()
+                        .typeResponse(SignupResponse.TypeResponse.GAMES)
+                        .games(serviceHelper.getGames())
+                        .build()
+                );
         }
     }
 
-    public DTOsignupResponse signup(DTOsignupRequest signupRequest, String sessionId) {
+    public Optional<SignupResponse> signup(SignupRequest signupRequest, String sessionId) {
 
         UUID gameUuid = signupRequest.getGameUuid();
         String gameName = signupRequest.getGameName();
         UUID playerUuid = signupRequest.getPlayerUuid();
-        DTOsignupRequest.TypeRequest typeRequest = signupRequest.getTypeRequest();
+        SignupRequest.TypeRequest typeRequest = signupRequest.getTypeRequest();
 
         switch (typeRequest) {
             case GAMES:
-                return DTOsignupResponse.builder()
-                        .typeResponse(DTOsignupResponse.TypeResponse.GAMES)
+                return Optional.of(
+                    SignupResponse.builder()
+                        .typeResponse(SignupResponse.TypeResponse.GAMES)
                         .games(serviceHelper.getGames())
                         .playerUuid(playerUuid.toString())
-                        .build();
+                        .build()
+                );
 
             case CREATE:
                 DTOgame game = createGame(signupRequest, sessionId);
-                return DTOsignupResponse.builder()
-                        .typeResponse(DTOsignupResponse.TypeResponse.CREATE)
+                return Optional.of(
+                    SignupResponse.builder()
+                        .typeResponse(SignupResponse.TypeResponse.CREATE)
                         .gameUuid(game.getGameUuid().toString())
                         .playerUuid(playerUuid.toString())
-                        .build();
+                        .build()
+                );
 
             case JOIN:
                 joinGame(signupRequest, sessionId);
-                return DTOsignupResponse.builder()
-                        .typeResponse(DTOsignupResponse.TypeResponse.JOIN)
+                return Optional.of(
+                    SignupResponse.builder()
+                        .typeResponse(SignupResponse.TypeResponse.JOIN)
                         .gameUuid(gameUuid.toString())
                         .playerUuid(playerUuid.toString())
-                        .build();
+                        .build()
+                );
 
             case START:
-                return null;
+                return Optional.empty();
 
             default:
                 throw new CardsException(HttpStatus.CONFLICT, "Unknown TypeRequest, typeRequest = " + typeRequest) ;
         }
     }
 
-    private void joinGame(DTOsignupRequest signupRequest, String sessionId) {
+    private void joinGame(SignupRequest signupRequest, String sessionId) {
         UUID gameUuid = signupRequest.getGameUuid();
         UUID playerUuid =  signupRequest.getPlayerUuid();
         String playerName = signupRequest.getPlayerName();
         playersService.addPlayer(gameUuid, playerUuid, playerName, sessionId);
     }
 
-    public DTOgame createGame(DTOsignupRequest signupRequest, String sessionId) {
+    public DTOgame createGame(SignupRequest signupRequest, String sessionId) {
 
         Deck deck = new DeckBuilder()
                 .addAllRanks()

@@ -1,10 +1,8 @@
 package beetle.brindi.cards.controller;
 
-import beetle.brindi.cards.dto.DTOplayResponse;
-import beetle.brindi.cards.dto.DTOsignupRequest;
-import beetle.brindi.cards.dto.DTOsignupRequestWrapper;
-import beetle.brindi.cards.dto.DTOsignupResponse;
 import beetle.brindi.cards.exception.CardsException;
+import beetle.brindi.cards.request.SignupRequest;
+import beetle.brindi.cards.request.SignupRequestWrapper;
 import beetle.brindi.cards.service.PlayService;
 import beetle.brindi.cards.service.SignupService;
 import lombok.RequiredArgsConstructor;
@@ -30,30 +28,33 @@ public class SignupController {
 
     @CrossOrigin
     @MessageMapping("/signup")
-    public void signup(@RequestParam DTOsignupRequestWrapper signupRequestWrapper, MessageHeaders messageHeaders) {
+    public void signup(@RequestParam SignupRequestWrapper signupRequestWrapper, MessageHeaders messageHeaders) {
         try {
             UUID playerUuid = signupRequestWrapper.getPlayerUuid();
 
-            DTOsignupRequest signupRequest = signupRequestWrapper.getSignupRequest();
+            SignupRequest signupRequest = signupRequestWrapper.getSignupRequest();
             signupRequest.setPlayerUuid(playerUuid);
             String sessionId = messageHeaders.get("simpSessionId").toString();
 
-            DTOsignupResponse signupResponse = signupService.signup(signupRequest, sessionId);
-            if (signupResponse != null) {
-                simpMessagingTemplate.convertAndSend("/signedup/" + playerUuid.toString(), signupResponse);
-            }
+            signupService.signup(signupRequest, sessionId).ifPresent(
+                signupResponse ->
+                    simpMessagingTemplate.convertAndSend("/signedup/" + playerUuid.toString(), signupResponse)
+            );
 
-            DTOsignupResponse signinginResponse = signupService.signingin(signupRequest);
-            if (signinginResponse != null) {
-                simpMessagingTemplate.convertAndSend("/signingin/", signinginResponse);
-            }
+            signupService.signingin(signupRequest).ifPresent(
+                signinginResponse ->
+                    simpMessagingTemplate.convertAndSend("/signingin/", signinginResponse)
+            );
 
-            DTOplayResponse playResponse = playService.startGame(signupRequest);
-            if (playResponse != null) {
-                UUID gameUuid = signupRequest.getGameUuid();
-                simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse);
-            }
+            playService.startGame(signupRequest).ifPresent(
+                playResponse ->
+                {
+                    UUID gameUuid = signupRequest.getGameUuid();
+                    simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse);
+                }
+            );
         }
+
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
         }

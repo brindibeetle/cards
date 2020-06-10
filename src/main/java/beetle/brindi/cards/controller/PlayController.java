@@ -1,10 +1,7 @@
 package beetle.brindi.cards.controller;
 
-import beetle.brindi.cards.dto.DTOhandResponse;
-import beetle.brindi.cards.dto.DTOplayRequest;
-import beetle.brindi.cards.dto.DTOplayResponse;
 import beetle.brindi.cards.exception.CardsException;
-import beetle.brindi.cards.response.GameResponse;
+import beetle.brindi.cards.request.PlayRequest;
 import beetle.brindi.cards.response.PlayingResponse;
 import beetle.brindi.cards.service.PlayService;
 import lombok.RequiredArgsConstructor;
@@ -28,27 +25,27 @@ public class PlayController {
     @CrossOrigin
 //    @SendTo("/played")
     @MessageMapping("/play")
-    public void play(@RequestParam DTOplayRequest playRequest) {
+    public void play(@RequestParam PlayRequest playRequest) {
         try {
             UUID gameUuid = playRequest.getGameUuid();
             UUID playerUuid = playRequest.getPlayerUuid();
 
             PlayingResponse playingResponse = playService.play(playRequest);
 
-            DTOplayResponse playResponse = playingResponse.getDtoPlayResponse();
-            if (playResponse != null) {
-                simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse);
-            }
+            playingResponse.getPlayResponse().ifPresent(
+                    playResponse ->
+                        simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse)
+            );
+            playingResponse.getHandResponse().ifPresent(
+                    handResponse ->
+                        simpMessagingTemplate.convertAndSend("/handed/" + playerUuid.toString(), handResponse)
+            );
 
-            DTOhandResponse handResponse = playingResponse.getDtoHandResponse();
-            if (handResponse != null) {
-                simpMessagingTemplate.convertAndSend("/handed/" + playerUuid.toString(), handResponse);
-            }
+            playingResponse.getGameResponse().ifPresent(
+                    gameResponse ->
+                        simpMessagingTemplate.convertAndSend("/game/" + gameUuid.toString(), gameResponse)
+            );
 
-            GameResponse gameResponse = playingResponse.getGameResponse();
-            if (handResponse != null) {
-                simpMessagingTemplate.convertAndSend("/game/" + gameUuid.toString(), gameResponse);
-            }
         }
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );

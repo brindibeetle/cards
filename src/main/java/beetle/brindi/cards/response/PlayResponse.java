@@ -1,19 +1,18 @@
-package beetle.brindi.cards.dto;
+package beetle.brindi.cards.response;
 
-import lombok.AllArgsConstructor;
+import beetle.brindi.cards.dto.DTOcard;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 //@AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DTOplayResponse {
+public class PlayResponse {
 
     private DTOcard bottomCard;
 
@@ -25,7 +24,7 @@ public class DTOplayResponse {
 
     private Integer tablePosition;
 
-    public DTOplayResponse(DTOcard bottomCard, String topCardBack, TypeResponse typeResponse, List<DTOcard> cards, Integer tablePosition) {
+    public PlayResponse(DTOcard bottomCard, String topCardBack, TypeResponse typeResponse, List<DTOcard> cards, Integer tablePosition) {
         this.bottomCard = (bottomCard == null) ? DTOcard.defaultCard() : bottomCard;
         this.topCardBack = (topCardBack == null) ? DTOcard.defaultCard().getBack() : topCardBack;
         this.typeResponse = (typeResponse == null) ? TypeResponse.GET : typeResponse;

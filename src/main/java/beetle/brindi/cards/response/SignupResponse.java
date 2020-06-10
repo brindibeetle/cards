@@ -1,19 +1,18 @@
-package beetle.brindi.cards.dto;
+package beetle.brindi.cards.response;
 
-import lombok.AllArgsConstructor;
+import beetle.brindi.cards.dto.DTOgame;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 //@AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DTOsignupResponse {
+public class SignupResponse {
 
     private String gameUuid;
 
@@ -30,7 +29,7 @@ public class DTOsignupResponse {
         START;
     }
 
-    public DTOsignupResponse(String gameUuid, String playerUuid, TypeResponse typeResponse, List<DTOgame> games) {
+    public SignupResponse(String gameUuid, String playerUuid, TypeResponse typeResponse, List<DTOgame> games) {
         this.gameUuid = ( gameUuid == null ? "<leeg>" : gameUuid );
         this.playerUuid = ( playerUuid == null ? "<leeg>" : playerUuid );
         this.games = ( games == null ? new ArrayList<>() : games );
