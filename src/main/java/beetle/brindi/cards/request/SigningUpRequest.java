@@ -9,7 +9,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignupRequest {
+public class SigningUpRequest {
 
     private TypeRequest typeRequest;
 
@@ -25,6 +25,6 @@ public class SignupRequest {
         START,
         CREATE,
         JOIN,
-        GAMES;
+        GAMES_AND_PLAYERS;
     }
 }

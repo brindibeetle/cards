@@ -25,6 +25,8 @@ emptyHandResponse =
         , cards = []
         , handPosition = 0
     }
+
+
 -- ####
 -- ####   DECODER
 -- ####

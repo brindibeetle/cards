@@ -6,6 +6,7 @@ import beetle.brindi.cards.domain.Games;
 import beetle.brindi.cards.domain.Player;
 import beetle.brindi.cards.dto.DTOplayer;
 import beetle.brindi.cards.exception.CardsException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
+@RequiredArgsConstructor
 public class PlayersService {
+
+    GamesService gamesService;
 
     public void addPlayer(UUID gameUuid, UUID playerUuid, String playerName, String sessionId) {
         CardsSingleton singleton = CardsSingleton.getInstance();
@@ -72,9 +76,10 @@ public class PlayersService {
         return Optional.ofNullable(found.get());
     }
 
-    public void removePlayer(UUID gameUuid, UUID playerUuid) {
+    public void disconnectPlayer(UUID gameUuid, UUID playerUuid) {
         CardsSingleton singleton = CardsSingleton.getInstance();
         Game game = singleton.getGames().get(gameUuid);
+
         game.getPlayers().remove(playerUuid);
     }
 

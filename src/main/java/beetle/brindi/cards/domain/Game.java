@@ -22,7 +22,7 @@ public class Game {
 
     private Players players;
 
-    private Player creator;
+    private UUID creator;
 
     private Game() {
         deck = new Deck();
@@ -36,6 +36,10 @@ public class Game {
     public void addPlayer(String playerName, String sessionId, UUID playerUuid){
         players.addPlayer(playerName, sessionId, playerUuid);
         deck.addPlayer(playerUuid);
+    }
+    public void disconnectPlayer(UUID playerUuid){
+        players.remove(playerUuid);
+        deck.removePlayer(playerUuid);
     }
 
     public Pair<List<Card>,List<Card>> dealCards(UUID playerUuid, Integer number){
@@ -97,6 +101,6 @@ public class Game {
     }
 
     public void setCreator(UUID playerUuid) {
-        this.creator = players.get(playerUuid);
+        this.creator = playerUuid;
     }
 }

@@ -51,4 +51,27 @@ public class PlayController {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
         }
     }
+
+    public void playEvent(PlayingResponse playingResponse, UUID gameUuid, UUID playerUuid) {
+
+        try {
+            playingResponse.getPlayResponse().ifPresent(
+                    playResponse ->
+                            simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse)
+            );
+            playingResponse.getHandResponse().ifPresent(
+                    handResponse ->
+                            simpMessagingTemplate.convertAndSend("/handed/" + playerUuid.toString(), handResponse)
+            );
+
+            playingResponse.getGameResponse().ifPresent(
+                    gameResponse ->
+                            simpMessagingTemplate.convertAndSend("/game/" + gameUuid.toString(), gameResponse)
+            );
+        }
+        catch (CardsException ce) {
+            throw new ResponseStatusException(ce.getStatus(), ce.getMessage(), ce);
+        }
+    }
+
 }

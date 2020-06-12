@@ -3,6 +3,7 @@ package beetle.brindi.cards.service;
 import beetle.brindi.cards.CardsSingleton;
 import beetle.brindi.cards.domain.Game;
 import beetle.brindi.cards.domain.Games;
+import beetle.brindi.cards.domain.Players;
 import beetle.brindi.cards.dto.DTOgame;
 import beetle.brindi.cards.exception.CardsException;
 import org.springframework.http.HttpStatus;
@@ -70,9 +71,20 @@ public class GamesService {
         return game.getPlayers().getPlayers().size();
     }
 
-    public void removeGame(UUID gameUuid) {
+    public void disconnectGame(UUID gameUuid) {
         CardsSingleton singleton = CardsSingleton.getInstance();
         singleton.getGames().getGames().remove(gameUuid);
     }
 
+    public boolean isCreator(UUID gameUuid, UUID playerUuid) {
+        CardsSingleton singleton = CardsSingleton.getInstance();
+        return playerUuid.equals( singleton.getGames().get(gameUuid).getCreator() ) ;
+    }
+
+    public boolean isLastPlayer(UUID gameUuid, UUID playerUuid) {
+        CardsSingleton singleton = CardsSingleton.getInstance();
+        Players players = singleton.getGames().get(gameUuid).getPlayers();
+
+        return players.number() == 1 && players.get(playerUuid) != null ;
+    }
 }

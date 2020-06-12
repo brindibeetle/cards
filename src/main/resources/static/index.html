@@ -40,8 +40,8 @@
           node: document.getElementById('elm')
         });
 
-        stompClient.subscribe('/signedup/' + playerUuid, function(message) {
-            console.log("signupReceiver: " + message.body);
+        stompClient.subscribe('/signedupPersonal/' + playerUuid, function(message) {
+            console.log("signupPersonalReceiver: " + message.body);
             var signupParsed = JSON.parse(message.body);
             var gameUuid = signupParsed.gameUuid;
             var typeResponse = signupParsed.typeResponse;
@@ -63,13 +63,13 @@
                     app.ports.gameReceiver.send(JSON.parse(message.body));
                 });
             }
-            app.ports.signupReceiver.send(JSON.parse(message.body));
+            app.ports.signupPersonalReceiver.send(JSON.parse(message.body));
         });
 
       <!-- ports Signup.elm -->
-      stompClient.subscribe('/signingin/', function(message) {
-          console.log("signinginReceiver: " + message.body);
-          app.ports.signinginReceiver.send(JSON.parse(message.body));
+      stompClient.subscribe('/signedupAll/', function(message) {
+          console.log("signupAllReceiver: " + message.body);
+          app.ports.signupAllReceiver.send(JSON.parse(message.body));
       });
       app.ports.signupSend.subscribe(function(message) {
           console.log("index.html: " + message);

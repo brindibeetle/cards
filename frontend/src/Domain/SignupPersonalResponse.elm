@@ -1,4 +1,4 @@
-module Domain.SignupResponse exposing (..)
+module Domain.SignupPersonalResponse exposing (..)
 
 --
 -- personal response to the player
@@ -10,7 +10,7 @@ import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
 
 
-type alias SignupResponse =
+type alias SignupPersonalResponse =
     {
         gameUuid : String
         , playerUuid : String
@@ -22,11 +22,10 @@ type alias SignupResponse =
 type TypeResponse =
      CreateResponse
     | JoinResponse
-    | GamesResponse
-    | StartResponse
+    | GamesAndPlayersResponse
 
 
-emptySignupResponse : SignupResponse
+emptySignupResponse : SignupPersonalResponse
 emptySignupResponse =
     {
         gameUuid = ""
@@ -39,9 +38,9 @@ emptySignupResponse =
 -- ####
 
 
-signupResponseDecoder : Decoder SignupResponse
+signupResponseDecoder : Decoder SignupPersonalResponse
 signupResponseDecoder =
-    Decode.succeed SignupResponse
+    Decode.succeed SignupPersonalResponse
         |> Pipeline.required "gameUuid" Decode.string
         |> Pipeline.required "playerUuid" Decode.string
         |> Pipeline.required "typeResponse" typeResponseDecoder
@@ -58,19 +57,18 @@ typeResponseFromString string =
     case Debug.log "typeResponseFromString string = " string of
         "CREATE" -> Decode.succeed CreateResponse
         "JOIN" -> Decode.succeed JoinResponse
-        "GAMES" -> Decode.succeed GamesResponse
-        "START" -> Decode.succeed StartResponse
+        "GAMES_AND_PLAYERS" -> Decode.succeed GamesAndPlayersResponse
         _ -> Decode.fail ( "Invalid TypeResponse: " ++ string )
 
 
-signupResponseDecodeValue : Encode.Value -> SignupResponse
-signupResponseDecodeValue encoded =
+signupPersonalResponseDecodeValue : Encode.Value -> SignupPersonalResponse
+signupPersonalResponseDecodeValue encoded =
     case Decode.decodeValue signupResponseDecoder encoded of
         Ok signupResponse ->
            signupResponse
 
         Err message ->
             let
-                a = Debug.log "signupResponseDecodeValue Err " message
+                a = Debug.log "signupPersonalResponseDecodeValue Err " message
            in
                emptySignupResponse

@@ -10,16 +10,23 @@ import Json.Encode as Encode
 
 type alias GameResponse =
     {
-        phase : Phase
+        typeResponse : TypeResponse
+        , phase : Phase
         , players : List DTOplayer
         , currentPlayer : DTOplayer
     }
 
 
+type TypeResponse =
+    GAME
+    | PLAYERS
+
+
 emptyGameResponse : GameResponse
 emptyGameResponse =
     {
-        phase = WAITING
+        typeResponse = GAME
+        , phase = WAITING
         , players = []
         , currentPlayer = emptyDTOplayer
     }
@@ -34,6 +41,7 @@ emptyGameResponse =
 gameResponseDecoder : Decoder GameResponse
 gameResponseDecoder =
     Decode.succeed GameResponse
+        |> Pipeline.required "typeResponse" typeResponseDecoder
         |> Pipeline.required "phase" phaseDecoder
         |> Pipeline.required "players" ( Decode.list dtoPlayerDecoder )
         |> Pipeline.required "currentPlayer" dtoPlayerDecoder
@@ -48,4 +56,16 @@ gameResponseDecodeValue encoded =
         Err message ->
            emptyGameResponse
 
+
+typeResponseDecoder : Decoder TypeResponse
+typeResponseDecoder =
+    Decode.string |> Decode.andThen typeResponseFromString
+
+
+typeResponseFromString : String -> Decoder TypeResponse
+typeResponseFromString string =
+    case Debug.log "typeResponseFromString string = " string of
+        "GAME" -> Decode.succeed GAME
+        "PLAYERS" -> Decode.succeed PLAYERS
+        _ -> Decode.fail ( "Invalid typeResponseFromString: " ++ string )
 

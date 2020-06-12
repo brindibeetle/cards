@@ -299,17 +299,28 @@ update msg model session =
     case msg of
         GameReceiver encoded ->
             let
-                { phase, players, currentPlayer } = Debug.log "Game " ( gameResponseDecodeValue encoded )
+                { typeResponse, phase, players, currentPlayer } = Debug.log "Game " ( gameResponseDecodeValue encoded )
             in
-                { model =
-                    { model
-                    | players = players
-                    , currentPlayer = currentPlayer
-                    , phase = phase
-                    }
-                , session = session
-                , cmd = Cmd.none
-                }
+                case typeResponse of
+                    Domain.GameResponse.GAME ->
+                        { model =
+                            { model
+                            | players = players
+                            , currentPlayer = currentPlayer
+                            , phase = phase
+                            }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
+
+                    Domain.GameResponse.PLAYERS ->
+                        { model =
+                            { model
+                            | players = players
+                            }
+                        , session = session
+                        , cmd = Cmd.none
+                        }
 
 
         PlayReceiver encoded ->

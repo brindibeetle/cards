@@ -9,10 +9,10 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignupRequestWrapper {
+public class SigningUpRequestWrapper {
 
     private UUID playerUuid;
 
-    private SignupRequest signupRequest;
+    private SigningUpRequest signupRequest;
 
 }

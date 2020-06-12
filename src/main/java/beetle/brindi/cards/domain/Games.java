@@ -20,4 +20,9 @@ public class Games {
         return games.get(uuid);
     }
 
+    public Game remove(UUID uuid) {
+        Game game = get(uuid);
+        games.remove(uuid);
+        return game;
+    }
 }

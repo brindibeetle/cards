@@ -19,7 +19,7 @@ type alias SignupRequest =
 type TypeRequest =
     CreateRequest
     | JoinRequest
-    | GamesRequest
+    | GamesAndPlayersRequest
     | StartRequest
 
 
@@ -43,7 +43,7 @@ typeRequestEncoder typeRequest =
     case typeRequest of
         CreateRequest -> Encode.string "CREATE"
         JoinRequest -> Encode.string "JOIN"
-        GamesRequest -> Encode.string "GAMES"
+        GamesAndPlayersRequest -> Encode.string "GAMES_AND_PLAYERS"
         StartRequest -> Encode.string "START"
 
 
@@ -76,7 +76,7 @@ makeJoinRequest gameUuid playerName  =
 makeGamesRequest : SignupRequest
 makeGamesRequest =
     {
-            typeRequest = GamesRequest
+            typeRequest = GamesAndPlayersRequest
             , gameUuid = ""
             , gameName = ""
             , playerName = ""

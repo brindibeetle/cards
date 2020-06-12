@@ -15,16 +15,24 @@ import java.util.UUID;
 @Builder
 public class GameResponse {
 
+    private TypeResponse typeResponse;
+
     private Phase phase;
 
     private List<DTOplayer> players;
 
     private DTOplayer currentPlayer;
 
-    public GameResponse(Phase phase, List<DTOplayer> players, DTOplayer currentPlayer) {
+    public GameResponse(TypeResponse typeResponse, Phase phase, List<DTOplayer> players, DTOplayer currentPlayer) {
+        this.typeResponse = (typeResponse == null) ? TypeResponse.GAME : typeResponse;
         this.phase = (phase == null) ? Phase.WAITING : phase;
         this.players = (players == null) ? new ArrayList<>() : players;
         this.currentPlayer = (currentPlayer == null) ? new DTOplayer("", UUID.randomUUID()) : currentPlayer;
+    }
+
+    public enum TypeResponse {
+        GAME
+        , PLAYERS
     }
 
     public enum Phase {
@@ -32,4 +40,5 @@ public class GameResponse {
         , PUT
         , WAITING
     }
+
 }

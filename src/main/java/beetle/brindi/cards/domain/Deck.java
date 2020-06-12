@@ -92,6 +92,11 @@ public class Deck {
     public void addPlayer(UUID playerUuid) {
         cardsHand.put(playerUuid, new ArrayList<>());
     }
+    public void removePlayer(UUID playerUuid) {
+        List<Card> cards = cardsHand.get(playerUuid);
+        putToStock(cards);
+        cardsHand.remove(playerUuid);
+    }
 
     public void putToTable(Integer place, List<Card> cards) {
         cardsTable.put(place, cards);

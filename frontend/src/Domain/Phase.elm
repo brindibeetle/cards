@@ -16,7 +16,7 @@ phaseDecoder =
 
 phaseFromString : String -> Decoder Phase
 phaseFromString string =
-    case Debug.log "typeResponseFromString string = " string of
+    case Debug.log "phaseFromString string = " string of
         "DRAW" -> Decode.succeed DRAW
         "PUT" -> Decode.succeed PUT
         "WAITING" -> Decode.succeed WAITING

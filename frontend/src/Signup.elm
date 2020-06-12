@@ -8,7 +8,8 @@ import Bootstrap.Card.Block as Block
 
 import Domain.DTOplayer exposing (DTOplayer)
 import Domain.SignupRequest exposing (..)
-import Domain.SignupResponse exposing (TypeResponse(..), signupResponseDecodeValue)
+import Domain.SignupAllResponse exposing (TypeResponse(..), signupAllResponseDecodeValue)
+import Domain.SignupPersonalResponse exposing (TypeResponse(..), signupPersonalResponseDecodeValue)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Json.Encode as Encode exposing (..)
@@ -219,8 +220,8 @@ viewPlayer { playerName } =
 
 
 port signupSend : Encode.Value -> Cmd msg
-port signupReceiver : (Encode.Value -> msg) -> Sub msg
-port signinginReceiver : (Encode.Value -> msg) -> Sub msg
+port signupPersonalReceiver : (Encode.Value -> msg) -> Sub msg
+port signupAllReceiver : (Encode.Value -> msg) -> Sub msg
 
 
 -- ####
@@ -236,8 +237,8 @@ type Msg =
     | DoCreateGame String String
     | DoStartGame
     | DoJoinGame String
-    | SignUp Encode.Value
-    | SigningIn Encode.Value
+    | SignUpPersonal Encode.Value
+    | SignUpAll Encode.Value
 
 
 update : Msg -> Model -> Session -> { model : Model, session : Session, cmd : Cmd Msg } 
@@ -303,12 +304,12 @@ update msg model session =
             , cmd = makeStartRequest session |> signupRequestEncoder |> signupSend
             }
 
-        SignUp encoded ->
+        SignUpPersonal encoded ->
             let
-                { playerUuid, gameUuid, typeResponse, games } = Debug.log "signupResponseDecodeValue" (signupResponseDecodeValue encoded)
+                { playerUuid, gameUuid, typeResponse, games } = Debug.log "signupResponseDecodeValue" (signupPersonalResponseDecodeValue encoded)
             in
                 case typeResponse of
-                    CreateResponse ->
+                    Domain.SignupPersonalResponse.CreateResponse ->
                         {
                             model =
                                 { model
@@ -323,7 +324,7 @@ update msg model session =
                             , cmd = Cmd.none
                         }
 
-                    JoinResponse ->
+                    Domain.SignupPersonalResponse.JoinResponse ->
                         {
                             model =
                                 { model
@@ -337,7 +338,7 @@ update msg model session =
                             , cmd = Cmd.none
                         }
 
-                    GamesResponse ->
+                    Domain.SignupPersonalResponse.GamesAndPlayersResponse ->
                         {
                             model =
                                 { model
@@ -352,18 +353,30 @@ update msg model session =
                             , cmd = Cmd.none
                         }
 
-                    _ ->
-                        { model = model
-                        , session = session
-                        , cmd = Cmd.none
+
+        SignUpAll encoded ->
+            let
+                { gameUuid, typeResponse, games } = Debug.log "signupResponseDecodeValue" (signupAllResponseDecodeValue encoded)
+            in
+                case ( model.phase, typeResponse ) of
+                    ( PhaseJoined gameUuid1, Domain.SignupAllResponse.GamesAndPlayersResponse ) ->
+                        {
+                            model =
+                                { model
+                                | games = games
+                                , phase =
+                                    -- if the joined game has stopped existing then back to init
+                                    if ( games |> List.any ( \game -> if game.gameUuid == gameUuid1 then True else False ) )
+                                    then
+                                        model.phase
+                                    else
+                                        PhaseInit
+                                }
+                            , session =session
+                            , cmd = Cmd.none
                         }
 
-        SigningIn encoded ->
-            let
-                { playerUuid, gameUuid, typeResponse, games } = Debug.log "signupResponseDecodeValue" (signupResponseDecodeValue encoded)
-            in
-                case typeResponse of
-                    GamesResponse ->
+                    ( _, Domain.SignupAllResponse.GamesAndPlayersResponse ) ->
                         {
                             model =
                                 { model
@@ -372,8 +385,7 @@ update msg model session =
                             , session =session
                             , cmd = Cmd.none
                         }
-
-                    _ ->
+                    ( _, _ ) ->
                         { model = model
                         , session = session
                         , cmd = Cmd.none
@@ -387,8 +399,8 @@ update msg model session =
 subscriptions : Sub Msg
 subscriptions =
     Sub.batch
-        [ signupReceiver SignUp
-        , signinginReceiver SigningIn
+        [ signupPersonalReceiver SignUpPersonal
+        , signupAllReceiver SignUpAll
         ]
 
 -- ####

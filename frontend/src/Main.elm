@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser exposing (Document, UrlRequest)
 import Browser.Navigation as Nav
 import CardsCDN
-import Domain.SignupResponse as Signup
+import Domain.SignupAllResponse as Signup
 import Play
 import Url exposing (Url)
 import Html exposing (..)

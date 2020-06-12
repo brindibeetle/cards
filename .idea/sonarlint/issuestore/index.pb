@@ -52,10 +52,6 @@ A
 frontend/elm.json,b\e\beadf617a28743c64d95867692519de96a88f2fc
 Q
 !src/main/resources/static/main.js,9\c\9c7ea218e88b96129ece547872569f1f9aa41e0e
-r
-Bsrc/main/java/beetle/brindi/cards/controller/SignupController.java,a\6\a618cbd3d2f6b5f6c74b7b626d1a46b353c4127d
-l
-<src/main/java/beetle/brindi/cards/service/SignupService.java,5\c\5cdd21c2ba55a8b972ccf8b7cec8df3ee5f0d1f0
 p
 @src/main/java/beetle/brindi/cards/controller/PlayController.java,7\9\79614f52942d1e56142f349de28c47741d0a213f
 j
@@ -66,8 +62,6 @@ T
 $frontend/src/Domain/PlayResponse.elm,c\5\c58a24872106c381b8e4dd11ff1d76468aa8267c
 U
 %frontend/src/Domain/SignupRequest.elm,a\a\aa3034e7f7be1a8ee8f87acb170a2716e25b85cd
-V
-&frontend/src/Domain/SignupResponse.elm,b\b\bbddbebc844651a611b3bcbd9bb0217a8fa29320
 T
 $frontend/src/Domain/HandResponse.elm,3\b\3b6d5c3c69492f519cc18074c5a81aa9730c42ad
 T
@@ -94,8 +88,6 @@ l
 <src/main/java/beetle/brindi/cards/response/GameResponse.java,4\b\4b9c8d7f9b9608f8036e0c90a3861e4760656976
 a
 1src/main/resources/static/src/resources/cards.css,5\e\5e749e891708df2595e14a1a5d6f16baf9a61a26
-T
-$src/main/resources/static/index.html,5\0\50cdafbf7d475900dd881fa999628076a8edd192
 M
 frontend/src/Domain/Phase.elm,0\0\00133c2d31cc589c838f8092ebdb2e46c0903c0b
 l

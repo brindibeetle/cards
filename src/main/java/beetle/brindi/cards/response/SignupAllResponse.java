@@ -12,27 +12,22 @@ import java.util.List;
 //@AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SignupResponse {
+public class SignupAllResponse {
 
     private String gameUuid;
-
-    private String playerUuid;
 
     private TypeResponse typeResponse;
 
     private List<DTOgame> games;
 
     public enum TypeResponse {
-        CREATE,
-        JOIN,
-        GAMES,
-        START;
+        GAMES_AND_PLAYERS,
+        START
     }
 
-    public SignupResponse(String gameUuid, String playerUuid, TypeResponse typeResponse, List<DTOgame> games) {
+    public SignupAllResponse(String gameUuid, TypeResponse typeResponse, List<DTOgame> games) {
         this.gameUuid = ( gameUuid == null ? "<leeg>" : gameUuid );
-        this.playerUuid = ( playerUuid == null ? "<leeg>" : playerUuid );
         this.games = ( games == null ? new ArrayList<>() : games );
-        this.typeResponse = ( typeResponse == null ? TypeResponse.GAMES : typeResponse );
+        this.typeResponse = ( typeResponse == null ? TypeResponse.GAMES_AND_PLAYERS : typeResponse );
     }
 }

@@ -2,7 +2,6 @@ package beetle.brindi.cards.dto;
 
 import beetle.brindi.cards.domain.Game;
 import beetle.brindi.cards.domain.Player;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -39,7 +38,9 @@ public class DTOgame {
         this.gameUuid = gameUuid;
         this.players = new ArrayList<>();
         this.started = game.getStarted();
-        this.creator = game.getCreator().getName();
+
+        Player creator = game.getPlayers().get(game.getCreator());
+        this.creator = ( (creator == null) ? "" : creator.getName());
 
         Map<UUID, Player> players =  game.getPlayers().getPlayers();
         for (Map.Entry<UUID, Player> entry : players.entrySet() ) {

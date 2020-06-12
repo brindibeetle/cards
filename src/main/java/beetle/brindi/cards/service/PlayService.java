@@ -7,7 +7,7 @@ import beetle.brindi.cards.dto.DTOcard;
 import beetle.brindi.cards.dto.DTOplayer;
 import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.request.PlayRequest;
-import beetle.brindi.cards.request.SignupRequest;
+import beetle.brindi.cards.request.SigningUpRequest;
 import beetle.brindi.cards.response.GameResponse;
 import beetle.brindi.cards.response.HandResponse;
 import beetle.brindi.cards.response.PlayResponse;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlayService {
 
-    private final GamesService serviceHelper;
+    private final GamesService gamesService;
 
     private final PlayersService playersService;
 
@@ -90,6 +90,7 @@ public class PlayService {
                 gameResponse =
                         Optional.of(
                             GameResponse.builder()
+                                .typeResponse(GameResponse.TypeResponse.GAME)
                                 .players(
                                         playersService.getPlayers(gameUuid).entrySet().stream()
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
@@ -147,6 +148,7 @@ public class PlayService {
                 gameResponse =
                         Optional.of(
                             GameResponse.builder()
+                                .typeResponse(GameResponse.TypeResponse.GAME)
                                 .players(
                                         playersService.getPlayers(gameUuid).entrySet().stream()
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
@@ -181,6 +183,7 @@ public class PlayService {
                 gameResponse =
                         Optional.of(
                             GameResponse.builder()
+                                .typeResponse(GameResponse.TypeResponse.GAME)
                                 .players(
                                         playersService.getPlayers(gameUuid).entrySet().stream()
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
@@ -215,6 +218,7 @@ public class PlayService {
                 gameResponse =
                         Optional.of(
                             GameResponse.builder()
+                                .typeResponse(GameResponse.TypeResponse.GAME)
                                 .players(
                                         playersService.getPlayers(gameUuid).entrySet().stream()
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
@@ -231,10 +235,10 @@ public class PlayService {
         }
     }
 
-    public Optional<PlayResponse> startGame(SignupRequest signupRequest) {
+    public Optional<PlayResponse> startGame(SigningUpRequest signupRequest) {
         UUID gameUuid = signupRequest.getGameUuid();
         UUID playerUuid = signupRequest.getPlayerUuid();
-        SignupRequest.TypeRequest typeRequest = signupRequest.getTypeRequest();
+        SigningUpRequest.TypeRequest typeRequest = signupRequest.getTypeRequest();
 
         switch (typeRequest) {
             case START:
@@ -251,46 +255,46 @@ public class PlayService {
     }
 
     public Pair<List<DTOcard>, List<DTOcard>> deal (UUID gameUuid, UUID playerUuid ){
-        Game game = serviceHelper.getGame(gameUuid);
+        Game game = gamesService.getGame(gameUuid);
         Player player = playersService.getPlayer(gameUuid, playerUuid);
 
         return convert2DTO( game.dealCards(playerUuid, 13) );
     }
 
     private Pair<List<DTOcard>, List<DTOcard>> drawCard (UUID gameUuid, UUID playerUuid){
-        Game game = serviceHelper.getGame(gameUuid);
+        Game game = gamesService.getGame(gameUuid);
         Player player = playersService.getPlayer(gameUuid, playerUuid);
 
         return convert2DTO( game.drawCard(playerUuid) );
     }
 
     private Pair<List<DTOcard>, List<DTOcard>> getCard (UUID gameUuid, UUID playerUuid){
-        Game game = serviceHelper.getGame(gameUuid);
+        Game game = gamesService.getGame(gameUuid);
         Player player = playersService.getPlayer(gameUuid, playerUuid);
 
         return convert2DTO( game.getCard(playerUuid) );
     }
 
     private Pair<List<DTOcard>, List<DTOcard>> putCards (UUID gameUuid, UUID playerUuid, List<Card> cards){
-        Game game = serviceHelper.getGame(gameUuid);
+        Game game = gamesService.getGame(gameUuid);
         Player player = playersService.getPlayer(gameUuid, playerUuid);
 
         return convert2DTO(game.putCards(playerUuid, cards));
     }
 
     private Pair<List<DTOcard>, List<DTOcard>> putCardsOnTable (UUID gameUuid, UUID playerUuid, Integer place, List<Card> cards){
-        Game game = serviceHelper.getGame(gameUuid);
+        Game game = gamesService.getGame(gameUuid);
         Player player = playersService.getPlayer(gameUuid, playerUuid);
 
         return convert2DTO(game.putCardsOnTable(playerUuid, place, cards));
     }
 
     private Card.Back getTopOfStock(UUID gameUuid) {
-        Game game = serviceHelper.getGame(gameUuid);
+        Game game = gamesService.getGame(gameUuid);
         return game.getTopOfStock();
     }
     private DTOcard getBottomOfStock(UUID gameUuid) {
-        Game game = serviceHelper.getGame(gameUuid);
+        Game game = gamesService.getGame(gameUuid);
         return new DTOcard( game.getBottomOfStock() );
     }
 
@@ -302,7 +306,7 @@ public class PlayService {
     }
 
     private void startGame(UUID gameUuid) {
-        Game game = serviceHelper.getGame(gameUuid);
+        Game game = gamesService.getGame(gameUuid);
         game.setStarted(Boolean.TRUE);
     }
 
