@@ -4,7 +4,7 @@ module Domain.HandResponse exposing (..)
 -- personal response to the player
 -- -> later we will split this
 
-import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, meldSorter)
+import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder)
 import Domain.TypeResponse exposing (TypeResponse(..), typeResponseDecoder)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as Pipeline

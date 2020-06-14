@@ -1,7 +1,6 @@
 module Domain.SignupRequest exposing (..)
 
 
-import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, meldSorter)
 import Json.Encode as Encode
 import Session exposing (Session)
 

@@ -1,6 +1,6 @@
 module Domain.PlayRequest exposing (..)
 
-import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, meldSorter)
+import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder)
 import Json.Encode as Encode
 import Session exposing (Session)
 
@@ -106,15 +106,15 @@ makeDealRequest session =
     }
 
 
-makePutOnTableRequest : Session -> List DTOcard -> Int -> PlayRequest
-makePutOnTableRequest session cards tablePosition =
+makePutOnTableRequest : Session -> List DTOcard -> PlayRequest
+makePutOnTableRequest session cards =
     {
             typeRequest = PutOnTableRequest
             , gameUuid = session.gameUuid
             , playerUuid = session.playerUuid
             , cards = cards
             , handPosition = 0
-            , tablePosition = tablePosition
+            , tablePosition = 0
         }
 
 makeSlideOnTableRequest : Session -> List DTOcard -> Int -> Int -> PlayRequest

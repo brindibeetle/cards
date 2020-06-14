@@ -45,7 +45,8 @@ public class PlayService {
         Pair<List<DTOcard>, List<DTOcard>> cardsCards = null;
         switch (typeRequest) {
             case PUT_ON_TABLE:
-                cardsCards = putCardsOnTable(gameUuid, playerUuid, tablePosition, cards);
+                int tablePosition1 = getNextTablePosition(gameUuid);
+                cardsCards = putCardsOnTable(gameUuid, playerUuid, tablePosition1, cards);
                 playResponse =
                         Optional.of(
                                 PlayResponse.builder()
@@ -53,7 +54,7 @@ public class PlayService {
                                 .bottomCard(getBottomOfStock(gameUuid))
                                 .topCardBack(getTopOfStock(gameUuid).toString())
                                 .typeResponse(TypeResponse.PUT_ON_TABLE)
-                                .tablePosition(tablePosition)
+                                .tablePosition(tablePosition1)
                                 .build()
                         );
                 handResponse =
@@ -289,6 +290,10 @@ public class PlayService {
         return convert2DTO(game.putCardsOnTable(playerUuid, place, cards));
     }
 
+    private int getNextTablePosition(UUID gameUuid) {
+        Game game = gamesService.getGame(gameUuid);
+        return game.getNextTablePosition();
+    }
     private Card.Back getTopOfStock(UUID gameUuid) {
         Game game = gamesService.getGame(gameUuid);
         return game.getTopOfStock();

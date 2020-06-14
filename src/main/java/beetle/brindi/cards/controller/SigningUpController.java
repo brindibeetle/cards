@@ -29,7 +29,7 @@ public class SigningUpController {
 
     @CrossOrigin
     @MessageMapping("/signup")
-    public void signup(@RequestParam SigningUpRequestWrapper signupRequestWrapper, MessageHeaders messageHeaders) {
+    public SigningUpResponse signup(@RequestParam SigningUpRequestWrapper signupRequestWrapper, MessageHeaders messageHeaders) {
         try {
             UUID playerUuid = signupRequestWrapper.getPlayerUuid();
 
@@ -56,6 +56,8 @@ public class SigningUpController {
                     simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse);
                 }
             );
+
+            return signingUpResponse;
         }
 
         catch (CardsException ce) {

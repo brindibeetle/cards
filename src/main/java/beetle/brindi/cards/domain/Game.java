@@ -90,7 +90,7 @@ public class Game {
         deck.putToHand(playerUuid, oldCards );
 
         deck.putToTable(place, cards);
-        return Pair.with(cards, newCards);
+        return Pair.with(cards, oldCards);
     }
 
     public Card.Back getTopOfStock() {
@@ -102,5 +102,9 @@ public class Game {
 
     public void setCreator(UUID playerUuid) {
         this.creator = playerUuid;
+    }
+
+    public int getNextTablePosition() {
+        return deck.getNextTablePosition();
     }
 }

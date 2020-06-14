@@ -118,5 +118,14 @@ public class Deck {
     }
 
 
+    public int getNextTablePosition() {
+        int position = -1;
+        List<Card> cards = null;
+        do {
+            position ++;
+        } while ( cardsTable.get(position) != null );
+
+        return position;
+    }
 }
 

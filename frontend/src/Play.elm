@@ -1,7 +1,7 @@
 port module Play exposing (..)
 
 import Array
-import Domain.DTOcard as DTOcard exposing (Back(..), DTOcard, defaultDTOcard, meldSorter)
+import Domain.DTOcard as DTOcard exposing (Back(..), DTOcard(..), defaultDTOcard, meldSorted, meldSorter)
 import Domain.DTOplayer exposing (DTOplayer, emptyDTOplayer)
 import Domain.GameResponse exposing (gameResponseDecodeValue)
 import Domain.HandResponse exposing (handResponseDecodeValue)
@@ -43,7 +43,8 @@ type DragId =
 type DropId =
     DropBottomCard
     | DropHand Int
-    | DropTable Int
+    | DropTable
+    | DropTableSpace Int Int
 
 
 -- refresh page :
@@ -123,7 +124,7 @@ viewTable model session =
     let
         droppable = case ( isItMyTurn model session, DragDrop.getDragId model.dragDrop ) of
             ( True, Just DragHandSelected ) ->
-                droppableToTableSpace model ( List.length model.table )
+                droppableToTable model ( List.length model.table )
             ( _, _ ) ->
                 []
     in
@@ -136,19 +137,7 @@ viewTableSpace model session index cards =
     let
         droppable = case ( isItMyTurn model session, DragDrop.getDragId model.dragDrop ) of
             ( True, Just DragHandSelected ) ->
-                droppableToTableSpace model index
-
-            ( True, Just ( DragHand i ) ) ->
-                case Array.fromList model.hand |> Array.get i |> Maybe.map Tuple.first of
-                    Just card ->
-                        if ( card :: cards |> DTOcard.isMeld ) && ( List.length model.hand > 1 ) then
-                            droppableToTableSpace model index
-
-                        else
-                            []
-
-                    Nothing ->
-                        []
+                droppableToTable model index
 
             ( _, _ ) ->
                 []
@@ -157,16 +146,91 @@ viewTableSpace model session index cards =
                 droppable
                 [ class "table-space"]
             )
-            ( List.indexedMap (viewTableSpaceCard model) cards )
+            ( List.concat
+                [
+                    [ viewTableDropSpace model session index cards DropBefore ]
+                    , ( List.indexedMap (viewTableSpaceCard model session index cards) cards )
+                    , [ viewTableDropSpace model session index cards DropAfter ]
+                ]
+            )
 
 
-viewTableSpaceCard : Model -> Int -> DTOcard -> Html Msg
-viewTableSpaceCard model index card =
+viewTableSpaceCard : Model -> Session -> Int -> List DTOcard -> Int -> DTOcard -> Html Msg
+viewTableSpaceCard model session tableSpaceIndex cards index card =
+    let
+        droppable = case ( isItMyTurn model session, card, DragDrop.getDragId model.dragDrop ) of
+            ( True, Special special, Just ( DragHand i ) ) ->
+                case Array.fromList model.hand |> Array.get i |> Maybe.map Tuple.first of
+                    Just draggedCard ->
+                        let
+                            cardsAfterDrop = List.concat
+                                [ List.take index cards
+                                , [ draggedCard ]
+                                , List.drop ( index + 1) cards
+                                ]
+                        in
+                            if ( DTOcard.isMeld cardsAfterDrop && DTOcard.meldSorted cardsAfterDrop ) then
+                                droppableToTableSpace model tableSpaceIndex index
+                            else
+                                []
+
+                    Nothing ->
+                        []
+
+            ( _, _, _ ) ->
+                []
+    in
     div
-        [ class "table-space-card" ]
+        ( List.append
+            droppable
+            [ class "table-space-card" ]
+        )
         [ DTOcard.view card ]
 
 
+viewTableDropSpace : Model -> Session -> Int -> List DTOcard -> DropSpace -> Html Msg
+viewTableDropSpace model session tableSpaceIndex cards dropSpace =
+    let
+        droppable = case ( isItMyTurn model session, DragDrop.getDragId model.dragDrop, dropSpace ) of
+            ( True, Just ( DragHand i ), DropBefore ) ->
+                case Array.fromList model.hand |> Array.get i |> Maybe.map Tuple.first of
+                    Just draggedCard ->
+                        let
+                            cardsAfterDrop = draggedCard :: cards
+                        in
+                            if ( DTOcard.isMeld cardsAfterDrop && DTOcard.meldSorted cardsAfterDrop ) then
+                                droppableToTableSpace model tableSpaceIndex -1
+                            else
+                                []
+                    _ ->
+                        []
+            ( True, Just ( DragHand i ), DropAfter ) ->
+                case Array.fromList model.hand |> Array.get i |> Maybe.map Tuple.first of
+                    Just draggedCard ->
+                        let
+                            cardsAfterDrop = List.append cards [ draggedCard ]
+                        in
+                            if ( DTOcard.isMeld cardsAfterDrop && DTOcard.meldSorted cardsAfterDrop ) then
+                                droppableToTableSpace model tableSpaceIndex 99
+                            else
+                                []
+                    _ ->
+                        []
+
+            ( _, _, _ ) ->
+                []
+    in
+        div
+            ( List.append
+                droppable
+              [ class "table-space-card table-space-dropcard" ]
+            )
+            [ DTOcard.viewEmpty ]
+
+
+
+
+type DropSpace = DropBefore | DropAfter
 -- #####   VIEW HAND
 
 
@@ -426,7 +490,7 @@ update msg model session =
                     SlideOnTableReponse ->
                         { model =
                             { model
-                            | hand = removeFromHand handPosition model.hand
+                            | hand = removeFromHand handPosition model.hand |> addToHand handPosition cards
                             , pending = False
                             }
                         , session = session
@@ -531,38 +595,43 @@ update msg model session =
                                         , Cmd.none
                                     )
 
-                        Just ( DragHandSelected, DropTable to, _ ) ->
+                        Just ( DragHandSelected, DropTable, _ ) ->
                             let
-                                cards = Debug.log "DragHandSelected, DropTable " ( ( handSelected model.hand True ) |> meldSorter )
+                                cards = Debug.log "DragHandSelected, DropTable " ( handSelected model.hand True )
+                                    |> (\cards1 -> if meldSorted cards1 then cards1 else meldSorter cards1)
                             in
                             (
                                 { model
                                 | dragDrop = dragDropModel
                                 , pending = True
                                 }
-                                , makePutOnTableRequest session cards to |> playRequestEncoder |> playSend
+                                , makePutOnTableRequest session cards |> playRequestEncoder |> playSend
                             )
 
-                        Just ( DragHand from, DropTable to, _ ) ->
-                            case Maybe.map2
-                                (::)
-                                ( Array.fromList model.hand |> Array.get from |> Maybe.map Tuple.first )
-                                ( Array.fromList model.table |> Array.get to )
+                        Just ( DragHand from, DropTableSpace toTable toIndex, _ ) ->
+                            case
+                                ( Array.fromList model.hand |> Array.get from |> Maybe.map Tuple.first
+                                , Array.fromList model.table |> Array.get toTable
+                                )
                             of
-                                Just cards ->
+                                ( Just draggedCard, Just tableCards ) ->
                                     let
-                                        a = Debug.log " DragHand i, DropTable to, cards=" cards
+                                        cardsAfterDrop = List.concat
+                                            [ List.take toIndex tableCards
+                                            , [ draggedCard ]
+                                            , List.drop ( toIndex + 1) tableCards
+                                            ]
                                     in
                                     (
                                         { model
                                         | dragDrop = dragDropModel
                                         , pending = True
                                         }
-                                        , makeSlideOnTableRequest session (meldSorter cards) from to |> playRequestEncoder |> playSend
+                                        , makeSlideOnTableRequest session cardsAfterDrop from toTable |> playRequestEncoder |> playSend
                                         --, playSend ( dtoPlayEncoder ( DTOplay.makeTableMod session cards to ) )
                                     )
 
-                                Nothing ->
+                                ( _, _ ) ->
                                     (
                                         { model
                                         | dragDrop = dragDropModel
@@ -741,14 +810,27 @@ clickHand model index =
             []
 
 
-droppableToTableSpace: Model -> Int -> List (Attribute Msg)
-droppableToTableSpace model index =
+droppableToTable: Model -> Int -> List (Attribute Msg)
+droppableToTable model index =
     case ( model.pending, model.phase, DragDrop.getDragId model.dragDrop ) of
         ( True, _, _ ) ->
             []
 
         ( _, PUT, _ ) ->
-            DragDrop.droppable DragDropMsg ( DropTable index )
+            DragDrop.droppable DragDropMsg DropTable
+
+        ( _, _, _ ) ->
+            []
+
+
+droppableToTableSpace: Model -> Int -> Int -> List (Attribute Msg)
+droppableToTableSpace model tableSpaceIndex index =
+    case ( model.pending, model.phase, DragDrop.getDragId model.dragDrop ) of
+        ( True, _, _ ) ->
+            []
+
+        ( _, PUT, _ ) ->
+            DragDrop.droppable DragDropMsg ( DropTableSpace tableSpaceIndex index )
 
         ( _, _, _ ) ->
             []
@@ -785,6 +867,15 @@ removeFromHand index dtoCardSelected =
     [
         List.take index dtoCardSelected                     -- 0,1
         , List.drop ( index + 1 ) dtoCardSelected           -- 3,4
+    ]
+
+addToHand : Int -> List DTOcard ->  List ( DTOcard, Bool ) -> List ( DTOcard, Bool )
+addToHand index cards dtoCardSelected =
+    List.concat
+    [
+        List.take index dtoCardSelected                     -- 0,1
+        , List.map (\card -> (card, True)) cards
+        , List.drop index dtoCardSelected                   -- 2,3,4
     ]
 
 

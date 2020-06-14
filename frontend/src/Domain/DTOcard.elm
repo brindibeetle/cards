@@ -321,6 +321,12 @@ view dtoCard =
         ( List.map viewChar ( getChars dtoCard ) )
 
 
+viewEmpty : Html msg
+viewEmpty =
+    div [ class "char-holder" ]
+        []
+
+
 viewChar : ( Int, Color ) -> Html msg
 viewChar ( int, color ) =
     div [ class "char ", getColorClass color "" ]
@@ -552,6 +558,44 @@ meldRunSorter cards =
                     List.append withoutAcesSorted onlyAces
                 else
                     List.append onlyAces withoutAcesSorted
+
+
+meldSorted : List DTOcard -> Bool
+meldSorted cards =
+     if ( cardsRegulars cards |> List.map .rank |> allOfOneKind ) then
+        True
+     else
+        meldRunSorted 0 Nothing cards
+
+
+meldRunSorted : Int -> Maybe Int -> List DTOcard -> Bool
+meldRunSorted numberOfWildCards lastRank cards =
+    case cards of
+        [] ->
+            True
+
+        card::rest ->
+            case ( card, lastRank ) of
+                ( Regular { rank }, Nothing ) ->
+                    if numerizeRank rank <= numberOfWildCards then
+                        False
+                    else
+                        meldRunSorted 0 (Just ( numerizeRank rank )) rest
+
+                ( Special _, Nothing ) ->
+                    meldRunSorted (numberOfWildCards + 1) Nothing rest
+
+                ( Special _, Just lastRank1 ) ->
+                    if lastRank1 + numberOfWildCards + 1 > 14 then
+                        False
+                    else
+                        meldRunSorted (numberOfWildCards + 1) (Just lastRank1) rest
+
+                ( Regular { rank }, Just lastRank1 ) ->
+                    if lastRank1 + numberOfWildCards + 1 == numerizeRankHighest rank then
+                        meldRunSorted 0 (Just (numerizeRankHighest rank)) rest
+                    else
+                        False
 
 
 meldSorter : List DTOcard -> List DTOcard
