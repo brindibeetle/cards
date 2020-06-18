@@ -86,8 +86,6 @@ o
 ?src/main/java/beetle/brindi/cards/response/PlayingResponse.java,d\a\da927bb7569ddf96714ea106165a07c457849189
 l
 <src/main/java/beetle/brindi/cards/response/GameResponse.java,4\b\4b9c8d7f9b9608f8036e0c90a3861e4760656976
-a
-1src/main/resources/static/src/resources/cards.css,5\e\5e749e891708df2595e14a1a5d6f16baf9a61a26
 M
 frontend/src/Domain/Phase.elm,0\0\00133c2d31cc589c838f8092ebdb2e46c0903c0b
 l
@@ -98,3 +96,33 @@ l
 <src/main/java/beetle/brindi/cards/response/PlayResponse.java,2\8\2825571b512e32ba75a3cc31f9a7acc635ee5ee7
 j
 :src/main/java/beetle/brindi/cards/request/PlayRequest.java,d\f\df53dac11563eb9445e41d217929091a13912301
+q
+Asrc/main/java/beetle/brindi/cards/response/SignupAllResponse.java,7\8\788dbf6b725627536184dffb8468cfad8c87214d
+q
+Asrc/main/java/beetle/brindi/cards/response/SigningUpResponse.java,4\9\494c42007893918edf13dd152c0b29be22d1632c
+l
+<src/test/java/brindi/beetle/cards/testrunners/CardsTest.java,a\2\a23f154a911582b43fe089029f6a69ca5dbf86c1
+o
+?src/main/java/beetle/brindi/cards/request/SigningUpRequest.java,3\f\3fc9c5350524012d7c1f69a76ab8e698da9f0f41
+v
+Fsrc/main/java/beetle/brindi/cards/request/SigningUpRequestWrapper.java,1\c\1cdb602601c04a4cbe0d57c0d9dda0ed38efd3e2
+k
+;src/test/java/brindi/beetle/cards/glue/CalcDefinitions.java,9\a\9a28d1d0cb061d452732dc87ab8744525c534d46
+d
+4src/test/java/brindi/beetle/cards/config/Config.java,5\2\5273008f4782e667ce7d40ec1de9d33172646264
+w
+Gsrc/test/java/brindi/beetle/cards/glue/CucumberSpringConfiguration.java,c\a\cae2331fb78f97dd9c18d1ec284f9eccb2ee78f2
+q
+Asrc/test/java/brindi/beetle/cards/glue/SpringIntegrationTest.java,1\b\1be287c08270577f371217f5ca404823caf79b38
+m
+=src/test/java/brindi/beetle/cards/glue/SigninDefinitions.java,5\c\5c3c88d7f2048d16c045d81f75dab2c8adc730f5
+q
+Asrc/test/java/brindi/beetle/cards/glue/MyStompSessionHandler.java,4\3\43e7bd92ad19e5db04292ea3180d3c420d2b65de
+^
+.src/test/resources/features/calculator.feature,4\0\401a4738198e154cdb82f4a9ebc216d5d7ca6be1
+O
+src/test/resources/cucumber.xml,c\3\c370197474c644e0de7c2a701d419e53911659a2
+o
+?src/test/java/brindi/beetle/cards/glue/AbstractDefinitions.java,9\9\99335d5fd2297fa713c0b5a6d238ecf535175afe
+u
+Esrc/main/java/beetle/brindi/cards/controller/SigningUpController.java,2\7\27826e796a509653d48d177dffbcc1c7c204c8c3

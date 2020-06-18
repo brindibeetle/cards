@@ -146,13 +146,15 @@ viewTableSpace model session index cards =
                 droppable
                 [ class "table-space"]
             )
-            ( List.concat
-                [
-                    [ viewTableDropSpace model session index cards DropBefore ]
-                    , ( List.indexedMap (viewTableSpaceCard model session index cards) cards )
-                    , [ viewTableDropSpace model session index cards DropAfter ]
-                ]
-            )
+            [ div [ class "table-space-grid"]
+                ( List.concat
+                    [
+                        [ viewTableDropSpace model session index cards DropBefore ]
+                        , ( List.indexedMap (viewTableSpaceCard model session index cards) cards )
+                        , [ viewTableDropSpace model session index cards DropAfter ]
+                    ]
+                )
+            ]
 
 
 viewTableSpaceCard : Model -> Session -> Int -> List DTOcard -> Int -> DTOcard -> Html Msg

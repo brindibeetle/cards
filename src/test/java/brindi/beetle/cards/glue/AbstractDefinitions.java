@@ -1,13 +1,14 @@
 package brindi.beetle.cards.glue;
 
 import beetle.brindi.cards.controller.SigningUpController;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class AbstractDefinitions {
 
-    protected SigningUpController signingUpController;
+    protected final SigningUpController signingUpController;
 
     protected Map<String, Object> context;
 

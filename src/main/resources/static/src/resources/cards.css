@@ -242,19 +242,18 @@ div.card-hand-bottom {
 /* Table */
 div.table-container {
     position: absolute;
-    display: grid;
-    grid-template-columns: repeat(5, [col] 1fr) ;
-    grid-template-rows:  repeat(2, [row] 1fr) ;
-    grid-column-gap: 1vw;
-    grid-row-gap: 1vw;
-
-    text-align: center;
+    padding: 1vw;
     width: 100vw;
     height: 50vh;
     top: 25vh;
     left: 1vw;
 }
 div.table-space {
+    display: inline-block;
+    width: min-content;
+    padding: 0vw 1vw 2vw 1vw;
+}
+div.table-space-grid {
     display: grid;
     grid-template-columns: repeat(14, [col] 1fr) ;
     grid-template-rows:  repeat(1, [row] 1fr) ;

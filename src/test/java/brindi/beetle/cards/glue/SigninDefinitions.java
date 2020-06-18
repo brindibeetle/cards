@@ -1,23 +1,33 @@
 package brindi.beetle.cards.glue;
 
 
+import beetle.brindi.cards.controller.SigningUpController;
 import beetle.brindi.cards.request.SigningUpRequest;
 import beetle.brindi.cards.request.SigningUpRequestWrapper;
 import beetle.brindi.cards.response.SigningUpResponse;
 import beetle.brindi.cards.response.SignupPersonalResponse;
 import io.cucumber.java8.En;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-public class SigninDefinitions extends AbstractDefinitions implements En {
+public class SigninDefinitions  implements En {
 
     private final String baseUrl = "ws://localhost:8080/cards-ws";
 
-    public SigninDefinitions() {
+    protected final SigningUpController signingUpController;
+
+    protected Map<String, Object> context;
+
+    @Autowired
+    public SigninDefinitions(SigningUpController signingUpController) {
+        this.signingUpController = signingUpController;
+        
         context = new HashMap<>();
 
             Given("player connects the game", () -> {
@@ -59,4 +69,5 @@ public class SigninDefinitions extends AbstractDefinitions implements En {
             ResponseEntity<SignupPersonalResponse> signupPersonalResponseResponseEntity = new RestTemplate().getForEntity(baseUrl + "/cards/v1/signup", SignupPersonalResponse.class);
         });
     }
+
 }
