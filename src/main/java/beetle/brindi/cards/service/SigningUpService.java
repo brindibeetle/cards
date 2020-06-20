@@ -139,4 +139,8 @@ public class SigningUpService {
         return new DTOgame( gameUuid, game );
     }
 
+    public void flush() {
+        CardsSingleton.getInstance().getGames().getGames().clear();
+    }
+
 }

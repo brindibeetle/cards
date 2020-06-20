@@ -83,4 +83,7 @@ public class SigningUpController {
         }
     }
 
+    public void flush() {
+        signingUpService.flush();
+    }
 }
