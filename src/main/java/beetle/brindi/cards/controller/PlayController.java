@@ -25,7 +25,7 @@ public class PlayController {
     @CrossOrigin
 //    @SendTo("/played")
     @MessageMapping("/play")
-    public void play(@RequestParam PlayRequest playRequest) {
+    public PlayingResponse play(@RequestParam PlayRequest playRequest) {
         try {
             UUID gameUuid = playRequest.getGameUuid();
             UUID playerUuid = playRequest.getPlayerUuid();
@@ -46,6 +46,7 @@ public class PlayController {
                         simpMessagingTemplate.convertAndSend("/game/" + gameUuid.toString(), gameResponse)
             );
 
+            return playingResponse;
         }
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );

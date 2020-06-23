@@ -1,19 +1,26 @@
 package beetle.brindi.cards;
 
+import beetle.brindi.cards.controller.PlayController;
 import beetle.brindi.cards.controller.SigningUpController;
 import beetle.brindi.cards.domain.Context;
 import beetle.brindi.cards.domain.Session;
+import beetle.brindi.cards.dto.DTOcard;
 import beetle.brindi.cards.dto.DTOplayer;
+import beetle.brindi.cards.exception.CardsException;
+import beetle.brindi.cards.request.PlayRequest;
 import beetle.brindi.cards.request.SigningUpRequest;
 import beetle.brindi.cards.request.SigningUpRequestWrapper;
+import beetle.brindi.cards.response.PlayingResponse;
 import beetle.brindi.cards.response.SigningUpResponse;
-import cucumber.api.Scenario;
-import cucumber.api.java.Before;
-import cucumber.api.java8.En;
+import io.cucumber.cucumberexpressions.CaptureGroupTransformer;
+import io.cucumber.cucumberexpressions.ParameterType;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java8.En;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +31,9 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static beetle.brindi.cards.domain.Context.ContextKind.TABLE;
+
+//@Ignore
 public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests implements En {
 
     private final Logger log = LoggerFactory.getLogger(CardsCucumberStepDefinitions.class);
@@ -31,17 +41,19 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
 
     protected Context context;
 
-    @Before
-    public void beforeScenario(Scenario scenario) {
-        context =  new Context();
-        signingUpController.flush();
-    }
-
     @Autowired
     protected SigningUpController signingUpController;
 
+    @Autowired
+    protected PlayController playController;
 
     public CardsCucumberStepDefinitions() {
+
+
+        Before(1, () -> {
+            context =  new Context();
+            signingUpController.flush();
+        });
 
         Given("player {word} opens a new session", (String playerName) -> {
 
@@ -87,6 +99,7 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
             SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(sessionId));
             signingUpResponse.getSignupPersonalResponse().ifPresent(
                     personalResponse -> {
+                        context.put("currentGame", Context.ContextKind.STRING, gameName);
                         context.put(gameName, Context.ContextKind.GAME, personalResponse.getGameUuid());
                     }
             );
@@ -204,6 +217,188 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
             List<String> playerNamesPresent = playersPresent.get().stream().map(player -> player.getPlayerName()).collect(Collectors.toList());
             Assert.assertTrue(equals(players, new HashSet<>(playerNamesPresent)));
         });
+
+        And("the player starts the game", () -> {
+            Session currentSession = getCurrentSession();
+            UUID playerUuid = currentSession.getPlayerUuid();
+            String gameName = (String)context.get("currentGame", Context.ContextKind.STRING);
+            UUID gameUuid = UUID.fromString ((String)context.get(gameName, Context.ContextKind.GAME));
+
+            SigningUpRequestWrapper signingUpRequestWrapper = SigningUpRequestWrapper.builder()
+                    .playerUuid(playerUuid)
+                    .signupRequest(SigningUpRequest.builder()
+                            .gameUuid(gameUuid)
+                            .typeRequest(SigningUpRequest.TypeRequest.START)
+                            .build()
+                    ).build();
+            SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(currentSession.getSessionId()));
+
+             context.put("TABLE", Context.ContextKind.TABLE, new ArrayList<List<DTOcard>>());
+        });
+
+        And("the dealer gives the following cards:", (DataTable dataTable) -> {
+
+            List<List<String>> data = dataTable.asLists(String.class);
+            List<DTOcard> cards = new ArrayList<>();
+            data.forEach(row -> cards.add(new DTOcard(row.get(0), row.get(1), row.get(2), row.get(3))));
+
+            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK, cards);
+        });
+
+        And("the player holds the following cards:", (DataTable dataTable) -> {
+
+            List<List<String>> data = dataTable.asLists(String.class);
+            List<DTOcard> cards = new ArrayList<>();
+            data.forEach(row -> cards.add(new DTOcard(row.get(0), row.get(1), row.get(2), row.get(3))));
+
+            Assert.assertArrayEquals("handcards dont match", cards.toArray(), getCurrentSession().getCards().toArray() );
+        });
+
+        And("the player takes card {word} of {word} with {word} back from stock", (String rank, String suit, String back) -> {
+            DTOcard card = new DTOcard(suit, rank, back,"");
+
+            List<DTOcard> cards = new ArrayList<>();
+            cards.add(card);
+
+            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK, cards);
+        });
+
+        And("the player takes card {word} with {word} back from stock", (String specialType, String back) -> {
+            DTOcard card = new DTOcard("", "", back,specialType);
+
+            List<DTOcard> cards = new ArrayList<>();
+            cards.add(card);
+
+            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK_TOP, cards);
+        });
+
+        And("the player lays the following cards on the table:", (DataTable dataTable) -> {
+
+            List<List<String>> data = dataTable.asLists(String.class);
+            List<DTOcard> cards = new ArrayList<>();
+            data.forEach(row -> cards.add(new DTOcard(row.get(0), row.get(1), row.get(2), row.get(3))));
+
+            doPlayRequest(PlayRequest.TypeRequest.PUT_ON_TABLE, cards);
+        });
+
+    }
+
+    private void ParameterType(String suit, String s, Class<DTOcard> dtoCardClass, CaptureGroupTransformer<String> stringCaptureGroupTransformer) {
+        new ParameterType<DTOcard>("card", "JOKER", DTOcard.class, new CaptureGroupTransformer<DTOcard>() {
+            @Override
+            public DTOcard transform(String[] args) {
+                if ("JOKER".equals(args[0]))
+                    return new DTOcard("", "", args[4], args[0]);
+                else
+                    return new DTOcard(args[3], args[2], args[4],  "");
+            }
+        });
+    }
+
+
+    private Session getCurrentSession() {
+        String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
+        String sessionId = playerName;
+        return (Session)context.get(playerName, Context.ContextKind.SESSION);
+    }
+
+    private void doPlayRequest(PlayRequest.TypeRequest typeRequest, List<DTOcard> cards) {
+        String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
+        String sessionId = playerName;
+        Session currentSession = (Session)context.get(playerName, Context.ContextKind.SESSION);
+        UUID playerUuid = currentSession.getPlayerUuid();
+        String gameName = (String)context.get("currentGame", Context.ContextKind.STRING);
+        UUID gameUuid = UUID.fromString ((String)context.get(gameName, Context.ContextKind.GAME));
+
+        PlayRequest playRequest = PlayRequest.builder()
+                .playerUuid(playerUuid)
+                .gameUuid(gameUuid)
+                .typeRequest(typeRequest)
+                .cards(cards)
+                .build();
+
+        PlayingResponse playingResponse = playController.play(playRequest);
+        playingResponse.getGameResponse().ifPresent(
+                gameResponse -> {
+                    switch (gameResponse.getTypeResponse()) {
+                        case GAME:
+                            context.put("players", Context.ContextKind.PLAYERS, gameResponse.getPlayers());
+                            context.put("currentPlayer", Context.ContextKind.STRING, gameResponse.getCurrentPlayer().getPlayerName());
+                            break;
+                        case PLAYERS:
+                            context.put("players", Context.ContextKind.PLAYERS, gameResponse.getPlayers());
+                            break;
+                        default:
+                            throw new CardsException(HttpStatus.CONFLICT, "Unanticipated gameResponseType : " + gameResponse.getTypeResponse());
+
+                    }
+                });
+        playingResponse.getPlayResponse().ifPresent(
+
+                playResponse -> {
+                    switch (playResponse.getTypeResponse()) {
+                        case DEAL:
+                            context.put("topCardBack", Context.ContextKind.PLAYERS, playResponse.getTopCardBack());
+                            context.put("bottomBack", Context.ContextKind.PLAYERS, playResponse.getBottomCard());
+                            break;
+                        case PUT_ON_TABLE:
+                            List<List<DTOcard>> tableCards = (List<List<DTOcard>>)context.get("TABLE", Context.ContextKind.TABLE);
+                            if (tableCards == null)
+                                tableCards = new ArrayList<>();
+                            if (playResponse.getCards().size() > 0)
+                                tableCards.add(playResponse.getTablePosition(), playResponse.getCards());
+                            context.put(TABLE, tableCards);
+                            context.put( Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put(Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
+                            break;
+                        case SLIDE_ON_TABLE:
+                            tableCards = (List<List<DTOcard>>)context.get("TABLE", Context.ContextKind.TABLE);
+                            if (tableCards == null)
+                                tableCards = new ArrayList<>();
+                            if (playResponse.getCards().size() > 0)
+                                tableCards.add(playResponse.getTablePosition(), playResponse.getCards());
+                            context.put(TABLE, tableCards);
+                            context.put( Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put(Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
+                            break;
+                        case PUT_ON_STACK_BOTTOM:
+                            context.put( Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put(Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
+                            break;
+                        case GET:
+                            context.put( Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put(Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
+                            break;
+                        // case START:
+                        //
+                        default:
+                            throw new CardsException(HttpStatus.CONFLICT, "Unanticipated playResponseType : " + playResponse.getTypeResponse());
+
+                    }
+                });
+        playingResponse.getHandResponse().ifPresent(
+                handResponse -> {
+                    switch (handResponse.getTypeResponse()) {
+                        case DEAL:
+                            currentSession.setCards(handResponse.getCards());
+                            break;
+                        case PUT_ON_TABLE:
+                            currentSession.getCards().removeAll(cards);
+                            break;
+                        case SLIDE_ON_TABLE:
+                            currentSession.getCards().removeAll(handResponse.getCards());
+                            break;
+                        case PUT_ON_STACK_BOTTOM:
+                            currentSession.getCards().removeAll(handResponse.getCards());
+                            break;
+                        case GET:
+                            currentSession.getCards().addAll(handResponse.getCards());
+                            break;
+                        default:
+                            throw new CardsException(HttpStatus.CONFLICT, "Unanticipated handResponseType : " + handResponse.getTypeResponse());
+
+                    }
+                });
     }
 
     private boolean equals(Set<?> set1, Set<?> set2){
@@ -218,8 +413,4 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
         return set1.containsAll(set2);
     }
 
-//    @ParameterType("(N2|N3|N4|N5|N6|N7|N8|N9|N10|JACK|QUEEN|KING|ACE)(CLUBS|DIAMONDS|HEARTS|SPADES)(DARK|LIGHT)")
-//    private DTOcard card(String card){
-//
-//    }
 }

@@ -1,6 +1,6 @@
 package beetle.brindi.cards.domain;
 
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -15,8 +15,13 @@ public class Context {
     public enum ContextKind {
         GAME,
         PLAYER,
+        PLAYERS,
         SESSION,
-        STRING
+        STRING,
+        TABLE,
+        TOPCARDBACK,
+        BOTTOMCARD
+
     }
 
     public Context() {
@@ -25,6 +30,11 @@ public class Context {
     }
 
     public void put(String key, ContextKind contextKind, Object object) {
+        this.context.put(key, object);
+        this.contextKind.put(key, contextKind);
+    }
+    public void put(ContextKind contextKind, Object object) {
+        String key = contextKind.toString();
         this.context.put(key, object);
         this.contextKind.put(key, contextKind);
     }

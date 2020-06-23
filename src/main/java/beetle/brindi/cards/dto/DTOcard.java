@@ -1,12 +1,10 @@
 package beetle.brindi.cards.dto;
 
 import beetle.brindi.cards.domain.Card;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class DTOcard {
 
@@ -17,13 +15,17 @@ public class DTOcard {
     private String specialType;
 
     public DTOcard(Card card){
-        suit = card.getSuitString();
-        rank = card.getRankString();
-        back = card.getBackString();
-        specialType = card.getSpecialTypeString();
+        this(card.getSuitString(), card.getRankString(), card.getBackString(), card.getSpecialTypeString());
+    }
+    public DTOcard(String suit, String rank, String back, String specialType){
+        this.suit = (suit == null ? "" : suit) ;
+        this.rank = (rank == null ? "" : rank) ;
+        this.back = (back == null ? "" : back) ;
+        this.specialType = (specialType == null ? "" : specialType) ;
     }
 
     public static DTOcard defaultCard(){
         return new DTOcard( Card.defaultCard() );
     }
+
 }

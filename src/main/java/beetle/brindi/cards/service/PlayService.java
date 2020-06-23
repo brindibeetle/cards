@@ -231,6 +231,41 @@ public class PlayService {
                         );
                 return new PlayingResponse(playResponse, handResponse, gameResponse);
 
+            case GET_FROM_STACK:
+                cardsCards = holds(gameUuid, playerUuid, cards);
+                playResponse =
+                        Optional.of(
+                                PlayResponse.builder()
+                                        .cards(cardsCards.getValue0())
+                                        .bottomCard(getBottomOfStock(gameUuid))
+                                        .topCardBack(getTopOfStock(gameUuid).toString())
+                                        .typeResponse(TypeResponse.GET)
+                                        .tablePosition(0)
+
+                                        .build()
+                        );
+                handResponse =
+                        Optional.of(
+                                HandResponse.builder()
+                                        .cards(cardsCards.getValue1())
+                                        .typeResponse(TypeResponse.GET)
+                                        .build()
+                        );
+                gameResponse =
+                        Optional.of(
+                                GameResponse.builder()
+                                        .typeResponse(GameResponse.TypeResponse.GAME)
+                                        .players(
+                                                playersService.getPlayers(gameUuid).entrySet().stream()
+                                                        .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
+                                                        .collect(Collectors.toList())
+                                        )
+                                        .currentPlayer( playersService.currentPlayer(gameUuid))
+                                        .phase(GameResponse.Phase.DRAW)
+                                        .build()
+                        );
+                return new PlayingResponse(playResponse, handResponse, gameResponse);
+
             default:
                 throw new CardsException(HttpStatus.CONFLICT, "Undefined typeRequest : " + typeRequest);
         }
@@ -260,6 +295,20 @@ public class PlayService {
         Player player = playersService.getPlayer(gameUuid, playerUuid);
 
         return convert2DTO( game.dealCards(playerUuid, 13) );
+    }
+
+    // only for testing
+    private Pair<List<DTOcard>, List<DTOcard>> holds(UUID gameUuid, UUID playerUuid, List<Card> cards) {
+        Game game = gamesService.getGame(gameUuid);
+        Player player = playersService.getPlayer(gameUuid, playerUuid);
+
+        return convert2DTO(game.putCardsinHand(playerUuid, cards));
+    }
+    private Pair<List<DTOcard>, List<DTOcard>> gets(UUID gameUuid, UUID playerUuid, List<Card> cards) {
+        Game game = gamesService.getGame(gameUuid);
+        Player player = playersService.getPlayer(gameUuid, playerUuid);
+
+        return convert2DTO(game.putCardsinHand(playerUuid, cards));
     }
 
     private Pair<List<DTOcard>, List<DTOcard>> drawCard (UUID gameUuid, UUID playerUuid){

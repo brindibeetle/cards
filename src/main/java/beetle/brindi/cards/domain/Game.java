@@ -107,4 +107,11 @@ public class Game {
     public int getNextTablePosition() {
         return deck.getNextTablePosition();
     }
+
+    public Pair<List<Card>, List<Card>> putCardsinHand(UUID playerUuid, List<Card> cards) {
+
+        deck.getFromStock(cards);
+        deck.putToHand(playerUuid, cards);
+        return Pair.with(cards, cards);
+    }
 }

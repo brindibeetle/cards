@@ -72,6 +72,18 @@ public class Deck {
         cardsStockBecomes.addAll(cards);
         cardsStock = cardsStockBecomes;
     }
+    public void getFromStock(List<Card> cards) {
+        List<Card> cardsStockBecomes = new ArrayList<>(cardsStock);
+
+        cards.forEach(card ->
+        {
+            if (!cardsStockBecomes.remove(card))
+            {
+                throw new CardsException(HttpStatus.CONFLICT, "The card is not present in the stock, card : " + card);
+            }
+        });
+        cardsStock = cardsStockBecomes;
+    }
 
     public void takeFromHand(UUID playerUuid, List<Card> cards ) {
         List<Card> cardsPlayer = cardsHand.get(playerUuid);
