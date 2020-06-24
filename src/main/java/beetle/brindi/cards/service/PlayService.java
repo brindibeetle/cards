@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,6 +44,9 @@ public class PlayService {
         Optional<HandResponse> handResponse = Optional.empty();
         Optional<GameResponse> gameResponse = Optional.empty();
         Pair<List<DTOcard>, List<DTOcard>> cardsCards = null;
+
+        Map<UUID,Player> pipo = playersService.getPlayers(gameUuid);
+
         switch (typeRequest) {
             case PUT_ON_TABLE:
                 int tablePosition1 = getNextTablePosition(gameUuid);
@@ -70,6 +74,7 @@ public class PlayService {
 
             case PUT_ON_STACK_BOTTOM:
                 cardsCards = putCards(gameUuid, playerUuid, cards);
+                playersService.isPlayerFinished(gameUuid, playerUuid);
                 playResponse =
                         Optional.of(
                             PlayResponse.builder()
@@ -162,7 +167,7 @@ public class PlayService {
                 return new PlayingResponse(playResponse, handResponse, gameResponse);
 
             case GET_FROM_STACK_BOTTOM:
-               cardsCards = getCard(gameUuid, playerUuid);
+                cardsCards = getCard(gameUuid, playerUuid);
                 playResponse =
                         Optional.of(
                             PlayResponse.builder()
@@ -290,7 +295,7 @@ public class PlayService {
         }
     }
 
-    public Pair<List<DTOcard>, List<DTOcard>> deal (UUID gameUuid, UUID playerUuid ){
+    public synchronized Pair<List<DTOcard>, List<DTOcard>> deal (UUID gameUuid, UUID playerUuid ){
         Game game = gamesService.getGame(gameUuid);
         Player player = playersService.getPlayer(gameUuid, playerUuid);
 

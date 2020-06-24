@@ -37,10 +37,6 @@ public class Game {
         players.addPlayer(playerName, sessionId, playerUuid);
         deck.addPlayer(playerUuid);
     }
-    public void disconnectPlayer(UUID playerUuid){
-        players.remove(playerUuid);
-        deck.removePlayer(playerUuid);
-    }
 
     public Pair<List<Card>,List<Card>> dealCards(UUID playerUuid, Integer number){
         List<Card> cards = deck.takeFromStock(number);
@@ -114,4 +110,5 @@ public class Game {
         deck.putToHand(playerUuid, cards);
         return Pair.with(cards, cards);
     }
+
 }

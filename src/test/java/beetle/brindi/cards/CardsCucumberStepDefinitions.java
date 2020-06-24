@@ -3,8 +3,9 @@ package beetle.brindi.cards;
 import beetle.brindi.cards.controller.PlayController;
 import beetle.brindi.cards.controller.SigningUpController;
 import beetle.brindi.cards.domain.Context;
-import beetle.brindi.cards.domain.Session;
+import beetle.brindi.cards.domain.Player;
 import beetle.brindi.cards.dto.DTOcard;
+import beetle.brindi.cards.dto.DTOgame;
 import beetle.brindi.cards.dto.DTOplayer;
 import beetle.brindi.cards.exception.CardsException;
 import beetle.brindi.cards.request.PlayRequest;
@@ -28,10 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-
-import static beetle.brindi.cards.domain.Context.ContextKind.TABLE;
 
 //@Ignore
 public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests implements En {
@@ -49,7 +47,6 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
 
     public CardsCucumberStepDefinitions() {
 
-
         Before(1, () -> {
             context =  new Context();
             signingUpController.flush();
@@ -59,181 +56,80 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
 
             String sessionId = playerName;
             UUID playerUuid = UUID.randomUUID();
-            context.put(playerName, Context.ContextKind.SESSION, new Session(sessionId, playerUuid));
-            context.put("currentPlayer", Context.ContextKind.STRING, playerName);
+            DTOplayer player = new DTOplayer(playerName, playerUuid, Player.Status.PLAYING);
 
-            SigningUpRequestWrapper signingUpRequestWrapper = SigningUpRequestWrapper.builder()
-                    .playerUuid(playerUuid)
-                    .signupRequest(SigningUpRequest.builder()
-                            .playerUuid(playerUuid)
-                            .playerName("")
-                            .gameName("")
-                            .typeRequest(SigningUpRequest.TypeRequest.GAMES_AND_PLAYERS)
-                            .build()
-                    ).build();
-            SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(sessionId));
+            context.put(playerName, Context.ContextKind.SESSIONID, sessionId);
+            context.put(playerName, Context.ContextKind.PLAYER, player);
+
+            context.put("", Context.ContextKind.CURRENTPLAYER, playerName);
+
+            doSignupRequest(SigningUpRequest.TypeRequest.GAMES_AND_PLAYERS, playerName, "");
 
         });
         Given("session is of player {word}", (String playerName) -> {
 
-            context.put("currentPlayer", Context.ContextKind.STRING, playerName);
+            context.put("", Context.ContextKind.CURRENTPLAYER, playerName);
         });
 
         Given("the player creates new game {word}", (String gameName) -> {
 
-            String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
-            String sessionId = playerName;
-            Session currentSession = (Session)context.get(playerName, Context.ContextKind.SESSION);
-            UUID playerUuid = currentSession.getPlayerUuid();
+            String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
+//            String sessionId = playerName;
+//            Session currentSession = (Session)context.get(playerName, Context.ContextKind.SESSION);
+//            UUID playerUuid = currentSession.getPlayerUuid();
+            DTOgame game = new DTOgame(gameName, Boolean.FALSE, null, new ArrayList<DTOplayer>());
+            context.put(gameName, Context.ContextKind.GAME, game);
+            context.put("", Context.ContextKind.CURRENTGAME, gameName);
 
-            SigningUpRequestWrapper signingUpRequestWrapper = SigningUpRequestWrapper.builder()
-                    .playerUuid(playerUuid)
-                    .signupRequest(SigningUpRequest.builder()
-                            .playerUuid(playerUuid)
-                            .playerName(playerName)
-                            .gameName(gameName)
-                            .typeRequest(SigningUpRequest.TypeRequest.CREATE)
-                            .build()
-                    ).build();
-
-            SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(sessionId));
-            signingUpResponse.getSignupPersonalResponse().ifPresent(
-                    personalResponse -> {
-                        context.put("currentGame", Context.ContextKind.STRING, gameName);
-                        context.put(gameName, Context.ContextKind.GAME, personalResponse.getGameUuid());
-                    }
-            );
+            doSignupRequest(SigningUpRequest.TypeRequest.CREATE, playerName, gameName);
         });
-        Then("there is a game with name {word}", (String gameName) -> {
+        Then("there should be a game with name {word}", (String gameName) -> {
 
-            String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
-            String sessionId = playerName;
-            Session currentSession = (Session)context.get(playerName, Context.ContextKind.SESSION);
-            UUID playerUuid = currentSession.getPlayerUuid();
+            String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
 
-            SigningUpRequestWrapper signingUpRequestWrapper = SigningUpRequestWrapper.builder()
-                    .playerUuid(playerUuid)
-                    .signupRequest(SigningUpRequest.builder()
-                            .playerUuid(playerUuid)
-                            .playerName("")
-                            .gameName("")
-                            .typeRequest(SigningUpRequest.TypeRequest.GAMES_AND_PLAYERS)
-                            .build()
-                    ).build();
-            SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(sessionId));
+            DTOgame game = (DTOgame) context.get(gameName, Context.ContextKind.GAME);
 
-            AtomicReference<Boolean> gamePresent = new AtomicReference<>(Boolean.FALSE);
-            signingUpResponse.getSignupPersonalResponse().ifPresent(
-                    personalResponse -> {
-                        personalResponse.getGames().stream().filter(game -> gameName.equals(game.getGameName()))
-                                .findFirst().ifPresent(game -> gamePresent.set(Boolean.TRUE));
-                    });
-            Assert.assertTrue((Boolean)gamePresent.get());
+            Assert.assertNotNull("Game should not be null: " + gameName, game);
         });
-        Then("the available games are {word}", (String gameNamesString) -> {
 
-            String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
-            String sessionId = playerName;
-            Session currentSession = (Session)context.get(playerName, Context.ContextKind.SESSION);
-            UUID playerUuid = currentSession.getPlayerUuid();
+        Then("the available games should be {word}", (String gameNamesString) -> {
 
-            Set<String> gameNames = new HashSet<>( Arrays.asList(gameNamesString.split(",")) );
+            Set<String> gameNamesExpected = new HashSet<>( Arrays.asList(gameNamesString.split(",")) );
 
-            SigningUpRequestWrapper signingUpRequestWrapper = SigningUpRequestWrapper.builder()
-                    .playerUuid(playerUuid)
-                    .signupRequest(SigningUpRequest.builder()
-                            .playerUuid(playerUuid)
-                            .playerName("")
-                            .gameName("")
-                            .typeRequest(SigningUpRequest.TypeRequest.GAMES_AND_PLAYERS)
-                            .build()
-                    ).build();
-            SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(sessionId));
+            Set<String> gameNamesPresent = new HashSet<>();
+            context.getAllOfKind(Context.ContextKind.GAME, DTOgame.class).forEach(game -> {
+                gameNamesPresent.add(game.getGameName());
+            });
 
-            AtomicReference<Set<String>> gamesPresent = new AtomicReference<>(new HashSet<>());
-            signingUpResponse.getSignupPersonalResponse().ifPresent(
-                    personalResponse -> {
-                        gamesPresent.set(personalResponse.getGames().stream().map(game -> game.getGameName()).collect(Collectors.toSet()));
-                    });
-            Assert.assertTrue(equals(gameNames, (Set<String>) gamesPresent.get()));
+            Assert.assertTrue(equals(gameNamesExpected, gameNamesPresent));
         });
 
         Given("the player joins the game {word}", (String gameName) -> {
 
-            String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
-            String sessionId = playerName;
-            Session currentSession = (Session)context.get(playerName, Context.ContextKind.SESSION);
-            UUID playerUuid = currentSession.getPlayerUuid();
-            UUID gameUuid = UUID.fromString(( String)context.get(gameName, Context.ContextKind.GAME));
+            String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
+            context.put("", Context.ContextKind.CURRENTGAME, gameName);
 
-            SigningUpRequestWrapper signingUpRequestWrapper = SigningUpRequestWrapper.builder()
-                    .playerUuid(playerUuid)
-                    .signupRequest(SigningUpRequest.builder()
-                            .playerUuid(playerUuid)
-                            .playerName(playerName)
-                            .gameUuid(gameUuid)
-                            .typeRequest(SigningUpRequest.TypeRequest.JOIN)
-                            .build()
-                    ).build();
-
-            SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(sessionId));
+            doSignupRequest(SigningUpRequest.TypeRequest.JOIN, playerName, gameName);
         });
-        Then("the game {word} exists with players {word}", (String gameName, String playersString) -> {
 
-            String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
-            String sessionId = playerName;
-            Session currentSession = (Session)context.get(playerName, Context.ContextKind.SESSION);
-            UUID playerUuid = currentSession.getPlayerUuid();
-            UUID gameUuid = UUID.fromString(( String)context.get(gameName, Context.ContextKind.GAME));
+        Then("the game {word} should exist with players {word}", (String gameName, String playersString) -> {
 
-            Set<String> players = new HashSet<>( Arrays.asList(playersString.split(",")) );
+            Set<String> playerNamesExpected = new HashSet<>( Arrays.asList(playersString.split(",")) );
 
-            SigningUpRequestWrapper signingUpRequestWrapper = SigningUpRequestWrapper.builder()
-                    .playerUuid(playerUuid)
-                    .signupRequest(SigningUpRequest.builder()
-                            .playerUuid(playerUuid)
-                            .playerName("")
-                            .gameName("")
-                            .typeRequest(SigningUpRequest.TypeRequest.GAMES_AND_PLAYERS)
-                            .build()
-                    ).build();
-            SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(sessionId));
+            Set<String> playerNamesActual = context.getAllIdsOfKindAndValue(Context.ContextKind.PLAYEROF, gameName).stream().collect(Collectors.toSet());
 
-            AtomicReference<Boolean> gamePresent = new AtomicReference<>(Boolean.FALSE);
-            signingUpResponse.getSignupPersonalResponse().ifPresent(
-                    personalResponse -> {
-                        personalResponse.getGames().stream().filter(game -> gameName.equals(game.getGameName()))
-                                .findFirst().ifPresent(game -> gamePresent.set(Boolean.TRUE));
-                    });
-            Assert.assertTrue((Boolean)gamePresent.get());
-
-            AtomicReference<List<DTOplayer>> playersPresent = new AtomicReference<>(new ArrayList<>());
-            signingUpResponse.getSignupPersonalResponse().ifPresent(
-                    personalResponse -> {
-                        personalResponse.getGames().stream().filter(game -> gameName.equals(game.getGameName()))
-                                .findFirst().ifPresent(game -> playersPresent.set(game.getPlayers()));
-                    });
-//            AtomicReference<List<String>> playerNamesPresent = new AtomicReference<>(new ArrayList<>());
-            List<String> playerNamesPresent = playersPresent.get().stream().map(player -> player.getPlayerName()).collect(Collectors.toList());
-            Assert.assertTrue(equals(players, new HashSet<>(playerNamesPresent)));
+            Assert.assertTrue(equals(playerNamesExpected, playerNamesActual));
         });
 
         And("the player starts the game", () -> {
-            Session currentSession = getCurrentSession();
-            UUID playerUuid = currentSession.getPlayerUuid();
-            String gameName = (String)context.get("currentGame", Context.ContextKind.STRING);
-            UUID gameUuid = UUID.fromString ((String)context.get(gameName, Context.ContextKind.GAME));
 
-            SigningUpRequestWrapper signingUpRequestWrapper = SigningUpRequestWrapper.builder()
-                    .playerUuid(playerUuid)
-                    .signupRequest(SigningUpRequest.builder()
-                            .gameUuid(gameUuid)
-                            .typeRequest(SigningUpRequest.TypeRequest.START)
-                            .build()
-                    ).build();
-            SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(currentSession.getSessionId()));
+            String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
+            String gameName = (String)context.get("", Context.ContextKind.CURRENTGAME);
 
-             context.put("TABLE", Context.ContextKind.TABLE, new ArrayList<List<DTOcard>>());
+            doSignupRequest(SigningUpRequest.TypeRequest.START, playerName, gameName);
+
+            context.put("", Context.ContextKind.CURRENTGAME, gameName);
+            context.put("", Context.ContextKind.TABLE, new ArrayList<List<DTOcard>>());
         });
 
         And("the dealer gives the following cards:", (DataTable dataTable) -> {
@@ -242,16 +138,19 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
             List<DTOcard> cards = new ArrayList<>();
             data.forEach(row -> cards.add(new DTOcard(row.get(0), row.get(1), row.get(2), row.get(3))));
 
+            String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
+            context.put(playerName, Context.ContextKind.PLAYERCARDS, new ArrayList<>());
+
             doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK, cards);
         });
 
-        And("the player holds the following cards:", (DataTable dataTable) -> {
+        Then("the player should hold the following cards:", (DataTable dataTable) -> {
 
             List<List<String>> data = dataTable.asLists(String.class);
             List<DTOcard> cards = new ArrayList<>();
             data.forEach(row -> cards.add(new DTOcard(row.get(0), row.get(1), row.get(2), row.get(3))));
 
-            Assert.assertArrayEquals("handcards dont match", cards.toArray(), getCurrentSession().getCards().toArray() );
+//            Assert.assertArrayEquals("handcards dont match", cards.toArray(), getCurrentSession().getCards().toArray() );
         });
 
         And("the player takes card {word} of {word} with {word} back from stock", (String rank, String suit, String back) -> {
@@ -280,6 +179,28 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
 
             doPlayRequest(PlayRequest.TypeRequest.PUT_ON_TABLE, cards);
         });
+        And("the player puts the card {word} of {word} with {word} back on bottom of stock", (String rank, String suit, String back) -> {
+            DTOcard card = new DTOcard(suit, rank, back,"");
+
+            List<DTOcard> cards = new ArrayList<>();
+            cards.add(card);
+
+            doPlayRequest(PlayRequest.TypeRequest.PUT_ON_STACK_BOTTOM, cards);
+        });
+
+        Then("the player {word} should have no cards in his/her hands", (String playerName) -> {
+
+            List<DTOcard>cards = (List<DTOcard>)context.get(playerName, Context.ContextKind.PLAYERCARDS);
+
+            Assert.assertEquals( "hand should be empty", 0, cards.size() );
+        });
+
+        Then("the player {word} should be finished", (String playerName) -> {
+
+            DTOplayer player = (DTOplayer)context.get(playerName, Context.ContextKind.PLAYER);
+
+            Assert.assertEquals( "player should be finished", Player.Status.FINISHED, player.getPlayerStatus() );
+        });
 
     }
 
@@ -296,22 +217,87 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
     }
 
 
-    private Session getCurrentSession() {
-        String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
+    private DTOplayer getCurrentPlayer() {
+        String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
+        DTOplayer player = (DTOplayer) context.get(playerName, Context.ContextKind.PLAYER);
+
+        if (player == null) {
+            throw(new CardsException(HttpStatus.CONFLICT, "Player not present : " + playerName));
+        }
+        else
+            return player;
+    }
+
+    private void doSignupRequest(SigningUpRequest.TypeRequest typeRequest, String playerName, String gameName) {
         String sessionId = playerName;
-        return (Session)context.get(playerName, Context.ContextKind.SESSION);
+        UUID playerUUID = ((DTOplayer) context.get(playerName, Context.ContextKind.PLAYER)).getPlayerUuid();
+
+        SigningUpRequestWrapper signingUpRequestWrapper ;
+        if ("".equals(gameName)) {
+            signingUpRequestWrapper = SigningUpRequestWrapper.builder()
+                    .playerUuid(playerUUID)
+                    .signupRequest(SigningUpRequest.builder()
+                            .playerUuid(playerUUID)
+                            .playerName(playerName)
+                            .typeRequest(typeRequest)
+                            .build()
+                    ).build();
+        }
+        else {
+            UUID gameUUID = ((DTOgame) context.get(gameName, Context.ContextKind.GAME)).getGameUuid();
+            if (gameUUID == null) {
+                signingUpRequestWrapper = SigningUpRequestWrapper.builder()
+                        .playerUuid(playerUUID)
+                        .signupRequest(SigningUpRequest.builder()
+                                .playerUuid(playerUUID)
+                                .playerName(playerName)
+                                .gameName(gameName)
+                                .typeRequest(typeRequest)
+                                .build()
+                        ).build();
+            } else {
+                signingUpRequestWrapper = SigningUpRequestWrapper.builder()
+                        .playerUuid(playerUUID)
+                        .signupRequest(SigningUpRequest.builder()
+                                .playerUuid(playerUUID)
+                                .playerName(playerName)
+                                .gameName(gameName)
+                                .gameUuid(gameUUID)
+                                .typeRequest(typeRequest)
+                                .build()
+                        ).build();
+            }
+        }
+
+        SigningUpResponse signingUpResponse = signingUpController.signup(signingUpRequestWrapper, messageHeaders(sessionId));
+
+        signingUpResponse.getSignupPersonalResponse().ifPresent(
+                personalResponse -> {
+
+                }
+        );
+
+        signingUpResponse.getSignupAllResponse().ifPresent(
+                allResponse -> {
+                    List<DTOgame> games = allResponse.getGames();
+                    games.forEach( game -> {
+                        context.put(game.getGameName(), Context.ContextKind.GAME, game);
+                        game.getPlayers().forEach( player -> {
+                                    context.put(player.getPlayerName(), Context.ContextKind.PLAYEROF, game.getGameName());
+                                });
+                    });
+                });
     }
 
     private void doPlayRequest(PlayRequest.TypeRequest typeRequest, List<DTOcard> cards) {
-        String playerName = (String)context.get("currentPlayer", Context.ContextKind.STRING);
+        String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
+        String gameName = (String)context.get("", Context.ContextKind.CURRENTGAME);
         String sessionId = playerName;
-        Session currentSession = (Session)context.get(playerName, Context.ContextKind.SESSION);
-        UUID playerUuid = currentSession.getPlayerUuid();
-        String gameName = (String)context.get("currentGame", Context.ContextKind.STRING);
-        UUID gameUuid = UUID.fromString ((String)context.get(gameName, Context.ContextKind.GAME));
+        UUID playerUUID = ((DTOplayer) context.get(playerName, Context.ContextKind.PLAYER)).getPlayerUuid();
+        UUID gameUuid = ((DTOgame)context.get(gameName, Context.ContextKind.GAME)).getGameUuid();
 
         PlayRequest playRequest = PlayRequest.builder()
-                .playerUuid(playerUuid)
+                .playerUuid(playerUUID)
                 .gameUuid(gameUuid)
                 .typeRequest(typeRequest)
                 .cards(cards)
@@ -322,11 +308,11 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
                 gameResponse -> {
                     switch (gameResponse.getTypeResponse()) {
                         case GAME:
-                            context.put("players", Context.ContextKind.PLAYERS, gameResponse.getPlayers());
-                            context.put("currentPlayer", Context.ContextKind.STRING, gameResponse.getCurrentPlayer().getPlayerName());
+                            context.putList(Context.ContextKind.PLAYER, gameResponse.getPlayers(), DTOplayer::getPlayerName);
+                            context.put("", Context.ContextKind.CURRENTPLAYER, gameResponse.getCurrentPlayer().getPlayerName());
                             break;
                         case PLAYERS:
-                            context.put("players", Context.ContextKind.PLAYERS, gameResponse.getPlayers());
+                            context.putList(Context.ContextKind.PLAYER, gameResponse.getPlayers(), DTOplayer::getPlayerName);
                             break;
                         default:
                             throw new CardsException(HttpStatus.CONFLICT, "Unanticipated gameResponseType : " + gameResponse.getTypeResponse());
@@ -338,36 +324,36 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
                 playResponse -> {
                     switch (playResponse.getTypeResponse()) {
                         case DEAL:
-                            context.put("topCardBack", Context.ContextKind.PLAYERS, playResponse.getTopCardBack());
-                            context.put("bottomBack", Context.ContextKind.PLAYERS, playResponse.getBottomCard());
+                            context.put("", Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put("", Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
                             break;
                         case PUT_ON_TABLE:
-                            List<List<DTOcard>> tableCards = (List<List<DTOcard>>)context.get("TABLE", Context.ContextKind.TABLE);
+                            List<List<DTOcard>> tableCards = (List<List<DTOcard>>)context.get("", Context.ContextKind.TABLE);
                             if (tableCards == null)
                                 tableCards = new ArrayList<>();
                             if (playResponse.getCards().size() > 0)
                                 tableCards.add(playResponse.getTablePosition(), playResponse.getCards());
-                            context.put(TABLE, tableCards);
-                            context.put( Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
-                            context.put(Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
+                            context.put("", Context.ContextKind.TABLE, tableCards);
+                            context.put( "", Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put("", Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
                             break;
                         case SLIDE_ON_TABLE:
-                            tableCards = (List<List<DTOcard>>)context.get("TABLE", Context.ContextKind.TABLE);
+                            tableCards = (List<List<DTOcard>>)context.get("", Context.ContextKind.TABLE);
                             if (tableCards == null)
                                 tableCards = new ArrayList<>();
                             if (playResponse.getCards().size() > 0)
                                 tableCards.add(playResponse.getTablePosition(), playResponse.getCards());
-                            context.put(TABLE, tableCards);
-                            context.put( Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
-                            context.put(Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
+                            context.put("", Context.ContextKind.TABLE, tableCards);
+                            context.put("", Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put("", Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
                             break;
                         case PUT_ON_STACK_BOTTOM:
-                            context.put( Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
-                            context.put(Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
+                            context.put( "",Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put("", Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
                             break;
                         case GET:
-                            context.put( Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
-                            context.put(Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
+                            context.put( "", Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
+                            context.put("", Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
                             break;
                         // case START:
                         //
@@ -376,23 +362,28 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
 
                     }
                 });
+        List<DTOcard> playerCards = (List<DTOcard>)context.get(playerName, Context.ContextKind.PLAYERCARDS);
         playingResponse.getHandResponse().ifPresent(
                 handResponse -> {
                     switch (handResponse.getTypeResponse()) {
                         case DEAL:
-                            currentSession.setCards(handResponse.getCards());
+                            context.put(playerName, Context.ContextKind.PLAYERCARDS, handResponse.getCards());
                             break;
                         case PUT_ON_TABLE:
-                            currentSession.getCards().removeAll(cards);
+                            playerCards.removeAll(cards);
+                            context.put(playerName, Context.ContextKind.PLAYERCARDS, playerCards);
                             break;
                         case SLIDE_ON_TABLE:
-                            currentSession.getCards().removeAll(handResponse.getCards());
+                            playerCards.removeAll(cards);
+                            context.put(playerName, Context.ContextKind.PLAYERCARDS, playerCards);
                             break;
                         case PUT_ON_STACK_BOTTOM:
-                            currentSession.getCards().removeAll(handResponse.getCards());
+                            playerCards.removeAll(cards);
+                            context.put(playerName, Context.ContextKind.PLAYERCARDS, playerCards);
                             break;
                         case GET:
-                            currentSession.getCards().addAll(handResponse.getCards());
+                            playerCards.addAll(cards);
+                            context.put(playerName, Context.ContextKind.PLAYERCARDS, playerCards);
                             break;
                         default:
                             throw new CardsException(HttpStatus.CONFLICT, "Unanticipated handResponseType : " + handResponse.getTypeResponse());

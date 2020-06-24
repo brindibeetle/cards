@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 //@AllArgsConstructor
@@ -25,22 +26,25 @@ public class Players {
     public Integer number() {
         return players.size();
     }
+    public int activePlayers() {
+        return players.values().stream().filter(Player::isActive).collect(Collectors.toList()).size();
+    }
 
-    public Players( String firstPlayer, String sessionId, UUID playerUuid ) {
+    public Players(String firstPlayer, String sessionId, UUID playerUuid) {
         this();
 
-        players.put(playerUuid, new Player(firstPlayer, sessionId));
+        players.put(playerUuid, new Player(firstPlayer, sessionId, Player.Status.PLAYING));
         playersOrder.add(playerUuid);
     }
 
-    public void add ( UUID uuid, Player player ) {
+    public void add(UUID uuid, Player player) {
         players.put(uuid, player);
         playersOrder.add(uuid);
     }
 
-    public Player remove ( UUID uuid ) {
+    public Player remove(UUID uuid) {
         playersOrder.remove(uuid);
-        if ( current >= playersOrder.size() ) {
+        if (current >= playersOrder.size()) {
             current = 0;
         }
         return players.remove(uuid);
@@ -51,19 +55,40 @@ public class Players {
     }
 
     public UUID nextPlayer() {
-        current ++;
+        current++;
         return currentPlayer();
     }
 
     public UUID currentPlayer() {
-        if ( current >= playersOrder.size() ) {
+        if (current >= playersOrder.size()) {
             current = 0;
         }
-        return playersOrder.get(current);
+        if (playersOrder.isEmpty())
+            return null;
+        else
+            return playersOrder.get(current);
     }
 
     public void addPlayer(String playerName, String sessionId, UUID playerUuid) {
-        this.add(playerUuid, new Player(playerName, sessionId));
+        this.add(playerUuid, new Player(playerName, sessionId, Player.Status.PLAYING));
+    }
+
+    public void disconnect(UUID playerUuid) {
+        playersOrder.remove(playerUuid);
+        if (current >= playersOrder.size()) {
+            current = 0;
+        }
+        Player player = players.get(playerUuid);
+        player.setStatus(Player.Status.DISCONNECTED);
+    }
+
+    public void finished(UUID playerUuid) {
+        playersOrder.remove(playerUuid);
+        if (current >= playersOrder.size()) {
+            current = 0;
+        }
+        Player player = players.get(playerUuid);
+        player.setStatus(Player.Status.FINISHED);
     }
 
 }

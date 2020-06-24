@@ -85,6 +85,6 @@ public class GamesService {
         CardsSingleton singleton = CardsSingleton.getInstance();
         Players players = singleton.getGames().get(gameUuid).getPlayers();
 
-        return players.number() == 1 && players.get(playerUuid) != null ;
+        return players.activePlayers() == 1 && players.get(playerUuid) != null ;
     }
 }

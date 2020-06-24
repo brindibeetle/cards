@@ -30,6 +30,8 @@ emptySignupResponse =
         , typeResponse = GamesAndPlayersResponse
         , games = []
     }
+
+
 -- ####
 -- ####   DECODER
 -- ####

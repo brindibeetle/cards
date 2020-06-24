@@ -48,7 +48,10 @@ public class PlayersService {
 
         Game game = singleton.getGames().get( gameUuid);
         UUID playerUuid = game.getPlayers().nextPlayer();
-        return new DTOplayer(playerUuid, game.getPlayers().get(playerUuid));
+        if ( playerUuid == null )
+            return null;
+        else
+            return new DTOplayer(playerUuid, game.getPlayers().get(playerUuid));
     }
 
     public Player getPlayer (UUID gameUuid, UUID playerUuid) {
@@ -80,7 +83,15 @@ public class PlayersService {
         CardsSingleton singleton = CardsSingleton.getInstance();
         Game game = singleton.getGames().get(gameUuid);
 
-        game.getPlayers().remove(playerUuid);
+        game.getPlayers().disconnect(playerUuid);
     }
 
+    public void isPlayerFinished(UUID gameUuid, UUID playerUuid) {
+        CardsSingleton singleton = CardsSingleton.getInstance();
+        Game game = singleton.getGames().get(gameUuid);
+
+        if (game.getDeck().getCardsHand().get(playerUuid).size() == 0) {
+            game.getPlayers().finished(playerUuid);
+        }
+    }
 }

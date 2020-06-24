@@ -2,7 +2,7 @@ port module Play exposing (..)
 
 import Array
 import Domain.DTOcard as DTOcard exposing (Back(..), DTOcard(..), defaultDTOcard, meldSorted, meldSorter)
-import Domain.DTOplayer exposing (DTOplayer, emptyDTOplayer)
+import Domain.DTOplayer as PlayerStatus exposing (DTOplayer, emptyDTOplayer)
 import Domain.GameResponse exposing (gameResponseDecodeValue)
 import Domain.HandResponse exposing (handResponseDecodeValue)
 import Domain.Phase exposing (Phase(..))
@@ -311,7 +311,13 @@ viewGamePlayer model player =
     if model.currentPlayer == player then
         div [ class "game-player game-player-current" ] [ Html.text player.playerName ]
     else
-        div [ class "game-player" ] [ Html.text player.playerName ]
+        case player.playerStatus of
+            PlayerStatus.PLAYING ->
+                div [ class "game-player" ] [ Html.text player.playerName ]
+            PlayerStatus.DISCONNECTED ->
+                div [ class "game-player-disconnected" ] [ Html.text player.playerName ]
+            PlayerStatus.FINISHED ->
+                div [ class "game-player-finished" ] [ Html.text player.playerName ]
 
 viewGamePhase : Model -> Session -> Html Msg
 viewGamePhase model session =

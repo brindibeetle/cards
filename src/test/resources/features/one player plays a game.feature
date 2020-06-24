@@ -13,7 +13,7 @@ Feature: One player plays a game
       | DIAMONDS | N7 | DARK | |
       | DIAMONDS | N8 | DARK | |
 
-    Then the player holds the following cards:
+    Then the player should hold the following cards:
       | DIAMONDS | N2 | DARK | |
       | DIAMONDS | N3 | DARK | |
       | DIAMONDS | N4 | DARK | |
@@ -37,7 +37,7 @@ Feature: One player plays a game
       | DIAMONDS | N8 | DARK | |
     And the player takes card N2 of HEARTS with DARK back from stock
 
-    Then the player holds the following cards:
+    Then the player should hold the following cards:
       | DIAMONDS | N2 | DARK | |
       | DIAMONDS | N3 | DARK | |
       | DIAMONDS | N4 | DARK | |
@@ -69,5 +69,6 @@ Feature: One player plays a game
       | DIAMONDS | N6 | DARK | |
       | DIAMONDS | N7 | DARK | |
       | DIAMONDS | N8 | DARK | |
-    Then the player holds the following cards:
-      | HEARTS | N2 | DARK | |
+    And the player puts the card N2 of HEARTS with DARK back on bottom of stock
+    Then the players hand should be empty
+    Then the player should be finished

@@ -6,7 +6,7 @@ import Bootstrap.Button as Button
 import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
 
-import Domain.DTOplayer exposing (DTOplayer)
+import Domain.DTOplayer exposing (DTOplayer, PlayerStatus(..))
 import Domain.SignupRequest exposing (..)
 import Domain.SignupAllResponse exposing (TypeResponse(..), signupAllResponseDecodeValue)
 import Domain.SignupPersonalResponse exposing (TypeResponse(..), signupPersonalResponseDecodeValue)
@@ -210,8 +210,14 @@ viewGameCard { topText, buttonText, buttonMsg, buttonDisabled, nameDisabled } { 
 
 
 viewPlayer : DTOplayer -> Html Msg
-viewPlayer { playerName } =
-    div [] [ Html.text playerName ]
+viewPlayer { playerName, playerStatus } =
+    case playerStatus of
+        PLAYING ->
+            div [ class "signup-player" ] [ Html.text playerName ]
+        DISCONNECTED ->
+            div [ class "signup-player-disconnected" ] [ Html.text playerName ]
+        _ ->
+            div [ ] [ Html.text playerName ]
 
 
 -- ####

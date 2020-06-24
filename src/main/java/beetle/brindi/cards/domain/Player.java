@@ -11,4 +11,15 @@ public class Player {
 
     private String sessionId;
 
+    private Status status;
+
+    public enum Status {
+        PLAYING,
+        DISCONNECTED,
+        FINISHED
+    }
+
+    public boolean isActive(){
+        return status == Status.PLAYING;
+    }
 }

@@ -291,6 +291,14 @@ div.game-players {
 div.game-player {
     color: white;
 }
+div.game-player-disconnected {
+    color: white;
+    text-decoration: line-through;
+}
+div.game-player-finished {
+    color: yellow;
+}
+
 div.game-player-current {
     color: red;
     font-weight: bold;
@@ -350,6 +358,12 @@ div.signup-game-card-bottom {
 }
 button.signup-game-card {
     width: 14em;
+}
+
+div.signup-player {
+}
+div.signup-player-disconnected {
+    text-decoration: line-through;
 }
 
 
