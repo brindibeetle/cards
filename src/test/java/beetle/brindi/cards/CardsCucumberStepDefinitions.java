@@ -13,6 +13,7 @@ import beetle.brindi.cards.request.SigningUpRequest;
 import beetle.brindi.cards.request.SigningUpRequestWrapper;
 import beetle.brindi.cards.response.PlayingResponse;
 import beetle.brindi.cards.response.SigningUpResponse;
+import beetle.brindi.cards.service.PlayService;
 import io.cucumber.cucumberexpressions.CaptureGroupTransformer;
 import io.cucumber.cucumberexpressions.ParameterType;
 import io.cucumber.datatable.DataTable;
@@ -44,6 +45,9 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
 
     @Autowired
     protected PlayController playController;
+
+    @Autowired
+    protected PlayService playService;
 
     public CardsCucumberStepDefinitions() {
 
@@ -187,12 +191,15 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
 
             doPlayRequest(PlayRequest.TypeRequest.PUT_ON_STACK_BOTTOM, cards);
         });
+        And("the player requests to get dealt", () -> {
+            doPlayRequest(PlayRequest.TypeRequest.DEAL, new ArrayList<>());
+        });
 
-        Then("the player {word} should have no cards in his/her hands", (String playerName) -> {
+        Then("the player {word} should have {int} cards in his/her hands", (String playerName, Integer numberOfCards) -> {
 
             List<DTOcard>cards = (List<DTOcard>)context.get(playerName, Context.ContextKind.PLAYERCARDS);
 
-            Assert.assertEquals( "hand should be empty", 0, cards.size() );
+            Assert.assertTrue( "hand should hold number of cards", numberOfCards == cards.size() );
         });
 
         Then("the player {word} should be finished", (String playerName) -> {
@@ -200,6 +207,24 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
             DTOplayer player = (DTOplayer)context.get(playerName, Context.ContextKind.PLAYER);
 
             Assert.assertEquals( "player should be finished", Player.Status.FINISHED, player.getPlayerStatus() );
+        });
+
+        Then("the deck should hold {long} cards of suit {word}", (Long number, String suit) -> {
+            String gameName = (String)context.get("", Context.ContextKind.CURRENTGAME);
+            UUID gameUuid = ((DTOgame)context.get(gameName, Context.ContextKind.GAME)).getGameUuid();
+            Assert.assertEquals("the deck is not consistent", number , playService.getNumberOfCards(gameUuid, suit, "", "", ""));
+        });
+
+        Then("the deck should hold {long} cards of specialType {word}", (Long number, String specialType) -> {
+            String gameName = (String)context.get("", Context.ContextKind.CURRENTGAME);
+            UUID gameUuid = ((DTOgame)context.get(gameName, Context.ContextKind.GAME)).getGameUuid();
+            Assert.assertEquals("the deck is not consistent", number , playService.getNumberOfCards(gameUuid, "", "", "", specialType));
+        });
+
+        Then("the deck should hold {long} cards", (Long number) -> {
+            String gameName = (String)context.get("", Context.ContextKind.CURRENTGAME);
+            UUID gameUuid = ((DTOgame)context.get(gameName, Context.ContextKind.GAME)).getGameUuid();
+            Assert.assertEquals("the deck is not consistent", number , playService.getNumberOfCards(gameUuid, "", "", "", ""));
         });
 
     }

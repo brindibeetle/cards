@@ -117,6 +117,7 @@ public class SigningUpService {
                 .addAllSpecialTypes()
                 .addAllSpecialTypes()
                 .addAllSpecialTypes()
+                .addAllSpecialTypes()
                 .addSpecials()
                 .shuffle()
                 .build();

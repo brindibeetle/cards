@@ -126,4 +126,12 @@ public class Card {
     public static Card defaultCard() {
         return new Card(SpecialType.JOKER, Back.DARK);
     }
+
+    protected boolean selector(String suit, String rank, String back, String specialType){
+        return
+                ( suit == "" || suit.equals(this.getSuitString()) )
+                && ( rank == "" || rank.equals(this.getRankString()) )
+                && ( back == "" || back.equals(this.getBackString()) )
+                && ( specialType == "" || specialType.equals(this.getSpecialTypeString()) );
+    }
 }

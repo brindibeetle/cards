@@ -139,5 +139,26 @@ public class Deck {
 
         return position;
     }
+
+    // test purposes, to assert the consistency of the deck
+    public Long getNumberOfCards(String suit, String rank, String back, String specialType) {
+        return
+            cardsStock.stream().filter(card -> {
+                return card.selector(suit, rank, back, specialType);
+            } ).count()
+        +
+            cardsTable.entrySet().stream()
+                    .flatMap( e1 -> e1.getValue().stream())
+                    .filter(card -> {
+                        return card.selector(suit, rank, back, specialType);
+                    }).count()
+        +
+            cardsHand.entrySet().stream()
+                    .flatMap( e1 -> e1.getValue().stream())
+                    .filter(card -> {
+                        return card.selector(suit, rank, back, specialType);
+                    }).count()
+        ;
+    }
 }
 

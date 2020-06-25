@@ -302,6 +302,12 @@ public class PlayService {
         return convert2DTO( game.dealCards(playerUuid, 13) );
     }
 
+    // only for testing purposes
+    public Long getNumberOfCards(UUID gameUuid, String suit, String rank, String back, String specialType){
+        Game game = gamesService.getGame(gameUuid);
+        return game.getDeck().getNumberOfCards(suit, rank, back, specialType);
+    }
+
     // only for testing
     private Pair<List<DTOcard>, List<DTOcard>> holds(UUID gameUuid, UUID playerUuid, List<Card> cards) {
         Game game = gamesService.getGame(gameUuid);
@@ -368,5 +374,4 @@ public class PlayService {
         Game game = gamesService.getGame(gameUuid);
         game.setStarted(Boolean.TRUE);
     }
-
 }

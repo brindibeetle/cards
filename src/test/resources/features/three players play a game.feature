@@ -50,10 +50,10 @@ Feature: Three players play a game
       | CLUBS | N4 | DARK | |
     And the player puts the card JACK of HEARTS with DARK back on bottom of stock
 
-    Then the player Emile should have no cards in his hands
+    Then the player Emile should have 0 cards in his hands
     Then the player Emile should be finished
-    Then the player Parsa should have no cards in his hands
+    Then the player Parsa should have 0 cards in his hands
     Then the player Parsa should be finished
-    Then the player Denna should have no cards in her hands
+    Then the player Denna should have 0 cards in her hands
     Then the player Denna should be finished
 
