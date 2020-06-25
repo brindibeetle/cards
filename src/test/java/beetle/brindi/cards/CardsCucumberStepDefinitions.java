@@ -309,7 +309,7 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
                     switch (gameResponse.getTypeResponse()) {
                         case GAME:
                             context.putList(Context.ContextKind.PLAYER, gameResponse.getPlayers(), DTOplayer::getPlayerName);
-                            context.put("", Context.ContextKind.CURRENTPLAYER, gameResponse.getCurrentPlayer().getPlayerName());
+//                            context.put("", Context.ContextKind.CURRENTPLAYER, gameResponse.getCurrentPlayer().getPlayerName());
                             break;
                         case PLAYERS:
                             context.putList(Context.ContextKind.PLAYER, gameResponse.getPlayers(), DTOplayer::getPlayerName);

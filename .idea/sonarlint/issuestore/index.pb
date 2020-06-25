@@ -118,9 +118,9 @@ v
 Fsrc/main/java/beetle/brindi/cards/response/SignupPersonalResponse.java,5\4\5467cc2c907cfbf40217ac3e46632c2762b76695
 o
 ?src/main/java/beetle/brindi/cards/service/SigningUpService.java,4\1\4167da11c9831dc37996b90644947ae0d1d8c93a
-e
-5src/test/java/beetle/brindi/cards/domain/Session.java,a\c\ac7a7cf1479d17fb398c50cc415a5fdeb8e7da82
-f
-6src/test/java/beetle/brindi/cards/domain/Sessions.java,c\5\c576069f9669d4e5cf496469f0ac49cd94f7cfb0
 h
 8src/test/java/beetle/brindi/cards/domain/SetOfCards.java,6\0\60bab8d687197b031b84845df12f2b498a13c59a
+Y
+)frontend/src/Domain/SignupAllResponse.elm,3\7\377327d5757fce04cec245f88d38f00f3efed020
+a
+1src/main/resources/static/src/resources/cards.css,5\e\5e749e891708df2595e14a1a5d6f16baf9a61a26
