@@ -17,7 +17,9 @@ type alias SignupRequest =
 
 type TypeRequest =
     CreateRequest
+    | DestroyRequest
     | JoinRequest
+    | DetachRequest
     | GamesAndPlayersRequest
     | StartRequest
 
@@ -41,7 +43,9 @@ typeRequestEncoder : TypeRequest -> Encode.Value
 typeRequestEncoder typeRequest =
     case typeRequest of
         CreateRequest -> Encode.string "CREATE"
+        DestroyRequest -> Encode.string "DESTROY"
         JoinRequest -> Encode.string "JOIN"
+        DetachRequest -> Encode.string "DETACH"
         GamesAndPlayersRequest -> Encode.string "GAMES_AND_PLAYERS"
         StartRequest -> Encode.string "START"
 
@@ -54,17 +58,36 @@ typeRequestEncoder typeRequest =
 makeCreateRequest : String -> String -> SignupRequest
 makeCreateRequest gameName playerName =
     {
-            typeRequest = CreateRequest
-            , gameUuid = ""
-            , gameName = gameName
-            , playerName = playerName
-        }
+        typeRequest = CreateRequest
+        , gameUuid = ""
+        , gameName = gameName
+        , playerName = playerName
+    }
 
+makeDestroyRequest : String -> SignupRequest
+makeDestroyRequest gameUuid  =
+    {
+        typeRequest = DestroyRequest
+        , gameUuid = gameUuid
+        , gameName = ""
+        , playerName = ""
+    }
 
 makeJoinRequest : String -> String -> SignupRequest
 makeJoinRequest gameUuid playerName  =
     {
             typeRequest = JoinRequest
+            , gameUuid = gameUuid
+            --, playerUuid = session.playerUuid
+            , gameName = ""
+            , playerName = playerName
+        }
+
+
+makeDetachRequest : String -> String -> SignupRequest
+makeDetachRequest gameUuid playerName  =
+    {
+            typeRequest = DetachRequest
             , gameUuid = gameUuid
             --, playerUuid = session.playerUuid
             , gameName = ""

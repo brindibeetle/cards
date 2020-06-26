@@ -29,7 +29,7 @@ type alias Model =
         , pending : Bool
         , gameName : String
         , players : List DTOplayer
-        , currentPlayer : DTOplayer
+        , currentPlayerUuid : String
     }
 
 
@@ -59,7 +59,7 @@ init session =
     , pending = False
     , gameName = ""
     , players = []
-    , currentPlayer = emptyDTOplayer
+    , currentPlayerUuid = ""
     }
 
 
@@ -125,7 +125,7 @@ viewTable model session =
         droppable = case ( isItMyTurn model session, DragDrop.getDragId model.dragDrop ) of
             ( True, Just DragHandSelected ) ->
                 droppableToTable model ( List.length model.table )
-            ( _, _ ) ->
+            ( _, _) ->
                 []
     in
         div ( class "table-container" :: droppable )
@@ -193,7 +193,8 @@ viewTableSpaceCard model session tableSpaceIndex cards index card =
 viewTableDropSpace : Model -> Session -> Int -> List DTOcard -> DropSpace -> Html Msg
 viewTableDropSpace model session tableSpaceIndex cards dropSpace =
     let
-        droppable = case ( isItMyTurn model session, DragDrop.getDragId model.dragDrop, dropSpace ) of
+        handCardsNumber = model.hand |> List.length
+        droppable = case ( isItMyTurn model session && handCardsNumber > 1, DragDrop.getDragId model.dragDrop, dropSpace ) of
             ( True, Just ( DragHand i ), DropBefore ) ->
                 case Array.fromList model.hand |> Array.get i |> Maybe.map Tuple.first of
                     Just draggedCard ->
@@ -238,14 +239,17 @@ type DropSpace = DropBefore | DropAfter
 
 viewHand : Model -> Session -> Html Msg
 viewHand model session =
-    if ( handSelected model.hand True |> DTOcard.isMeld ) && ( handSelected model.hand False |> List.length |> (<) 0 ) then
-        div ( class "hand-container"
-                :: ( draggableFromHandSelected model )
-            )
-            ( List.indexedMap (viewHandCard model) model.hand )
-    else
-        div [ class "hand-container" ]
-            ( List.indexedMap (viewHandCard model) model.hand )
+    let
+        above = (<)
+    in
+        if ( handSelected model.hand True |> DTOcard.isMeld ) && ( handSelected model.hand False |> List.length |> above 0 ) then
+            div ( class "hand-container"
+                    :: ( draggableFromHandSelected model )
+                )
+                ( List.indexedMap (viewHandCard model) model.hand )
+        else
+            div [ class "hand-container" ]
+                ( List.indexedMap (viewHandCard model) model.hand )
 
 
 viewHandCard : Model -> Int -> ( DTOcard, Bool ) -> Html Msg
@@ -306,9 +310,10 @@ viewGame model session =
         , viewGamePhase model session
         ]
 
+
 viewGamePlayer : Model -> DTOplayer -> Html Msg
 viewGamePlayer model player =
-    if model.currentPlayer == player then
+    if model.currentPlayerUuid == player.playerUuid then
         div [ class "game-player game-player-current" ] [ Html.text player.playerName ]
     else
         case player.playerStatus of
@@ -319,26 +324,39 @@ viewGamePlayer model player =
             PlayerStatus.FINISHED ->
                 div [ class "game-player-finished" ] [ Html.text player.playerName ]
 
+
 viewGamePhase : Model -> Session -> Html Msg
 viewGamePhase model session =
-    case (model.phase,  isItMyTurn model session ) of
-        ( DRAW, False ) ->
-            div [ class "game-phase" ] [ Html.text ( model.currentPlayer.playerName ++ " draws a card from the stock..." ) ]
+    let
+        activePlayers = model.players |> List.filter (\player -> (player.playerStatus == PlayerStatus.PLAYING) ) |> List.length
+        a = Debug.log "viewGamePhase players = " model.players
+        currentPlayer = model.players |> List.filter (\player -> (player.playerUuid == model.currentPlayerUuid) ) |> List.head
 
-        ( PUT, False ) ->
-            div [ class "game-phase" ] [ Html.text ( model.currentPlayer.playerName ++ " is playing..." ) ]
+    in
+        if activePlayers == 0 then
+            div [ class "game-phase" ] [ Html.text ( "The game is finished." ) ]
+        else
+            case (model.phase,  isItMyTurn model session, currentPlayer ) of
+                ( DRAW, False, Just player ) ->
+                    div [ class "game-phase" ] [ Html.text ( player.playerName ++ " draws a card from the stock..." ) ]
 
-        ( DRAW, True ) ->
-            div [ class "game-phase-you" ] [ Html.text ( "It is your turn! Draw a card from the stock." ) ]
+                ( PUT, False, Just player ) ->
+                    div [ class "game-phase" ] [ Html.text ( player.playerName ++ " is playing..." ) ]
 
-        ( PUT, True ) ->
-            div [ class "game-phase-you" ] [ Html.text ( "You are playing, with putting a card to the stock your turn ends." ) ]
+                ( DRAW, True, Just player ) ->
+                    div [ class "game-phase-you" ] [ Html.text ( "It is your turn! Draw a card from the stock." ) ]
 
-        ( WAITING, False ) ->
-            div [ class "game-phase" ] [ Html.text ( model.currentPlayer.playerName ++ " is waiting for the game..." ) ]
+                ( PUT, True, Just player ) ->
+                    div [ class "game-phase-you" ] [ Html.text ( "You are playing, with putting a card to the stock your turn ends." ) ]
 
-        ( WAITING, True ) ->
-            div [ class "game-phase" ] [ Html.text ( "Looks like it is your turn, need to wait a little.." ) ]
+                ( WAITING, False, Just player ) ->
+                    div [ class "game-phase" ] [ Html.text ( player.playerName ++ " is waiting for the game..." ) ]
+
+                ( WAITING, True, _ ) ->
+                    div [ class "game-phase" ] [ Html.text ( "Looks like it is your turn, need to wait a little.." ) ]
+
+                ( _, _, _ ) ->
+                    div [ class "game-phase" ] [ Html.text ( "Looks ??" ) ]
 
 -- ####
 -- ####   PORTS
@@ -371,14 +389,14 @@ update msg model session =
     case msg of
         GameReceiver encoded ->
             let
-                { typeResponse, phase, players, currentPlayer } = Debug.log "Game " ( gameResponseDecodeValue encoded )
+                { typeResponse, phase, players, currentPlayerUuid } = Debug.log "Game " ( gameResponseDecodeValue encoded )
             in
                 case typeResponse of
                     Domain.GameResponse.GAME ->
                         { model =
                             { model
                             | players = players
-                            , currentPlayer = currentPlayer
+                            , currentPlayerUuid = currentPlayerUuid
                             , phase = phase
                             }
                         , session = session
@@ -744,6 +762,7 @@ handMove hand from to =
                 , List.drop (from + 1) hand                                     -- 6,7,8
             ]
 
+
 draggableFromHand: Model -> Int -> List (Attribute Msg)
 draggableFromHand model index =
     if model.pending then
@@ -889,4 +908,4 @@ addToHand index cards dtoCardSelected =
 
 isItMyTurn : Model -> Session -> Bool
 isItMyTurn model session =
-    model.currentPlayer.playerUuid == session.playerUuid
+    model.currentPlayerUuid == session.playerUuid

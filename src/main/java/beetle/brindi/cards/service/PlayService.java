@@ -102,7 +102,7 @@ public class PlayService {
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
                                                 .collect(Collectors.toList())
                                 )
-                                .currentPlayer( playersService.nextPlayer(gameUuid))
+                                .currentPlayerUuid( playersService.nextPlayer(gameUuid).getPlayerUuid().toString())
                                 .phase(GameResponse.Phase.DRAW)
                                 .build()
                         );
@@ -160,7 +160,7 @@ public class PlayService {
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
                                                 .collect(Collectors.toList())
                                 )
-                                .currentPlayer( playersService.currentPlayer(gameUuid))
+                                .currentPlayerUuid( playersService.currentPlayer(gameUuid).getPlayerUuid().toString())
                                 .phase(GameResponse.Phase.DRAW)
                                 .build()
                         );
@@ -195,7 +195,7 @@ public class PlayService {
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
                                                 .collect(Collectors.toList())
                                 )
-                                .currentPlayer( playersService.currentPlayer(gameUuid))
+                                .currentPlayerUuid( playersService.currentPlayer(gameUuid).getPlayerUuid().toString())
                                 .phase(GameResponse.Phase.PUT)
                                 .build()
                         );
@@ -230,7 +230,7 @@ public class PlayService {
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
                                                 .collect(Collectors.toList())
                                 )
-                                .currentPlayer( playersService.currentPlayer(gameUuid))
+                                .currentPlayerUuid( playersService.currentPlayer(gameUuid).getPlayerUuid().toString())
                                 .phase(GameResponse.Phase.PUT)
                                 .build()
                         );
@@ -265,7 +265,7 @@ public class PlayService {
                                                         .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
                                                         .collect(Collectors.toList())
                                         )
-                                        .currentPlayer( playersService.currentPlayer(gameUuid))
+                                        .currentPlayerUuid( playersService.currentPlayer(gameUuid).getPlayerUuid().toString())
                                         .phase(GameResponse.Phase.DRAW)
                                         .build()
                         );

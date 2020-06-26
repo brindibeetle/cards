@@ -62,6 +62,16 @@ public class SigningUpService {
                 );
                 return new SigningUpResponse(signupAllResponse, signupPersonalResponse);
 
+            case DESTROY:
+                destroyGame(signupRequest);
+                signupAllResponse = Optional.of(
+                        SignupAllResponse.builder()
+                                .typeResponse(SignupAllResponse.TypeResponse.GAMES_AND_PLAYERS)
+                                .games(gamesService.getGames())
+                                .build()
+                );
+                return new SigningUpResponse(signupAllResponse, signupPersonalResponse);
+
             case JOIN:
                 joinGame(signupRequest, sessionId);
                 signupPersonalResponse = Optional.of(
@@ -71,6 +81,16 @@ public class SigningUpService {
                                 .playerUuid(playerUuid.toString())
                                 .build()
                 );
+                signupAllResponse = Optional.of(
+                        SignupAllResponse.builder()
+                                .typeResponse(SignupAllResponse.TypeResponse.GAMES_AND_PLAYERS)
+                                .games(gamesService.getGames())
+                                .build()
+                );
+                return new SigningUpResponse(signupAllResponse, signupPersonalResponse);
+
+            case DETACH:
+                detachPlayer(signupRequest, sessionId);
                 signupAllResponse = Optional.of(
                         SignupAllResponse.builder()
                                 .typeResponse(SignupAllResponse.TypeResponse.GAMES_AND_PLAYERS)
@@ -94,11 +114,24 @@ public class SigningUpService {
         }
     }
 
+    private void destroyGame(SigningUpRequest signupRequest) {
+        UUID gameUuid = signupRequest.getGameUuid();
+
+        gamesService.disconnectGame(gameUuid);
+    }
+
     private void joinGame(SigningUpRequest signupRequest, String sessionId) {
         UUID gameUuid = signupRequest.getGameUuid();
         UUID playerUuid =  signupRequest.getPlayerUuid();
         String playerName = signupRequest.getPlayerName();
         playersService.addPlayer(gameUuid, playerUuid, playerName, sessionId);
+    }
+
+    private void detachPlayer(SigningUpRequest signupRequest, String sessionId) {
+        UUID gameUuid = signupRequest.getGameUuid();
+        UUID playerUuid =  signupRequest.getPlayerUuid();
+        String playerName = signupRequest.getPlayerName();
+        playersService.detachPlayer(gameUuid, playerUuid);
     }
 
     public DTOgame createGame(SigningUpRequest signupRequest, String sessionId) {

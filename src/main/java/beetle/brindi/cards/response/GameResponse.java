@@ -1,6 +1,5 @@
 package beetle.brindi.cards.response;
 
-import beetle.brindi.cards.domain.Player;
 import beetle.brindi.cards.dto.DTOplayer;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 //@AllArgsConstructor
@@ -22,17 +20,13 @@ public class GameResponse {
 
     private List<DTOplayer> players;
 
-    private DTOplayer currentPlayer;
+    private String currentPlayerUuid;
 
-    public GameResponse(TypeResponse typeResponse, Phase phase, List<DTOplayer> players, DTOplayer currentPlayer) {
+    public GameResponse(TypeResponse typeResponse, Phase phase, List<DTOplayer> players, String currentPlayerUuid) {
         this.typeResponse = (typeResponse == null) ? TypeResponse.GAME : typeResponse;
         this.phase = (phase == null) ? Phase.WAITING : phase;
         this.players = (players == null) ? new ArrayList<>() : players;
-//        this.currentPlayer = (currentPlayer == null) ? new DTOplayer("", UUID.randomUUID(), Player.Status.PLAYING) : currentPlayer;
-        this.currentPlayer = currentPlayer;
-        if (currentPlayer == null)
-            this.currentPlayer = (currentPlayer == null) ? new DTOplayer("", UUID.randomUUID(), Player.Status.PLAYING) : currentPlayer;
-
+        this.currentPlayerUuid = (currentPlayerUuid == null) ? "" : currentPlayerUuid;
     }
 
     public enum TypeResponse {

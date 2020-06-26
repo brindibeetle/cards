@@ -111,7 +111,7 @@ public class SessionService {
                             .map(uuidPlayerEntry -> new DTOplayer(uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
                             .collect(Collectors.toList())
             )
-            .currentPlayer(playersService.currentPlayer(gameUuid))
+            .currentPlayerUuid(playersService.currentPlayer(gameUuid).getPlayerUuid().toString())
             .phase(GameResponse.Phase.DRAW)
             .build();
     }

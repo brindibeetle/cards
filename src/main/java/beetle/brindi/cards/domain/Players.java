@@ -73,6 +73,14 @@ public class Players {
         this.add(playerUuid, new Player(playerName, sessionId, Player.Status.PLAYING));
     }
 
+    public void detach(UUID playerUuid) {
+        playersOrder.remove(playerUuid);
+        if (current >= playersOrder.size()) {
+            current = 0;
+        }
+        Player player = players.remove(playerUuid);
+    }
+
     public void disconnect(UUID playerUuid) {
         playersOrder.remove(playerUuid);
         if (current >= playersOrder.size()) {

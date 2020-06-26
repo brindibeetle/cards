@@ -40,6 +40,10 @@
           node: document.getElementById('elm')
         });
 
+        var playedSubscription;
+        var handedSubscription;
+        var gameSubscription;
+
         stompClient.subscribe('/signedupPersonal/' + playerUuid, function(message) {
             console.log("signupPersonalReceiver: " + message.body);
             var signupParsed = JSON.parse(message.body);
@@ -50,15 +54,27 @@
                 console.log("subscribe to gameUuid = " + gameUuid);
                 console.log("subscribe to playerUuid = " + playerUuid);
 
-                stompClient.subscribe('/played/'  + gameUuid, function(message) {
+                if (playedSubscription != null) {
+                    playedSubscription.unsubscribe();
+                    console.log("playedSubscription.unsubscribe()");
+                }
+                if (handedSubscription != null) {
+                    handedSubscription.unsubscribe();
+                    console.log("handedSubscription.unsubscribe()");
+                }
+                if (gameSubscription != null) {
+                    gameSubscription.unsubscribe();
+                    console.log("gameSubscription.unsubscribe()");
+                }
+                playedSubscription = stompClient.subscribe('/played/'  + gameUuid, function(message) {
                     console.log("playReceiver: " + message.body);
                     app.ports.playReceiver.send(JSON.parse(message.body));
                 });
-                stompClient.subscribe('/handed/'  + playerUuid, function(message) {
+                handedSubscription = stompClient.subscribe('/handed/'  + playerUuid, function(message) {
                     console.log("handReceiver: " + message.body);
                     app.ports.handReceiver.send(JSON.parse(message.body));
                 });
-                stompClient.subscribe('/game/'  + gameUuid, function(message) {
+                gameSubscription = stompClient.subscribe('/game/'  + gameUuid, function(message) {
                     console.log("gameReceiver: " + message.body);
                     app.ports.gameReceiver.send(JSON.parse(message.body));
                 });

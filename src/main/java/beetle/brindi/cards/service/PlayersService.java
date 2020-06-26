@@ -86,6 +86,13 @@ public class PlayersService {
         game.getPlayers().disconnect(playerUuid);
     }
 
+    public void detachPlayer(UUID gameUuid, UUID playerUuid) {
+        CardsSingleton singleton = CardsSingleton.getInstance();
+        Game game = singleton.getGames().get(gameUuid);
+
+        game.getPlayers().detach(playerUuid);
+    }
+
     public void isPlayerFinished(UUID gameUuid, UUID playerUuid) {
         CardsSingleton singleton = CardsSingleton.getInstance();
         Game game = singleton.getGames().get(gameUuid);

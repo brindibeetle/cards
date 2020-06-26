@@ -609,6 +609,7 @@ meldSorter cards =
         in
             distributeJokersInSortedMeldRun [] rcards scards
 
+
 distributeJokersInSortedMeldRun : List DTOcard -> List RegularCard -> List SpecialCard -> List DTOcard
 distributeJokersInSortedMeldRun cards rCards sCards =
     case ( rCards, sCards ) of

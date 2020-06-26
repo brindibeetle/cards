@@ -13,7 +13,7 @@ type alias GameResponse =
         typeResponse : TypeResponse
         , phase : Phase
         , players : List DTOplayer
-        , currentPlayer : DTOplayer
+        , currentPlayerUuid : String
     }
 
 
@@ -28,7 +28,7 @@ emptyGameResponse =
         typeResponse = GAME
         , phase = WAITING
         , players = []
-        , currentPlayer = emptyDTOplayer
+        , currentPlayerUuid =  ""
     }
 
 
@@ -44,7 +44,7 @@ gameResponseDecoder =
         |> Pipeline.required "typeResponse" typeResponseDecoder
         |> Pipeline.required "phase" phaseDecoder
         |> Pipeline.required "players" ( Decode.list dtoPlayerDecoder )
-        |> Pipeline.required "currentPlayer" dtoPlayerDecoder
+        |> Pipeline.required "currentPlayerUuid" Decode.string
 
 
 gameResponseDecodeValue : Encode.Value -> GameResponse

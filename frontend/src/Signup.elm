@@ -2,7 +2,7 @@ port module Signup exposing (..)
 
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input exposing (..)
-import Bootstrap.Button as Button
+import Bootstrap.Button as Button exposing (onClick)
 import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
 
@@ -12,6 +12,7 @@ import Domain.SignupAllResponse exposing (TypeResponse(..), signupAllResponseDec
 import Domain.SignupPersonalResponse exposing (TypeResponse(..), signupPersonalResponseDecodeValue)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events as Html
 import Json.Encode as Encode exposing (..)
 
 import Session exposing (..)
@@ -61,7 +62,7 @@ view model session =
     in
     div [ class "container" ]
         [
-            div []
+            div [ class "signup-name"]
             [
                 Form.form []
                 [ Form.group []
@@ -73,12 +74,11 @@ view model session =
             , div [ class "signup-card-deck" ]
                 ( case newGame model session of
                     Just newGameHtml ->
-                        ( newGameHtml :: List.map (viewGame model session) model.games )
+                        ( List.append ( List.map (viewGame model session) model.games ) [ newGameHtml ] )
 
                     Nothing ->
                         List.map (viewGame model session) model.games
                 )
-
         ]
 
 viewGame : Model -> Session -> DTOgame -> Html Msg
@@ -95,6 +95,8 @@ viewGame { phase, pending } { playerName } game =
                 , buttonMsg = DoJoinGame gameUuid
                 , buttonDisabled = ( pending || started || playerName == "" )
                 , nameDisabled = True
+                , cancelMsg = DoCancelCreateGame gameUuid
+                , cancelDisabled = True
                 }
                 { gameName = gameName
                 , players = players
@@ -108,6 +110,8 @@ viewGame { phase, pending } { playerName } game =
                     , buttonMsg = DoStartGame
                     , buttonDisabled = pending
                     , nameDisabled = True
+                    , cancelMsg = DoCancelCreateGame gameUuid
+                    , cancelDisabled = False
                     }
                     { gameName = gameName
                     , players = players
@@ -119,6 +123,8 @@ viewGame { phase, pending } { playerName } game =
                     , buttonMsg = DoJoinGame gameUuid
                     , buttonDisabled = True
                     , nameDisabled = True
+                    , cancelMsg = DoCancelCreateGame gameUuid
+                    , cancelDisabled = True
                     }
                     { gameName = gameName
                     , players = players
@@ -132,6 +138,8 @@ viewGame { phase, pending } { playerName } game =
                     , buttonMsg = DoJoinGame gameUuid
                     , buttonDisabled = True
                     , nameDisabled = True
+                    , cancelMsg = DoCancelJoinGame gameUuid
+                    , cancelDisabled = False
                     }
                     { gameName = gameName
                     , players = players
@@ -143,6 +151,8 @@ viewGame { phase, pending } { playerName } game =
                     , buttonMsg = DoJoinGame gameUuid
                     , buttonDisabled = True
                     , nameDisabled = True
+                    , cancelMsg = DoCancelJoinGame gameUuid
+                    , cancelDisabled = True
                     }
                     { gameName = gameName
                     , players = players
@@ -164,6 +174,8 @@ newGame { phase, pending } { playerName, gameName } =
                 , buttonMsg = DoCreateGame gameName playerName
                 , buttonDisabled = ( pending || gameName == "" || playerName == "")
                 , nameDisabled = ( pending || phase /= PhaseInit )
+                , cancelMsg = DoCancelCreateGame ""
+                , cancelDisabled = True
                 }
                 { gameName = gameName
                 , players = []
@@ -174,13 +186,20 @@ newGame { phase, pending } { playerName, gameName } =
             Nothing
 
 
-viewGameCard : { topText : String, buttonText : String, buttonMsg : Msg, buttonDisabled : Bool, nameDisabled : Bool}
+viewGameCard : { topText : String, buttonText : String, buttonMsg : Msg, buttonDisabled : Bool, nameDisabled : Bool, cancelMsg : Msg, cancelDisabled : Bool}
     -> { gameName : String, players : List DTOplayer }
     -> Html Msg
-viewGameCard { topText, buttonText, buttonMsg, buttonDisabled, nameDisabled } { gameName, players } =
+viewGameCard { topText, buttonText, buttonMsg, buttonDisabled, nameDisabled, cancelMsg, cancelDisabled } { gameName, players } =
     Card.config [ Card.attrs [ class "signup-game-card" ] ]
     |> Card.header [ class "signup-game-card-header" ]
         [ Html.text topText
+        , Html.span [ class "signup-game-card-close" ]
+            [ Button.button
+                [ Button.onClick cancelMsg
+                , Button.attrs [ class "signup-game-card-close" ]
+                , Button.disabled cancelDisabled
+                ]
+                [ Html.text "X"] ]
         ]
 
     |> Card.block [ Block.attrs [ class "signup-game-card-body" ] ]
@@ -241,8 +260,10 @@ type Msg =
     | UpdateJoinGame String
     | DoCancel
     | DoCreateGame String String
+    | DoCancelCreateGame String
     | DoStartGame
     | DoJoinGame String
+    | DoCancelJoinGame String
     | SignUpPersonal Encode.Value
     | SignUpAll Encode.Value
 
@@ -291,6 +312,15 @@ update msg model session =
             , session = session
             , cmd = makeCreateRequest gameName playerName |> signupRequestEncoder |> signupSend  }
 
+        DoCancelCreateGame gameUuid ->
+            { model =
+                { model
+                | joinGame = ""
+                , phase = PhaseInit
+                }
+            , session = session
+            , cmd = makeDestroyRequest gameUuid |> signupRequestEncoder |> signupSend  }
+
         DoJoinGame gameUuid ->
             { model =
                 { model
@@ -299,6 +329,15 @@ update msg model session =
                 }
             , session = session
             , cmd = makeJoinRequest gameUuid session.playerName |> signupRequestEncoder |> signupSend  }
+
+        DoCancelJoinGame gameUuid ->
+            { model =
+                { model
+                | phase = PhaseInit
+                , joinGame = ""
+                }
+            , session = session
+            , cmd = makeDetachRequest gameUuid session.playerName |> signupRequestEncoder |> signupSend  }
 
         DoStartGame ->
             { model =

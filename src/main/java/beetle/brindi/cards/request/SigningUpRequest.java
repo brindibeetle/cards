@@ -25,7 +25,9 @@ public class SigningUpRequest {
     public enum TypeRequest {
         START,
         CREATE,
+        DESTROY,
         JOIN,
+        DETACH,
         GAMES_AND_PLAYERS;
     }
 

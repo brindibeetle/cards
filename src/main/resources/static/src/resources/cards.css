@@ -1,3 +1,6 @@
+:root {
+    --primary-color: #007bff;
+}
 @font-face {
     font-family: "Cards font";
 /*    src: url("./52playingcards.ttf") format("truetype"); */
@@ -313,6 +316,9 @@ div.game-phase-you {
 }
 
 /* Signup */
+div.signup-name {
+    margin: 1em 1em 1em 1em;
+}
 label.signup-label {
     color: white;
 }
@@ -320,7 +326,6 @@ input.signup-playername {
     width: 18em;
     padding: unset;
 }
-
 
 div.signup-card-deck {
     display: inline-flex;
@@ -333,6 +338,15 @@ div.signup-game-card {
 div.signup-game-card-header {
     padding: unset;
     font-size: small;
+}
+span.signup-game-card-close {
+    float: right;
+    cursor: pointer;
+}
+button.signup-game-card-close {
+    font-size: small;
+    vertical-align: top;
+    padding: unset;
 }
 div.signup-game-card-body {
     padding: .8em;
