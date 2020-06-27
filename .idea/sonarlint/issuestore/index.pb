@@ -120,9 +120,3 @@ o
 ?src/main/java/beetle/brindi/cards/service/SigningUpService.java,4\1\4167da11c9831dc37996b90644947ae0d1d8c93a
 Y
 )frontend/src/Domain/SignupAllResponse.elm,3\7\377327d5757fce04cec245f88d38f00f3efed020
-k
-;src/test/resources/features/one player plays a game.feature,e\2\e2224a152b297f957c413844e1ba1d1c77bacc94
-m
-=src/test/resources/features/three players play a game.feature,b\d\bdd48135a0f0501439a92a628d2b1c4b0fb1df8d
-x
-Hsrc/test/resources/features/three players start a game get dealt.feature,5\b\5bd67799e7fe2dfbdfbfa4bea4448756ec12b9d8

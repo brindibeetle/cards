@@ -1,9 +1,10 @@
 package beetle.brindi.cards.request;
 
-import beetle.brindi.cards.dto.DTOcard;
+import beetle.brindi.cards.exception.CardsException;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class PlayRequest {
 
     private UUID playerUuid;
 
-    private List<DTOcard> cards;
+    private List<UUID> cardUUIDs;
 
     private Integer handPosition;
 
@@ -38,11 +39,20 @@ public class PlayRequest {
         GET_FROM_STACK;
     }
 
-    public PlayRequest(PlayRequest.TypeRequest typeRequest, UUID gameUuid, UUID playerUuid, List<DTOcard> cards, Integer handPosition, Integer tablePosition) {
-        this.typeRequest = (typeRequest == null) ? TypeRequest.PUT_ON_TABLE : typeRequest;
-        this.gameUuid = (gameUuid == null) ? fixedUUID() : gameUuid;
-        this.playerUuid = (playerUuid == null) ? fixedUUID() : playerUuid;
-        this.cards = (cards == null) ? new ArrayList<>() : cards;
+    public PlayRequest(PlayRequest.TypeRequest typeRequest, UUID gameUuid, UUID playerUuid, List<UUID> cardUUIDs, Integer handPosition, Integer tablePosition) {
+        if (typeRequest == null)
+            throw new CardsException(HttpStatus.CONFLICT, "PlayRequest typeRequest may not be null");
+
+        if (gameUuid == null)
+            throw new CardsException(HttpStatus.CONFLICT, "PlayRequest gameUuid may not be null");
+
+        if (playerUuid == null)
+            throw new CardsException(HttpStatus.CONFLICT, "PlayRequest playerUuid may not be null");
+
+        this.typeRequest = typeRequest;
+        this.gameUuid = gameUuid;
+        this.playerUuid = playerUuid;
+        this.cardUUIDs = (cardUUIDs == null) ? new ArrayList<>() : cardUUIDs;
         this.handPosition = (handPosition == null) ? 0 : handPosition;
         this.tablePosition = (tablePosition == null) ? 0 : tablePosition;
     }

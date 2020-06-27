@@ -1,6 +1,6 @@
 module Domain.PlayRequest exposing (..)
 
-import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder)
+import Domain.DTOcard exposing (Back(..), DTOcard, backDecoder, defaultDTOcard, dtoCardDecoder, dtoCardEncoder, getUUIDs)
 import Json.Encode as Encode
 import Session exposing (Session)
 
@@ -10,7 +10,7 @@ type alias PlayRequest =
         typeRequest : TypeRequest
         , gameUuid : String
         , playerUuid : String
-        , cards : List DTOcard
+        , cardUUIDs : List String
         , handPosition : Int
         , tablePosition : Int
     }
@@ -31,12 +31,12 @@ type TypeRequest =
 
 
 playRequestEncoder : PlayRequest -> Encode.Value
-playRequestEncoder { typeRequest, gameUuid, playerUuid, cards, handPosition, tablePosition } =
+playRequestEncoder { typeRequest, gameUuid, playerUuid, cardUUIDs, handPosition, tablePosition } =
     Encode.object
         [ ( "typeRequest", typeRequestEncoder typeRequest )
         , ( "gameUuid", Encode.string gameUuid )
         , ( "playerUuid", Encode.string playerUuid )
-        , ( "cards", Encode.list dtoCardEncoder cards )
+        , ( "cardUUIDs", Encode.list Encode.string cardUUIDs )
         , ( "handPosition", Encode.int handPosition )
         , ( "tablePosition", Encode.int tablePosition )
         ]
@@ -64,7 +64,7 @@ makeGetFromStackBottomRequest session handPosition =
         typeRequest = GetFromStackBottomRequest
         , gameUuid = session.gameUuid
         , playerUuid = session.playerUuid
-        , cards = []
+        , cardUUIDs = []
         , handPosition = handPosition
         , tablePosition = 0
     }
@@ -76,7 +76,7 @@ makeGetFromStackTopRequest session handPosition =
         typeRequest = GetFromStackTopRequest
         , gameUuid = session.gameUuid
         , playerUuid = session.playerUuid
-        , cards = []
+        , cardUUIDs = []
         , handPosition = handPosition
         , tablePosition = 0
     }
@@ -88,7 +88,7 @@ makePutOnStackBottomRequest session cards handPosition =
         typeRequest = PutOnStackBottomRequest
         , gameUuid = session.gameUuid
         , playerUuid = session.playerUuid
-        , cards = cards
+        , cardUUIDs = getUUIDs cards
         , handPosition = handPosition
         , tablePosition = 0
     }
@@ -100,7 +100,7 @@ makeDealRequest session =
             typeRequest = DealRequest
             , gameUuid = session.gameUuid
             , playerUuid = session.playerUuid
-            , cards = []
+            , cardUUIDs = []
             , handPosition = 0
             , tablePosition = 0
     }
@@ -112,7 +112,7 @@ makePutOnTableRequest session cards =
             typeRequest = PutOnTableRequest
             , gameUuid = session.gameUuid
             , playerUuid = session.playerUuid
-            , cards = cards
+            , cardUUIDs = getUUIDs cards
             , handPosition = 0
             , tablePosition = 0
         }
@@ -123,7 +123,7 @@ makeSlideOnTableRequest session cards handPosition tablePosition =
             typeRequest = SlideOnTableRequest
             , gameUuid = session.gameUuid
             , playerUuid = session.playerUuid
-            , cards = cards
+            , cardUUIDs = getUUIDs cards
             , handPosition = handPosition
             , tablePosition = tablePosition
         }

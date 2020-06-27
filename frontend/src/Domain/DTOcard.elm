@@ -8,7 +8,7 @@ import Json.Encode as Encode
 
 type DTOcard =
     Regular RegularCard
-    | Special { specialType : SpecialType, back : Back  }
+    | Special SpecialCard
 
 type Rank = ACE | KING | QUEEN | JACK | N10 | N9 | N8 | N7 | N6 | N5 | N4 | N3 | N2
 
@@ -18,13 +18,13 @@ type SpecialType = JOKER
 
 type Back = DARK | LIGHT
 
-type alias RegularCard = { suit : Suit, rank : Rank, back : Back }
+type alias RegularCard = { uuid : String, suit : Suit, rank : Rank, back : Back }
 
-type alias SpecialCard = { specialType : SpecialType, back : Back  }
+type alias SpecialCard = { uuid : String, specialType : SpecialType, back : Back  }
 
 defaultDTOcard : DTOcard
 defaultDTOcard =
-    Special { specialType = JOKER, back = DARK }
+    Special { uuid = "", specialType = JOKER, back = DARK }
 
 
 -- ####
@@ -43,6 +43,7 @@ dtoCardDecoder =
 dtoCardRegularDecoder : Decoder RegularCard
 dtoCardRegularDecoder =
     succeed RegularCard
+        |> Pipeline.required "uuid" Decode.string
         |> Pipeline.required "suit" suitDecoder
         |> Pipeline.required "rank" rankDecoder
         |> Pipeline.required "back" backDecoder
@@ -51,6 +52,7 @@ dtoCardRegularDecoder =
 dtoCardSpecialDecoder : Decoder SpecialCard
 dtoCardSpecialDecoder =
     succeed SpecialCard
+        |> Pipeline.required "uuid" Decode.string
         |> Pipeline.required "specialType" specialTypeDecoder
         |> Pipeline.required "back" backDecoder
 
@@ -137,16 +139,18 @@ decodeDTOcard payload =
 dtoCardEncoder : DTOcard -> Encode.Value
 dtoCardEncoder dtoCard =
     case dtoCard of
-        Regular { suit, rank, back } ->
+        Regular { uuid, suit, rank, back } ->
             Encode.object
-                [ ( "suit", suitEncoder suit )
+                [ ( "uuid", Encode.string uuid )
+                , ( "suit", suitEncoder suit )
                 , ( "rank", rankEncoder rank )
                 , ( "back", backEncoder back )
                 ]
 
-        Special { specialType, back } ->
+        Special { uuid, specialType, back } ->
             Encode.object
-                [ ( "specialType", specialTypeEncoder specialType )
+                [ ( "uuid", Encode.string uuid )
+                , ( "specialType", specialTypeEncoder specialType )
                 , ( "back", backEncoder back )
                 ]
 
@@ -360,6 +364,24 @@ viewBack back =
 
 
 -- ####
+-- ####   HELPER
+-- ####
+
+
+getUUID : DTOcard -> String
+getUUID card =
+    case card of
+        Regular { uuid } ->
+            uuid
+
+        Special { uuid } ->
+            uuid
+
+getUUIDs : List DTOcard -> List String
+getUUIDs cards =
+    List.map getUUID cards
+
+-- ####
 -- ####   MELD sets of cards and runs of cards
 -- ####
 
@@ -393,21 +415,21 @@ isMeld cards =
     )
 
 
-cardsRegulars : List DTOcard -> List { suit : Suit, rank : Rank, back : Back }
+cardsRegulars : List DTOcard -> List { uuid : String, suit : Suit, rank : Rank, back : Back }
 cardsRegulars cards =
     List.filterMap cardRegular cards
 
-cardRegular : DTOcard -> Maybe { suit : Suit, rank : Rank, back : Back }
+cardRegular : DTOcard -> Maybe { uuid : String, suit : Suit, rank : Rank, back : Back }
 cardRegular card =
     case card of
         Special _ -> Nothing
         Regular rcard -> Just rcard
 
-cardsSpecials : List DTOcard -> List { specialType : SpecialType, back : Back }
+cardsSpecials : List DTOcard -> List { uuid : String, specialType : SpecialType, back : Back }
 cardsSpecials cards =
     List.filterMap cardSpecial cards
 
-cardSpecial : DTOcard -> Maybe { specialType : SpecialType, back : Back }
+cardSpecial : DTOcard -> Maybe { uuid : String, specialType : SpecialType, back : Back }
 cardSpecial card =
     case card of
         Special scard -> Just scard

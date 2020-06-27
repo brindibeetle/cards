@@ -38,47 +38,47 @@ public class Game {
         deck.addPlayer(playerUuid);
     }
 
-    public Pair<List<Card>,List<Card>> dealCards(UUID playerUuid, Integer number){
-        List<Card> cards = deck.takeFromStock(number);
+    public Pair<List<UUID>,List<UUID>> dealCards(UUID playerUuid, Integer number){
+        List<UUID> cards = deck.takeFromStock(number);
         deck.putToHand(playerUuid, cards);
         return Pair.with(new ArrayList<>(), cards);
     }
 
-    public Pair<List<Card>,List<Card>> drawCard(UUID playerUuid) {
-        List<Card> cards = deck.takeFromStock(1);
+    public Pair<List<UUID>,List<UUID>> drawCard(UUID playerUuid) {
+        List<UUID> cards = deck.takeFromStock(1);
         deck.putToHand(playerUuid, cards);
         return Pair.with(cards, cards);
     }
 
-    public Pair<List<Card>,List<Card>> getCard(UUID playerUuid) {
-        List<Card> cards = deck.takeFromStockBottom(1 );
+    public Pair<List<UUID>,List<UUID>> getCard(UUID playerUuid) {
+        List<UUID> cards = deck.takeFromStockBottom(1 );
         deck.putToHand(playerUuid, cards);
         return Pair.with(cards, cards);
     }
 
-    public Pair<List<Card>,List<Card>> putCards(UUID playerUuid, List<Card> cards) {
+    public Pair<List<UUID>,List<UUID>> putCards(UUID playerUuid, List<UUID> cards) {
         deck.takeFromHand(playerUuid, cards );
         deck.putToStock(cards);
         return Pair.with(cards, cards);
     }
 
-    public Pair<List<Card>,List<Card>> putCardsOnTable(UUID playerUuid, Integer place, List<Card> cards) {
-        List<Card> tableCards = deck.getFromTable(place);
+    public Pair<List<UUID>,List<UUID>> putCardsOnTable(UUID playerUuid, Integer place, List<UUID> cards) {
+        List<UUID> tableCards = deck.getFromTable(place);
 
-        List<Card> newCards = new ArrayList();
+        List<UUID> newCards = new ArrayList();
         cards.forEach(
-                card ->
+                cardUuid ->
                 {
-                    if (! tableCards.contains(card) )
-                        newCards.add(card);
+                    if (! tableCards.contains(cardUuid) )
+                        newCards.add(cardUuid);
                 });
 
-        List<Card> oldCards = new ArrayList();
+        List<UUID> oldCards = new ArrayList();
         tableCards.forEach(
-                card ->
+                cardUuid ->
                 {
-                    if (! cards.contains(card) )
-                        oldCards.add(card);
+                    if (! cards.contains(cardUuid) )
+                        oldCards.add(cardUuid);
                 });
 
 
@@ -92,7 +92,7 @@ public class Game {
     public Card.Back getTopOfStock() {
         return deck.showBackOfTopOfStock();
     }
-    public Card getBottomOfStock() {
+    public UUID getBottomOfStock() {
         return deck.showBottomCardOfStock();
     }
 
@@ -104,7 +104,7 @@ public class Game {
         return deck.getNextTablePosition();
     }
 
-    public Pair<List<Card>, List<Card>> putCardsinHand(UUID playerUuid, List<Card> cards) {
+    public Pair<List<UUID>, List<UUID>> putCardsinHand(UUID playerUuid, List<UUID> cards) {
 
         deck.getFromStock(cards);
         deck.putToHand(playerUuid, cards);

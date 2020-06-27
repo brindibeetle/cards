@@ -2,7 +2,10 @@ package beetle.brindi.cards;
 
 import beetle.brindi.cards.controller.PlayController;
 import beetle.brindi.cards.controller.SigningUpController;
+import beetle.brindi.cards.domain.Card;
 import beetle.brindi.cards.domain.Context;
+import beetle.brindi.cards.domain.Deck;
+import beetle.brindi.cards.domain.Game;
 import beetle.brindi.cards.domain.Player;
 import beetle.brindi.cards.dto.DTOcard;
 import beetle.brindi.cards.dto.DTOgame;
@@ -14,8 +17,6 @@ import beetle.brindi.cards.request.SigningUpRequestWrapper;
 import beetle.brindi.cards.response.PlayingResponse;
 import beetle.brindi.cards.response.SigningUpResponse;
 import beetle.brindi.cards.service.PlayService;
-import io.cucumber.cucumberexpressions.CaptureGroupTransformer;
-import io.cucumber.cucumberexpressions.ParameterType;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.En;
 import org.junit.Assert;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -134,60 +136,73 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
 
             context.put("", Context.ContextKind.CURRENTGAME, gameName);
             context.put("", Context.ContextKind.TABLE, new ArrayList<List<DTOcard>>());
+            context.put("", Context.ContextKind.CARDS, new ArrayList<List<DTOcard>>());
         });
 
         And("the dealer gives the following cards:", (DataTable dataTable) -> {
 
             List<List<String>> data = dataTable.asLists(String.class);
-            List<DTOcard> cards = new ArrayList<>();
-            data.forEach(row -> cards.add(new DTOcard(row.get(0), row.get(1), row.get(2), row.get(3))));
+            List<Card> cards = new ArrayList<>();
+            data.forEach(row -> cards.add(new Card(row.get(0), row.get(1), row.get(2), row.get(3))));
 
             String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
+            String gameName = (String)context.get("", Context.ContextKind.CURRENTGAME);
+            UUID gameUuid = ((DTOgame)context.get(gameName, Context.ContextKind.GAME)).getGameUuid();
+
             context.put(playerName, Context.ContextKind.PLAYERCARDS, new ArrayList<>());
 
-            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK, cards);
+            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK, getNewCardsFromDeck(gameUuid, cards));
         });
 
         Then("the player should hold the following cards:", (DataTable dataTable) -> {
 
             List<List<String>> data = dataTable.asLists(String.class);
-            List<DTOcard> cards = new ArrayList<>();
-            data.forEach(row -> cards.add(new DTOcard(row.get(0), row.get(1), row.get(2), row.get(3))));
+            List<Card> cards = new ArrayList<>();
+            data.forEach(row -> cards.add(new Card(row.get(0), row.get(1), row.get(2), row.get(3))));
 
-//            Assert.assertArrayEquals("handcards dont match", cards.toArray(), getCurrentSession().getCards().toArray() );
+            String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
+            List<DTOcard>handcards = (List<DTOcard>)context.get(playerName, Context.ContextKind.PLAYERCARDS);
+
+            Assert.assertArrayEquals("handcards dont match", cards.toArray(), handcards.toArray() );
         });
 
         And("the player takes card {word} of {word} with {word} back from stock", (String rank, String suit, String back) -> {
-            DTOcard card = new DTOcard(suit, rank, back,"");
+            Card card = new Card(suit, rank, "",back);
 
-            List<DTOcard> cards = new ArrayList<>();
+            String gameName = (String)context.get("", Context.ContextKind.CURRENTGAME);
+            UUID gameUuid = ((DTOgame)context.get(gameName, Context.ContextKind.GAME)).getGameUuid();
+
+            List<Card> cards = new ArrayList<>();
             cards.add(card);
 
-            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK, cards);
+            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK, getNewCardsFromDeck(gameUuid, cards));
         });
 
         And("the player takes card {word} with {word} back from stock", (String specialType, String back) -> {
-            DTOcard card = new DTOcard("", "", back,specialType);
+            Card card = new Card("", "", specialType,"");
 
-            List<DTOcard> cards = new ArrayList<>();
+            String gameName = (String)context.get("", Context.ContextKind.CURRENTGAME);
+            UUID gameUuid = ((DTOgame)context.get(gameName, Context.ContextKind.GAME)).getGameUuid();
+
+            List<Card> cards = new ArrayList<>();
             cards.add(card);
 
-            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK_TOP, cards);
+            doPlayRequest(PlayRequest.TypeRequest.GET_FROM_STACK_TOP, getNewCardsFromDeck(gameUuid, cards));
         });
 
         And("the player lays the following cards on the table:", (DataTable dataTable) -> {
 
             List<List<String>> data = dataTable.asLists(String.class);
-            List<DTOcard> cards = new ArrayList<>();
-            data.forEach(row -> cards.add(new DTOcard(row.get(0), row.get(1), row.get(2), row.get(3))));
+            List<Card> cards = new ArrayList<>();
+            data.forEach(row -> cards.add(new Card(row.get(0), row.get(1), row.get(2), row.get(3))));
 
-            doPlayRequest(PlayRequest.TypeRequest.PUT_ON_TABLE, cards);
+            doPlayRequest(PlayRequest.TypeRequest.PUT_ON_TABLE, lookupCards(cards));
         });
         And("the player puts the card {word} of {word} with {word} back on bottom of stock", (String rank, String suit, String back) -> {
-            DTOcard card = new DTOcard(suit, rank, back,"");
+            Card card = new Card(suit, rank, "",back);
 
             List<DTOcard> cards = new ArrayList<>();
-            cards.add(card);
+            cards.add(lookupCard(card));
 
             doPlayRequest(PlayRequest.TypeRequest.PUT_ON_STACK_BOTTOM, cards);
         });
@@ -228,19 +243,6 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
         });
 
     }
-
-    private void ParameterType(String suit, String s, Class<DTOcard> dtoCardClass, CaptureGroupTransformer<String> stringCaptureGroupTransformer) {
-        new ParameterType<DTOcard>("card", "JOKER", DTOcard.class, new CaptureGroupTransformer<DTOcard>() {
-            @Override
-            public DTOcard transform(String[] args) {
-                if ("JOKER".equals(args[0]))
-                    return new DTOcard("", "", args[4], args[0]);
-                else
-                    return new DTOcard(args[3], args[2], args[4],  "");
-            }
-        });
-    }
-
 
     private DTOplayer getCurrentPlayer() {
         String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
@@ -325,7 +327,7 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
                 .playerUuid(playerUUID)
                 .gameUuid(gameUuid)
                 .typeRequest(typeRequest)
-                .cards(cards)
+                .cardUUIDs(cards.stream().map(DTOcard::getUuid).collect(Collectors.toList()))
                 .build();
 
         PlayingResponse playingResponse = playController.play(playRequest);
@@ -429,4 +431,57 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
         return set1.containsAll(set2);
     }
 
+
+    private List<DTOcard> getNewCardsFromDeck(UUID gameUUID, List<Card> cards){
+        Game game = CardsSingleton.getInstance().getGames().get(gameUUID);
+        Deck deck = game.getDeck();
+        List<DTOcard> result = new ArrayList<>();
+        List<DTOcard> knownCards = (List<DTOcard>)context.get("", Context.ContextKind.CARDS);
+        List<UUID> notThese = knownCards.stream().map(DTOcard::getUuid).collect(Collectors.toList());
+
+        cards.forEach(card -> {
+                UUID cardUUID = deck.getUUIDfromCard(card, notThese);
+                result.add(new DTOcard(cardUUID, card));
+            });
+
+        context.put("", Context.ContextKind.CARDS, knownCards.addAll(result) );
+        return result;
+    }
+
+    private List<DTOcard> lookupCards(List<Card> cards) {
+        List<DTOcard> knownCards = (List<DTOcard>)context.get("", Context.ContextKind.CARDS);
+
+        Map<Card, UUID> knownCardsMap = knownCards.stream().collect(Collectors.toMap(Card::new, DTOcard::getUuid));
+
+        List<DTOcard> dtoCards = cards.stream().map(card -> {
+            UUID uuid = knownCardsMap.get(card);
+            if (uuid == null)
+                throw new CardsException(HttpStatus.CONFLICT, "Card not found in knowncards, card : " + card);
+            return new DTOcard(uuid, card);
+        }).collect(Collectors.toList());
+
+        return dtoCards;
+    }
+
+    private DTOcard lookupCard(Card card) {
+        List<DTOcard> knownCards = (List<DTOcard>)context.get("", Context.ContextKind.CARDS);
+
+        Map<Card, UUID> knownCardsMap = knownCards.stream().collect(Collectors.toMap(Card::new, DTOcard::getUuid));
+
+        UUID uuid = knownCardsMap.get(card);
+        if (uuid == null)
+            throw new CardsException(HttpStatus.CONFLICT, "Card not found in knowncards, card : " + card);
+
+        return new DTOcard(uuid, card);
+    }
+
+
+
+//    private List<UUID> allKnownCards() {
+//        List<DTOcard> cards =
+//                context.getAllOfKindList(Context.ContextKind.PLAYERCARDS, DTOcard.class )
+//                .addAll()
+//
+//        return cards.stream().map(DTOcard::getUuid).collect(Collectors.toList());
+//    }
 }

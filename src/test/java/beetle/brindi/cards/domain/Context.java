@@ -25,7 +25,8 @@ public class Context {
         CURRENTGAME,
         SESSIONID,
         PLAYEROF,
-        PLAYERCARDS
+        PLAYERCARDS,
+        CARDS
     }
 
     public Context() {
@@ -54,6 +55,15 @@ public class Context {
         context.forEach( (key, object) -> {
             if (key.contextKind == contextKind)
                 allOfKind.add((T)object);
+        });
+        return allOfKind;
+    }
+    public <T> List<T> getAllOfKindList(ContextKind contextKind, Class<T> type) {
+
+        List<T> allOfKind = new ArrayList<>();
+        context.forEach( (key, object) -> {
+            if (key.contextKind == contextKind)
+                allOfKind.addAll( (List<T>) object );
         });
         return allOfKind;
     }

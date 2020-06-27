@@ -3,6 +3,7 @@ package beetle.brindi.cards.service;
 import beetle.brindi.cards.CardsSingleton;
 import beetle.brindi.cards.controller.PlayController;
 import beetle.brindi.cards.controller.SigningUpController;
+import beetle.brindi.cards.domain.Deck;
 import beetle.brindi.cards.domain.Game;
 import beetle.brindi.cards.dto.DTOcard;
 import beetle.brindi.cards.dto.DTOplayer;
@@ -129,8 +130,11 @@ public class SessionService {
 
     private PlayResponse playResponse(UUID gameUuid) {
         Game game = CardsSingleton.getInstance().getGames().get(gameUuid);
+        Deck deck = game.getDeck();
+        UUID cardUuid = game.getBottomOfStock();
+
         return PlayResponse.builder()
-            .bottomCard(new DTOcard(game.getBottomOfStock()))
+            .bottomCard(new DTOcard(cardUuid, deck.getCard(cardUuid)))
             .topCardBack(game.getTopOfStock().toString())
             .typeResponse(TypeResponse.PUT_ON_STACK_BOTTOM)
             .build();

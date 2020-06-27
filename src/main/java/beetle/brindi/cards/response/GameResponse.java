@@ -1,9 +1,11 @@
 package beetle.brindi.cards.response;
 
 import beetle.brindi.cards.dto.DTOplayer;
+import beetle.brindi.cards.exception.CardsException;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,13 @@ public class GameResponse {
     private String currentPlayerUuid;
 
     public GameResponse(TypeResponse typeResponse, Phase phase, List<DTOplayer> players, String currentPlayerUuid) {
-        this.typeResponse = (typeResponse == null) ? TypeResponse.GAME : typeResponse;
-        this.phase = (phase == null) ? Phase.WAITING : phase;
+        if (typeResponse == null)
+            throw new CardsException(HttpStatus.CONFLICT, "HandResponse typeResponse may not be null.");
+        if (phase == null)
+            throw new CardsException(HttpStatus.CONFLICT, "HandResponse phase may not be null.");
+
+        this.typeResponse = typeResponse;
+        this.phase = phase;
         this.players = (players == null) ? new ArrayList<>() : players;
         this.currentPlayerUuid = (currentPlayerUuid == null) ? "" : currentPlayerUuid;
     }

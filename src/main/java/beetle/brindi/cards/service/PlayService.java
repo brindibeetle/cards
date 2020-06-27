@@ -1,6 +1,7 @@
 package beetle.brindi.cards.service;
 
 import beetle.brindi.cards.domain.Card;
+import beetle.brindi.cards.domain.Deck;
 import beetle.brindi.cards.domain.Game;
 import beetle.brindi.cards.domain.Player;
 import beetle.brindi.cards.dto.DTOcard;
@@ -36,7 +37,7 @@ public class PlayService {
         UUID gameUuid = playRequest.getGameUuid();
         UUID playerUuid = playRequest.getPlayerUuid();
         PlayRequest.TypeRequest typeRequest = playRequest.getTypeRequest();
-        List<Card> cards = playRequest.getCards().stream().map(Card::new).collect(Collectors.toList());
+        List<UUID> cardUUIDs = playRequest.getCardUUIDs();
         int handPosition = playRequest.getHandPosition();
         int tablePosition = playRequest.getTablePosition();
 
@@ -50,7 +51,7 @@ public class PlayService {
         switch (typeRequest) {
             case PUT_ON_TABLE:
                 int tablePosition1 = getNextTablePosition(gameUuid);
-                cardsCards = putCardsOnTable(gameUuid, playerUuid, tablePosition1, cards);
+                cardsCards = putCardsOnTable(gameUuid, playerUuid, tablePosition1, cardUUIDs);
                 playResponse =
                         Optional.of(
                                 PlayResponse.builder()
@@ -73,7 +74,7 @@ public class PlayService {
                 return new PlayingResponse(playResponse, handResponse, gameResponse);
 
             case PUT_ON_STACK_BOTTOM:
-                cardsCards = putCards(gameUuid, playerUuid, cards);
+                cardsCards = putCards(gameUuid, playerUuid, cardUUIDs);
                 playersService.isPlayerFinished(gameUuid, playerUuid);
                 playResponse =
                         Optional.of(
@@ -109,7 +110,7 @@ public class PlayService {
                 return new PlayingResponse(playResponse, handResponse, gameResponse);
 
             case SLIDE_ON_TABLE:
-                cardsCards = putCardsOnTable(gameUuid, playerUuid, tablePosition, cards);
+                cardsCards = putCardsOnTable(gameUuid, playerUuid, tablePosition, cardUUIDs);
                 playResponse =
                         Optional.of(
                             PlayResponse.builder()
@@ -237,7 +238,7 @@ public class PlayService {
                 return new PlayingResponse(playResponse, handResponse, gameResponse);
 
             case GET_FROM_STACK:
-                cardsCards = holds(gameUuid, playerUuid, cards);
+                cardsCards = holds(gameUuid, playerUuid, cardUUIDs);
                 playResponse =
                         Optional.of(
                                 PlayResponse.builder()
@@ -297,9 +298,7 @@ public class PlayService {
 
     public synchronized Pair<List<DTOcard>, List<DTOcard>> deal (UUID gameUuid, UUID playerUuid ){
         Game game = gamesService.getGame(gameUuid);
-        Player player = playersService.getPlayer(gameUuid, playerUuid);
-
-        return convert2DTO( game.dealCards(playerUuid, 13) );
+        return convert2DTO(gameUuid, game.dealCards(playerUuid, 13) );
     }
 
     // only for testing purposes
@@ -309,45 +308,33 @@ public class PlayService {
     }
 
     // only for testing
-    private Pair<List<DTOcard>, List<DTOcard>> holds(UUID gameUuid, UUID playerUuid, List<Card> cards) {
+    private Pair<List<DTOcard>, List<DTOcard>> holds(UUID gameUuid, UUID playerUuid, List<UUID> cards) {
         Game game = gamesService.getGame(gameUuid);
-        Player player = playersService.getPlayer(gameUuid, playerUuid);
-
-        return convert2DTO(game.putCardsinHand(playerUuid, cards));
+        return convert2DTO(gameUuid, game.putCardsinHand(playerUuid, cards));
     }
-    private Pair<List<DTOcard>, List<DTOcard>> gets(UUID gameUuid, UUID playerUuid, List<Card> cards) {
+    private Pair<List<DTOcard>, List<DTOcard>> gets(UUID gameUuid, UUID playerUuid, List<UUID> cards) {
         Game game = gamesService.getGame(gameUuid);
-        Player player = playersService.getPlayer(gameUuid, playerUuid);
-
-        return convert2DTO(game.putCardsinHand(playerUuid, cards));
+        return convert2DTO(gameUuid, game.putCardsinHand(playerUuid, cards));
     }
 
     private Pair<List<DTOcard>, List<DTOcard>> drawCard (UUID gameUuid, UUID playerUuid){
         Game game = gamesService.getGame(gameUuid);
-        Player player = playersService.getPlayer(gameUuid, playerUuid);
-
-        return convert2DTO( game.drawCard(playerUuid) );
+        return convert2DTO(gameUuid, game.drawCard(playerUuid) );
     }
 
     private Pair<List<DTOcard>, List<DTOcard>> getCard (UUID gameUuid, UUID playerUuid){
         Game game = gamesService.getGame(gameUuid);
-        Player player = playersService.getPlayer(gameUuid, playerUuid);
-
-        return convert2DTO( game.getCard(playerUuid) );
+        return convert2DTO(gameUuid, game.getCard(playerUuid) );
     }
 
-    private Pair<List<DTOcard>, List<DTOcard>> putCards (UUID gameUuid, UUID playerUuid, List<Card> cards){
+    private Pair<List<DTOcard>, List<DTOcard>> putCards (UUID gameUuid, UUID playerUuid, List<UUID> cards){
         Game game = gamesService.getGame(gameUuid);
-        Player player = playersService.getPlayer(gameUuid, playerUuid);
-
-        return convert2DTO(game.putCards(playerUuid, cards));
+        return convert2DTO(gameUuid, game.putCards(playerUuid, cards));
     }
 
-    private Pair<List<DTOcard>, List<DTOcard>> putCardsOnTable (UUID gameUuid, UUID playerUuid, Integer place, List<Card> cards){
+    private Pair<List<DTOcard>, List<DTOcard>> putCardsOnTable (UUID gameUuid, UUID playerUuid, Integer place, List<UUID> cards){
         Game game = gamesService.getGame(gameUuid);
-        Player player = playersService.getPlayer(gameUuid, playerUuid);
-
-        return convert2DTO(game.putCardsOnTable(playerUuid, place, cards));
+        return convert2DTO(gameUuid, game.putCardsOnTable(playerUuid, place, cards));
     }
 
     private int getNextTablePosition(UUID gameUuid) {
@@ -360,13 +347,17 @@ public class PlayService {
     }
     private DTOcard getBottomOfStock(UUID gameUuid) {
         Game game = gamesService.getGame(gameUuid);
-        return new DTOcard( game.getBottomOfStock() );
+        Deck deck = game.getDeck();
+        UUID cardUuid = game.getBottomOfStock();
+        return new DTOcard(cardUuid, deck.getCard(cardUuid) );
     }
 
-    private Pair<List<DTOcard>, List<DTOcard>>convert2DTO(Pair<List<Card>, List<Card>> cards) {
+    private Pair<List<DTOcard>, List<DTOcard>>convert2DTO(UUID gameUuid, Pair<List<UUID>, List<UUID>> cards) {
+        Game game = gamesService.getGame(gameUuid);
+        Deck deck = game.getDeck();
         return Pair.with(
-                cards.getValue0().stream().map(DTOcard::new).collect(Collectors.toList())
-                , cards.getValue1().stream().map(DTOcard::new).collect(Collectors.toList())
+                cards.getValue0().stream().map(cardUuid -> new DTOcard(cardUuid, deck.getCard(cardUuid))).collect(Collectors.toList())
+                , cards.getValue1().stream().map(cardUuid -> new DTOcard(cardUuid, deck.getCard(cardUuid))).collect(Collectors.toList())
         );
     }
 
