@@ -70,5 +70,5 @@ Feature: One player plays a game
       | DIAMONDS | N7 | | DARK |
       | DIAMONDS | N8 | | DARK |
     And the player puts the card N2 of HEARTS with DARK back on bottom of stock
-    Then the player Emile should have no cards in his hands
+    Then the player Emile should have 0 cards in his hands
     Then the player Emile should be finished

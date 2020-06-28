@@ -182,5 +182,9 @@ public class Deck {
             .map(uuidCardEntry -> uuidCardEntry.getKey())
                 .orElseThrow(() -> new CardsException(HttpStatus.CONFLICT, "getUUIDfromCard, card not found : " + card));
     }
+
+    public List<UUID> getPlayersHand(UUID playerUUID) {
+        return cardsHand.get(playerUUID);
+    }
 }
 

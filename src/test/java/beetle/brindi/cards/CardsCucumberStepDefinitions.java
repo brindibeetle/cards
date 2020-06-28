@@ -135,8 +135,7 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
             doSignupRequest(SigningUpRequest.TypeRequest.START, playerName, gameName);
 
             context.put("", Context.ContextKind.CURRENTGAME, gameName);
-            context.put("", Context.ContextKind.TABLE, new ArrayList<List<DTOcard>>());
-            context.put("", Context.ContextKind.CARDS, new ArrayList<List<DTOcard>>());
+            context.put("", Context.ContextKind.TABLE, new ArrayList<>());
         });
 
         And("the dealer gives the following cards:", (DataTable dataTable) -> {
@@ -157,13 +156,14 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
         Then("the player should hold the following cards:", (DataTable dataTable) -> {
 
             List<List<String>> data = dataTable.asLists(String.class);
-            List<Card> cards = new ArrayList<>();
-            data.forEach(row -> cards.add(new Card(row.get(0), row.get(1), row.get(2), row.get(3))));
+            List<Card> cardsExpected = new ArrayList<>();
+            data.forEach(row -> cardsExpected.add(new Card(row.get(0), row.get(1), row.get(2), row.get(3))));
+            List<DTOcard> cardsExpectedDTO = lookupCards(cardsExpected);
 
             String playerName = (String)context.get("", Context.ContextKind.CURRENTPLAYER);
-            List<DTOcard>handcards = (List<DTOcard>)context.get(playerName, Context.ContextKind.PLAYERCARDS);
+            List<DTOcard>cardsActual = (List<DTOcard>)context.get(playerName, Context.ContextKind.PLAYERCARDS);
 
-            Assert.assertArrayEquals("handcards dont match", cards.toArray(), handcards.toArray() );
+            Assert.assertArrayEquals("handcards dont match", cardsExpectedDTO.toArray(), cardsActual.toArray() );
         });
 
         And("the player takes card {word} of {word} with {word} back from stock", (String rank, String suit, String back) -> {
@@ -356,20 +356,18 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
                             break;
                         case PUT_ON_TABLE:
                             List<List<DTOcard>> tableCards = (List<List<DTOcard>>)context.get("", Context.ContextKind.TABLE);
-                            if (tableCards == null)
-                                tableCards = new ArrayList<>();
-                            if (playResponse.getCards().size() > 0)
-                                tableCards.add(playResponse.getTablePosition(), playResponse.getCards());
+                            List<DTOcard> addTableCards = playResponse.getCards();
+                            if (addTableCards.size() > 0)
+                                tableCards.add(playResponse.getTablePosition(), addTableCards);
                             context.put("", Context.ContextKind.TABLE, tableCards);
                             context.put( "", Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
                             context.put("", Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
                             break;
                         case SLIDE_ON_TABLE:
                             tableCards = (List<List<DTOcard>>)context.get("", Context.ContextKind.TABLE);
-                            if (tableCards == null)
-                                tableCards = new ArrayList<>();
-                            if (playResponse.getCards().size() > 0)
-                                tableCards.add(playResponse.getTablePosition(), playResponse.getCards());
+                            addTableCards = playResponse.getCards();
+                            if (addTableCards.size() > 0)
+                                tableCards.add(playResponse.getTablePosition(), addTableCards);
                             context.put("", Context.ContextKind.TABLE, tableCards);
                             context.put("", Context.ContextKind.TOPCARDBACK, playResponse.getTopCardBack());
                             context.put("", Context.ContextKind.BOTTOMCARD, playResponse.getBottomCard());
@@ -436,7 +434,7 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
         Game game = CardsSingleton.getInstance().getGames().get(gameUUID);
         Deck deck = game.getDeck();
         List<DTOcard> result = new ArrayList<>();
-        List<DTOcard> knownCards = (List<DTOcard>)context.get("", Context.ContextKind.CARDS);
+        List<DTOcard> knownCards = getKnownCards();
         List<UUID> notThese = knownCards.stream().map(DTOcard::getUuid).collect(Collectors.toList());
 
         cards.forEach(card -> {
@@ -444,12 +442,11 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
                 result.add(new DTOcard(cardUUID, card));
             });
 
-        context.put("", Context.ContextKind.CARDS, knownCards.addAll(result) );
         return result;
     }
 
     private List<DTOcard> lookupCards(List<Card> cards) {
-        List<DTOcard> knownCards = (List<DTOcard>)context.get("", Context.ContextKind.CARDS);
+        List<DTOcard> knownCards = getKnownCards();
 
         Map<Card, UUID> knownCardsMap = knownCards.stream().collect(Collectors.toMap(Card::new, DTOcard::getUuid));
 
@@ -464,7 +461,7 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
     }
 
     private DTOcard lookupCard(Card card) {
-        List<DTOcard> knownCards = (List<DTOcard>)context.get("", Context.ContextKind.CARDS);
+        List<DTOcard> knownCards = getKnownCards();
 
         Map<Card, UUID> knownCardsMap = knownCards.stream().collect(Collectors.toMap(Card::new, DTOcard::getUuid));
 
@@ -475,7 +472,15 @@ public class CardsCucumberStepDefinitions extends SpringCucumberIntegrationTests
         return new DTOcard(uuid, card);
     }
 
+    private List<DTOcard> getKnownCards () {
+        List<DTOcard> knownCards = new ArrayList<>();
+        List<List<DTOcard>> tableCards = (List<List<DTOcard>>)context.get("", Context.ContextKind.TABLE);
+        tableCards.forEach(tCards -> knownCards.addAll(tCards));
 
+        List<DTOcard>playerCards = context.getAllOfKindList(Context.ContextKind.PLAYERCARDS, DTOcard.class);
+        knownCards.addAll(playerCards);
+        return knownCards;
+    }
 
 //    private List<UUID> allKnownCards() {
 //        List<DTOcard> cards =

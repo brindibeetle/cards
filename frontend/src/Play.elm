@@ -1,6 +1,7 @@
 port module Play exposing (..)
 
 import Array
+import Dict exposing (Dict)
 import Domain.DTOcard as DTOcard exposing (Back(..), DTOcard(..), defaultDTOcard, meldSorted, meldSorter)
 import Domain.DTOplayer as PlayerStatus exposing (DTOplayer, emptyDTOplayer)
 import Domain.GameResponse exposing (gameResponseDecodeValue)
@@ -506,7 +507,7 @@ update msg model session =
                     PutOnTableResponse ->
                         { model =
                             { model
-                            | hand = handSelected model.hand False |> List.map (\card -> ( card, False ) )
+                            | hand = handCardsMergedWithResponse model.hand cards
                             , pending = False
                             }
                         , session = session
@@ -516,7 +517,7 @@ update msg model session =
                     SlideOnTableReponse ->
                         { model =
                             { model
-                            | hand = removeFromHand handPosition model.hand |> addToHand handPosition cards
+                            | hand = handCardsMergedWithResponse model.hand cards
                             , pending = False
                             }
                         , session = session
@@ -526,7 +527,7 @@ update msg model session =
                     PutOnStackBottomResponse ->
                         { model =
                             { model
-                            | hand = removeFromHand handPosition model.hand
+                            | hand = handCardsMergedWithResponse model.hand cards
                             , pending = False
                             }
                         , session = session
@@ -536,7 +537,7 @@ update msg model session =
                     GetResponse ->
                         { model =
                             { model
-                            | hand = handAdd model.hand cards handPosition
+                            | hand = handCardsMergedWithResponse model.hand cards
                             , pending = False
                             }
                         , session = session
@@ -909,3 +910,19 @@ addToHand index cards dtoCardSelected =
 isItMyTurn : Model -> Session -> Bool
 isItMyTurn model session =
     model.currentPlayerUuid == session.playerUuid
+
+
+cardsToDict : List DTOcard -> Dict String DTOcard
+cardsToDict dtoCards =
+    List.map ( \dtoCard -> ( DTOcard.getUUID dtoCard, dtoCard ) ) dtoCards |> Dict.fromList
+
+
+handCardsMergedWithResponse : List ( DTOcard, Bool ) -> List DTOcard ->  List ( DTOcard, Bool )
+handCardsMergedWithResponse handCards responseCards =
+    let
+        handCardsInResponse = handCards |> List.filterMap (\(dtoCard, _ ) -> ( if List.member dtoCard responseCards then Just dtoCard else Nothing ) )
+        responseNotInHand = responseCards |> List.filter (\dtoCard -> not ( List.member dtoCard handCardsInResponse) )
+    in
+        List.append
+            ( List.map ( \dtoCard -> (dtoCard, False ) ) handCardsInResponse )
+            ( List.map ( \dtoCard -> (dtoCard, True ) ) responseNotInHand )

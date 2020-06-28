@@ -2,6 +2,7 @@ package beetle.brindi.cards.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -25,8 +26,7 @@ public class Context {
         CURRENTGAME,
         SESSIONID,
         PLAYEROF,
-        PLAYERCARDS,
-        CARDS
+        PLAYERCARDS
     }
 
     public Context() {
@@ -106,6 +106,7 @@ public class Context {
 
     @Data
     @AllArgsConstructor
+    @EqualsAndHashCode
     private class Key{
         ContextKind contextKind;
         String key;

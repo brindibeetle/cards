@@ -5,7 +5,6 @@ import beetle.brindi.cards.request.PlayRequest;
 import beetle.brindi.cards.response.PlayingResponse;
 import beetle.brindi.cards.service.PlayService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -14,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
-
-import static java.lang.Thread.sleep;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,13 +36,11 @@ public class PlayController {
                     playResponse ->
                         simpMessagingTemplate.convertAndSend("/played/" + gameUuid.toString(), playResponse)
             );
-            sleep(700);
 
             playingResponse.getHandResponse().ifPresent(
                     handResponse ->
                         simpMessagingTemplate.convertAndSend("/handed/" + playerUuid.toString(), handResponse)
             );
-            sleep(700);
 
             playingResponse.getGameResponse().ifPresent(
                     gameResponse ->
@@ -56,9 +51,6 @@ public class PlayController {
         }
         catch (CardsException ce) {
             throw new ResponseStatusException( ce.getStatus(), ce.getMessage(), ce );
-        }
-        catch (InterruptedException ie) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ie.getMessage());
         }
     }
 

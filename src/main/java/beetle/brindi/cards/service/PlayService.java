@@ -65,7 +65,7 @@ public class PlayService {
                 handResponse =
                         Optional.of(
                             HandResponse.builder()
-                                .cards(cardsCards.getValue1())
+                                .cards(getPlayersHand(gameUuid, playerUuid))
                                 .typeResponse(TypeResponse.PUT_ON_TABLE)
                                 .handPosition(handPosition)
                                 .build()
@@ -76,6 +76,10 @@ public class PlayService {
             case PUT_ON_STACK_BOTTOM:
                 cardsCards = putCards(gameUuid, playerUuid, cardUUIDs);
                 playersService.isPlayerFinished(gameUuid, playerUuid);
+                DTOplayer nextPlayer = playersService.nextPlayer(gameUuid);
+                String currentPlayerUuid = "";
+                if ( nextPlayer != null )
+                    currentPlayerUuid = nextPlayer.getPlayerUuid().toString();
                 playResponse =
                         Optional.of(
                             PlayResponse.builder()
@@ -89,7 +93,7 @@ public class PlayService {
                 handResponse =
                         Optional.of(
                             HandResponse.builder()
-                                .cards(cardsCards.getValue1())
+                                .cards(getPlayersHand(gameUuid, playerUuid))
                                 .typeResponse(TypeResponse.PUT_ON_STACK_BOTTOM)
                                 .handPosition(handPosition)
                                 .build()
@@ -103,7 +107,7 @@ public class PlayService {
                                                 .map( uuidPlayerEntry -> new DTOplayer( uuidPlayerEntry.getKey(), uuidPlayerEntry.getValue()))
                                                 .collect(Collectors.toList())
                                 )
-                                .currentPlayerUuid( playersService.nextPlayer(gameUuid).getPlayerUuid().toString())
+                                .currentPlayerUuid( currentPlayerUuid)
                                 .phase(GameResponse.Phase.DRAW)
                                 .build()
                         );
@@ -124,7 +128,7 @@ public class PlayService {
                 handResponse =
                         Optional.of(
                             HandResponse.builder()
-                                .cards(cardsCards.getValue1())
+                                .cards(getPlayersHand(gameUuid, playerUuid))
                                 .typeResponse(TypeResponse.SLIDE_ON_TABLE)
                                 .handPosition(handPosition)
                                 .build()
@@ -148,7 +152,7 @@ public class PlayService {
                 handResponse =
                         Optional.of(
                             HandResponse.builder()
-                                .cards(cardsCards.getValue1())
+                                .cards(getPlayersHand(gameUuid, playerUuid))
                                 .typeResponse(TypeResponse.DEAL)
                                .build()
                         );
@@ -182,7 +186,7 @@ public class PlayService {
                 handResponse =
                         Optional.of(
                             HandResponse.builder()
-                                .cards(cardsCards.getValue1())
+                                .cards(getPlayersHand(gameUuid, playerUuid))
                                 .typeResponse(TypeResponse.GET)
                                 .handPosition(handPosition)
                                 .build()
@@ -217,7 +221,7 @@ public class PlayService {
                 handResponse =
                         Optional.of(
                             HandResponse.builder()
-                                .cards(cardsCards.getValue1())
+                                .cards(getPlayersHand(gameUuid, playerUuid))
                                 .typeResponse(TypeResponse.GET)
                                 .handPosition(handPosition)
                                 .build()
@@ -253,7 +257,7 @@ public class PlayService {
                 handResponse =
                         Optional.of(
                                 HandResponse.builder()
-                                        .cards(cardsCards.getValue1())
+                                        .cards(getPlayersHand(gameUuid, playerUuid))
                                         .typeResponse(TypeResponse.GET)
                                         .build()
                         );
@@ -365,4 +369,14 @@ public class PlayService {
         Game game = gamesService.getGame(gameUuid);
         game.setStarted(Boolean.TRUE);
     }
+
+    private List<DTOcard> getPlayersHand(UUID gameUuid, UUID playerUuid) {
+        Game game = gamesService.getGame(gameUuid);
+        Deck deck = game.getDeck();
+        return deck.getPlayersHand(playerUuid).stream().map(uuid -> {
+            return new DTOcard(uuid, deck.getCard(uuid));
+        }).collect(Collectors.toList());
+    }
+
+
 }
