@@ -6,5 +6,5 @@ In a terminal window go to `cards/frontend` and execute
 # backend
 Run CardsApplication
 
-# Browser
+# Browser 
  goto localhost:8080
