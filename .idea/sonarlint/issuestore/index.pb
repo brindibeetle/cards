@@ -122,5 +122,3 @@ Y
 )frontend/src/Domain/SignupAllResponse.elm,3\7\377327d5757fce04cec245f88d38f00f3efed020
 a
 1src/main/resources/static/src/resources/cards.css,5\e\5e749e891708df2595e14a1a5d6f16baf9a61a26
-T
-$src/main/resources/static/index.html,5\0\50cdafbf7d475900dd881fa999628076a8edd192

@@ -35,8 +35,8 @@
             <id>heroku</id>
             <activation>
                 <property>
-                    <name>env.SOURCE_VERSION</name>
-                <!-- <name>env.DYNO</name>-->
+<!--                    <name>env.SOURCE_VERSION</name>-->
+                     <name>env.DYNO</name>
                 </property>
             </activation>
             <build>
