@@ -20,7 +20,36 @@
 <!--        <cucumber.version>4.2.6</cucumber.version>-->
     </properties>
 
-    <dependencies>
+    <profiles>
+        <profile>
+            <id>localhost</id>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources_localhost</directory>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+        <profile>
+            <id>heroku</id>
+            <activation>
+                <property>
+                    <name>env.SOURCE_VERSION</name>
+                <!-- <name>env.DYNO</name>-->
+                </property>
+            </activation>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources_heroku</directory>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
+
+   <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -141,7 +170,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
         </plugins>
+
     </build>
 
 </project>
