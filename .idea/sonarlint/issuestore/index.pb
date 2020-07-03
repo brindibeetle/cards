@@ -50,8 +50,6 @@ E
 frontend/src/Play.elm,e\3\e33247f39fae95ea51c7c8670aa0506683510972
 A
 frontend/elm.json,b\e\beadf617a28743c64d95867692519de96a88f2fc
-Q
-!src/main/resources/static/main.js,9\c\9c7ea218e88b96129ece547872569f1f9aa41e0e
 p
 @src/main/java/beetle/brindi/cards/controller/PlayController.java,7\9\79614f52942d1e56142f349de28c47741d0a213f
 j
