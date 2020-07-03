@@ -20,34 +20,35 @@
 <!--        <cucumber.version>4.2.6</cucumber.version>-->
     </properties>
 
-    <profiles>
-        <profile>
-            <id>localhost</id>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources_localhost</directory>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-        <profile>
-            <id>heroku</id>
-            <activation>
-                <property>
-<!--                    <name>env.SOURCE_VERSION</name>-->
-                     <name>env.DYNO</name>
-                </property>
-            </activation>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources_heroku</directory>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-    </profiles>
+<!--    <profiles>-->
+<!--        <profile>-->
+<!--            <id>localhost</id>-->
+<!--            <build>-->
+<!--                <resources>-->
+<!--                    <resource>-->
+<!--                        <directory>src/main/resources_localhost</directory>-->
+<!--                    </resource>-->
+<!--                </resources>-->
+<!--            </build>-->
+<!--        </profile>-->
+<!--        <profile>-->
+<!--            <id>heroku</id>-->
+<!--            <activation>-->
+<!--                <property>-->
+<!--&lt;!&ndash;                    <name>env.SOURCE_VERSION</name>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <name>env.DYNO</name>&ndash;&gt;-->
+<!--                    <name>env.HEROKU</name>-->
+<!--                </property>-->
+<!--            </activation>-->
+<!--            <build>-->
+<!--                <resources>-->
+<!--                    <resource>-->
+<!--                        <directory>src/main/resources_heroku</directory>-->
+<!--                    </resource>-->
+<!--                </resources>-->
+<!--            </build>-->
+<!--        </profile>-->
+<!--    </profiles>-->
 
    <dependencies>
         <dependency>
