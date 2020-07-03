@@ -1,5 +1,5 @@
 var flags='\
     {\
-        "sudoku_api_base_url"     :   "./v1/sudoku/random/"\
-        ,"this_base_url"          :   "http://localhost:8000"\
+        "backend_base_url"     :   "http://localhost:8080/cards-ws"\
+        ,"frontend_url"          :   "http://localhost:8000"\
     }'

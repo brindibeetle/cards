@@ -5,24 +5,24 @@ import Json.Decode.Pipeline exposing (..)
 
 type alias InitFlags =
     {
-        sudoku_api_base_url : String
-        , thisBaseUrlString : String
+        backend_base_url : String
+        , frontend_url : String
     }
 
 -- Opaque
 emptyInitFlags : InitFlags
 emptyInitFlags =
     {
-        sudoku_api_base_url = ""
-        , thisBaseUrlString = ""
+        backend_base_url = ""
+        , frontend_url = ""
     }
 
 
 initFlagsBookDecoder : Decode.Decoder InitFlags
 initFlagsBookDecoder =
     Decode.succeed InitFlags
-        |> required "sudoku_api_base_url" string
-        |> required "this_base_url" string
+        |> required "backend_base_url" string
+        |> required "frontend_url" string
 
 
 

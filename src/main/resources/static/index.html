@@ -25,7 +25,9 @@
 <script type="text/javascript">
 
     <!--Create your WebSocket.-->
-    var socket  = new SockJS('http://localhost:8080/cards-ws');
+    var flags_JSON = JSON.parse(flags)
+    var backend_base_url = flags_JSON.backend_base_url;
+    var socket  = new SockJS(backend_base_url);
     var stompClient = Stomp.over(socket);
 
     var playerUuid = uuid.v4();

@@ -21,7 +21,7 @@ type Message =
     | Warning String
     | Error String
             
-            
+
 initialSession : InitFlags -> Session
 initialSession initFlags =
     { message = Empty
@@ -32,15 +32,18 @@ initialSession initFlags =
     , gameName = ""
     }
 
+
 succeed : Session -> String -> Session
 succeed session message =
     { session 
     | message = Succeeded message }
 
+
 succeed1 : Session -> String -> Session
 succeed1 session message =
     { session 
     | message = Succeeded message }
+
 
 fail : Session -> String -> Session
 fail session message =
@@ -53,11 +56,6 @@ warn session message =
     { session 
     | message = Warning message }
 
-
---type Page
---    = SignupPage
---    | PlayPage
---
 
 -- ####
 -- ####   HELPER
