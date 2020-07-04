@@ -23,28 +23,25 @@
     <profiles>
         <profile>
             <id>localhost</id>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources_localhost</directory>
-                    </resource>
-                </resources>
-            </build>
+            <properties>
+                <backend.base.url>http://localhost:8080/cards-ws</backend.base.url>
+            </properties>
+            <activation>
+                <property>
+                    <name>!env.SOURCE_VERSION</name>
+                </property>
+            </activation>
         </profile>
         <profile>
             <id>heroku</id>
+            <properties>
+                <backend.base.url>https://jokeren-emile.herokuapp.com/cards-ws</backend.base.url>
+            </properties>
             <activation>
                 <property>
                     <name>env.SOURCE_VERSION</name>
                 </property>
             </activation>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources_heroku</directory>
-                    </resource>
-                </resources>
-            </build>
         </profile>
     </profiles>
 
@@ -164,6 +161,16 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources_filtered</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -175,25 +182,40 @@
                 <version>3.1.0</version>
             </plugin>
 
+            <!-- display all variables from environment -->
+<!--            <plugin>-->
+<!--                <artifactId>maven-antrun-plugin</artifactId>-->
+<!--                <version>1.6</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <target>-->
+<!--                                <property environment="env" />-->
+<!--                                <echoproperties />-->
+<!--                            </target>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+            <!-- display active profile in compile phase -->
             <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.6</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-help-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>show-profiles</id>
+                        <phase>compile</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>active-profiles</goal>
                         </goals>
-                        <configuration>
-                            <target>
-                                <property environment="env" />
-                                <echoproperties />
-                            </target>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
 
     </build>
